@@ -1,32 +1,26 @@
-import './App.css'
-import { Suspense, lazy } from 'react'
-import reactLogo from './assets/react.svg'
+import { Routes, Route } from 'react-router';
+import Home from './pages/Home';
+import Login from './pages/Login';
+import Meals from './pages/Meals';
+import Schedule from './pages/Schedule';
+import GroceryList from './pages/GroceryList';
+import Settings from './pages/Settings';
+import Navigation from './components/Navigation';
 
-// Works also with SSR as expected
-const AppRoutes = lazy(() => import('./AppRoutes'))
-
-function App() {
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="flex flex-col md:flex-row-reverse bg-gray-600 min-h-screen">
+      <div className="flex-1">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/meals" element={<Meals />} />
+          <Route path="/schedule" element={<Schedule />} />
+          <Route path="/grocery-list" element={<GroceryList />} />
+          <Route path="/settings" element={<Settings />} />
+        </Routes>
       </div>
-      <h1>Vite + React</h1>
-
-      <Suspense fallback={<p>Loading...</p>}>
-        <AppRoutes />
-      </Suspense>
-
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+      <Navigation />
+    </div>
+  );
 }
-
-export default App
