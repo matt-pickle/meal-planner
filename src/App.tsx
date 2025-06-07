@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, getUserData, UserData } from '../firebase/firebase';
 import { Routes, Route, useNavigate } from 'react-router';
+import PrivateRoutes from './components/PrivateRoutes';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Meals from './pages/Meals';
@@ -39,10 +40,12 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/meals" element={<Meals userData={userData} />} />
-          <Route path="/schedule" element={<Schedule />} />
-          <Route path="/grocery-list" element={<GroceryList />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route element={<PrivateRoutes user={user} />}>
+            <Route path="/meals" element={<Meals userData={userData} />} />
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/grocery-list" element={<GroceryList />} />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
         </Routes>
       </div>
       <Navigation />
