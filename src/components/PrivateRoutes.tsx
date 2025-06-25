@@ -9,12 +9,15 @@ type Props = {
 export default function PrivateRoutes({ user }: Props) {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
+
   if (user) {
     return <Outlet />;
   } else {
-    useEffect(() => {
-      navigate('/login');
-    }, []);
     return null;
   }
 }
