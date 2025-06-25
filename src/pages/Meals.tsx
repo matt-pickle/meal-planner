@@ -7,7 +7,7 @@ type Props = {
 export default function Meals({ userData }: Props) {
   return (
     <>
-      <h1 className="text-blue-200">Meals</h1>
+      <h1 className="text-blue-200">Meals Page</h1>
       <div>{JSON.stringify(userData)}</div>
     </>
   );
