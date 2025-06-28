@@ -1,5 +1,5 @@
-import { describe, test, expect, vi, afterEach } from 'vitest';
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../src/App';
 import { MemoryRouter } from 'react-router';
@@ -30,13 +30,15 @@ afterEach(() => {
 
 describe ('App Component', () => {
   describe('when user is logged in', () => {
-    test('redirects "/" to Meals page', async () => {
+    beforeEach(() => {
       vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
         const mockUser = { uid: '123', email: 'test@test.com' };
         callback(mockUser);
         return vi.fn();
       });
+    });
 
+    test('redirects "/" to Meals page', async () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
@@ -45,12 +47,6 @@ describe ('App Component', () => {
     });
 
     test('renders Meals page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        const mockUser = { uid: '123', email: 'test@test.com' };
-        callback(mockUser);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/meals');
 
       await waitFor(() => {
@@ -59,12 +55,6 @@ describe ('App Component', () => {
     });
 
     test('renders Schedule page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        const mockUser = { uid: '123', email: 'test@test.com' };
-        callback(mockUser);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/schedule');
 
       await waitFor(() => {
@@ -73,12 +63,6 @@ describe ('App Component', () => {
     });
 
     test('renders Grocery List page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        const mockUser = { uid: '123', email: 'test@test.com' };
-        callback(mockUser);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/grocery-list');
 
       await waitFor(() => {
@@ -87,13 +71,62 @@ describe ('App Component', () => {
     });
 
     test('renders Settings page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        const mockUser = { uid: '123', email: 'test@test.com' };
-        callback(mockUser);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/settings');
+
+      await waitFor(() => {
+        expect(screen.getByText('Settings Page')).toBeVisible();
+      });
+    });
+
+    test('renders navigation links', async () => {
+      renderWithRouter(<App />, '/');
+
+      await waitFor(() => {
+        const mealsLink = screen.getByText('Meals');
+        const scheduleLink = screen.getByText('Schedule');
+        const groceryListLink = screen.getByText('Grocery List');
+        const settingsLink = screen.getByText('Settings');
+        expect(mealsLink).toBeVisible();
+        expect(scheduleLink).toBeVisible();
+        expect(groceryListLink).toBeVisible();
+        expect(settingsLink).toBeVisible();
+      });
+    });
+
+    test('Meals link renders Meals Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Meals'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Meals Page')).toBeVisible();
+      });
+    });
+
+    test('Schedule link renders Schedule Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Schedule'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Schedule Page')).toBeVisible();
+      });
+    });
+
+    test('Grocery List link renders Grocery List Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Grocery List'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Grocery List Page')).toBeVisible();
+      });
+    });
+
+    test('Settings link renders Settings Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Settings'));
 
       await waitFor(() => {
         expect(screen.getByText('Settings Page')).toBeVisible();
@@ -102,12 +135,14 @@ describe ('App Component', () => {
   });
 
   describe('when user is not logged in', () => {
-    test('redirects "/" to Login page', async () => {
+    beforeEach(() => {
       vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
         callback(null);
         return vi.fn();
       });
+    });
 
+    test('redirects "/" to Login page', async () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
@@ -116,11 +151,6 @@ describe ('App Component', () => {
     });
 
     test('redirects "/meals" to Login page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        callback(null);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/meals');
 
       await waitFor(() => {
@@ -129,11 +159,6 @@ describe ('App Component', () => {
     });
 
     test('redirects "/schedule" to Login page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        callback(null);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/schedule');
 
       await waitFor(() => {
@@ -142,11 +167,6 @@ describe ('App Component', () => {
     });
 
     test('redirects "/grocery-list" to Login page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        callback(null);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/grocery-list');
 
       await waitFor(() => {
@@ -155,12 +175,62 @@ describe ('App Component', () => {
     });
 
     test('redirects "/settings" to Login page', async () => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        callback(null);
-        return vi.fn();
-      });
-
       renderWithRouter(<App />, '/settings');
+
+      await waitFor(() => {
+        expect(screen.getByText('Log In with Google')).toBeVisible();
+      });
+    });
+
+    test('renders navigation links', async () => {
+      renderWithRouter(<App />, '/');
+
+      await waitFor(() => {
+        const mealsLink = screen.getByText('Meals');
+        const scheduleLink = screen.getByText('Schedule');
+        const groceryListLink = screen.getByText('Grocery List');
+        const settingsLink = screen.getByText('Settings');
+        expect(mealsLink).toBeVisible();
+        expect(scheduleLink).toBeVisible();
+        expect(groceryListLink).toBeVisible();
+        expect(settingsLink).toBeVisible();
+      });
+    });
+
+    test('Meals link redirects to Login Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Meals'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Log In with Google')).toBeVisible();
+      });
+    });
+
+    test('Schedule link redirects to Login Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Schedule'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Log In with Google')).toBeVisible();
+      });
+    });
+
+    test('Grocery List link redirects to Login Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Grocery List'));
+
+      await waitFor(() => {
+        expect(screen.getByText('Log In with Google')).toBeVisible();
+      });
+    });
+
+    test('Settings link redirects to Login Page', async () => {
+      renderWithRouter(<App />, '/');
+
+      userEvent.click(screen.getByText('Settings'));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
