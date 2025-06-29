@@ -5,8 +5,8 @@ import { Routes, Route, useNavigate } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
 import Home from './pages/Home';
 import Login from './pages/Login';
-import Meals from './pages/Meals';
 import Schedule from './pages/Schedule';
+import Meals from './pages/Meals';
 import GroceryList from './pages/GroceryList';
 import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
@@ -22,7 +22,7 @@ export default function App() {
         setUser(userObj);
         const data = await getUserData(userObj.uid);
         setUserData(data);
-        navigate('/meals');
+        navigate('/schedule');
         console.log('logged in as ' + userObj.uid);
       } else {
         navigate('/login');
@@ -41,9 +41,9 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoutes user={user} />}>
+            <Route path="/schedule" element={<Schedule userData={userData} />} />
             <Route path="/meals" element={<Meals userData={userData} />} />
-            <Route path="/schedule" element={<Schedule />} />
-            <Route path="/grocery-list" element={<GroceryList />} />
+            <Route path="/grocery-list" element={<GroceryList userData={userData} />} />
             <Route path="/settings" element={<Settings />} />
           </Route>
         </Routes>

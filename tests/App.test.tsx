@@ -39,11 +39,11 @@ describe ('App Component', () => {
       });
     });
 
-    test('redirects "/" to Meals page', async () => {
+    test('redirects "/" to Schedule page', async () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
-        expect(screen.getByText('Meals Page')).toBeVisible();
+        expect(screen.getByText('Schedule Page')).toBeVisible();
       });
     });
 
@@ -83,12 +83,12 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
-        const mealsLink = screen.getByText('Meals');
         const scheduleLink = screen.getByText('Schedule');
+        const mealsLink = screen.getByText('Meals');
         const groceryListLink = screen.getByText('Grocery List');
         const settingsLink = screen.getByText('Settings');
-        expect(mealsLink).toBeVisible();
         expect(scheduleLink).toBeVisible();
+        expect(mealsLink).toBeVisible();
         expect(groceryListLink).toBeVisible();
         expect(settingsLink).toBeVisible();
       });
@@ -188,12 +188,12 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
-        const mealsLink = screen.getByText('Meals');
         const scheduleLink = screen.getByText('Schedule');
+        const mealsLink = screen.getByText('Meals');
         const groceryListLink = screen.getByText('Grocery List');
         const settingsLink = screen.getByText('Settings');
-        expect(mealsLink).toBeVisible();
         expect(scheduleLink).toBeVisible();
+        expect(mealsLink).toBeVisible();
         expect(groceryListLink).toBeVisible();
         expect(settingsLink).toBeVisible();
       });

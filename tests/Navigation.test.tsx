@@ -14,13 +14,13 @@ describe('Navigation Component', () => {
   });
 
   test('renders navigation links', () => {
-    const mealsLink = screen.getByText('Meals');
     const scheduleLink = screen.getByText('Schedule');
+    const mealsLink = screen.getByText('Meals');
     const groceryListLink = screen.getByText('Grocery List');
     const settingsLink = screen.getByText('Settings');
 
-    expect(mealsLink).toBeInTheDocument();
     expect(scheduleLink).toBeInTheDocument();
+    expect(mealsLink).toBeInTheDocument();
     expect(groceryListLink).toBeInTheDocument();
     expect(settingsLink).toBeInTheDocument();
   });
