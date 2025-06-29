@@ -31,8 +31,9 @@ afterEach(() => {
 describe ('App Component', () => {
   describe('when user is logged in', () => {
     beforeEach(() => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
-        const mockUser = { uid: '123', email: 'test@test.com' };
+      //@ts-ignore
+      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback: any) => {
+        const mockUser = { uid: '321', email: 'test@test.com' };
         callback(mockUser);
         return vi.fn();
       });
@@ -96,7 +97,7 @@ describe ('App Component', () => {
     test('Meals link renders Meals Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Meals'));
+      await userEvent.click(screen.getByText('Meals'));
 
       await waitFor(() => {
         expect(screen.getByText('Meals Page')).toBeVisible();
@@ -106,7 +107,7 @@ describe ('App Component', () => {
     test('Schedule link renders Schedule Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Schedule'));
+      await userEvent.click(screen.getByText('Schedule'));
 
       await waitFor(() => {
         expect(screen.getByText('Schedule Page')).toBeVisible();
@@ -116,7 +117,7 @@ describe ('App Component', () => {
     test('Grocery List link renders Grocery List Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Grocery List'));
+      await userEvent.click(screen.getByText('Grocery List'));
 
       await waitFor(() => {
         expect(screen.getByText('Grocery List Page')).toBeVisible();
@@ -126,7 +127,7 @@ describe ('App Component', () => {
     test('Settings link renders Settings Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Settings'));
+      await userEvent.click(screen.getByText('Settings'));
 
       await waitFor(() => {
         expect(screen.getByText('Settings Page')).toBeVisible();
@@ -136,7 +137,8 @@ describe ('App Component', () => {
 
   describe('when user is not logged in', () => {
     beforeEach(() => {
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback) => {
+      //@ts-ignore
+      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback: any) => {
         callback(null);
         return vi.fn();
       });
@@ -200,7 +202,7 @@ describe ('App Component', () => {
     test('Meals link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Meals'));
+      await userEvent.click(screen.getByText('Meals'));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
@@ -210,7 +212,7 @@ describe ('App Component', () => {
     test('Schedule link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Schedule'));
+      await userEvent.click(screen.getByText('Schedule'));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
@@ -220,7 +222,7 @@ describe ('App Component', () => {
     test('Grocery List link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Grocery List'));
+      await userEvent.click(screen.getByText('Grocery List'));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
@@ -230,7 +232,7 @@ describe ('App Component', () => {
     test('Settings link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      userEvent.click(screen.getByText('Settings'));
+      await userEvent.click(screen.getByText('Settings'));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
