@@ -4,20 +4,21 @@ import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"
 const env = import.meta.env;
 
 export type UserData = {
-  meals: [
-    {
+  meals: Array<{
+    name: string;
+    emoji: string;
+    ingredients: Array<{
       name: string;
       emoji: string;
-      ingredients: [
-        {
-          name: string;
-          emoji: string;
-          quantity: number;
-        }
-      ];
-    }
-  ];
-  schedule: [];
+      quantity: number;
+    }>;
+  }>;
+  schedule: Array<{
+    date: Date;
+    breakfast: string;
+    lunch: string;
+    dinner: string;
+  }>;
   groceryList: [];
 };
 
