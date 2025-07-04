@@ -1,8 +1,9 @@
-import { describe, test, expect } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../firebase/firebase.ts'
 import Schedule from '../src/pages/Schedule';
+import { before } from 'node:test';
 
 
 describe('Schedule Page', () => {
@@ -27,17 +28,16 @@ describe('Schedule Page', () => {
     ],
   };
 
-  test('renders correct number of days', async () => {
+  beforeEach(() => {
     render(<Schedule userData={mockUserData} user={mockUser} />);
+  });
 
+  test('renders correct number of days', async () => {
     const daysRendered = screen.getAllByText(/Date:/);
-
     expect(daysRendered.length).toBe(14);
   });
 
   test('renders meals from userData', () => {
-    render(<Schedule userData={mockUserData} />);
-
     expect(screen.getByText(/Cereal/)).toBeVisible();
     expect(screen.getByText(/Bacon and eggs/)).toBeVisible();
     expect(screen.getByText(/Turkey sandwich/)).toBeVisible();
@@ -47,8 +47,6 @@ describe('Schedule Page', () => {
   });
 
   test('opens edit modal on edit button click', async () => {
-    render(<Schedule userData={mockUserData} user={mockUser} />);
-
     const editButtons = screen.getAllByRole('button', { name: 'edit' });
 
     await userEvent.click(editButtons[0]);
