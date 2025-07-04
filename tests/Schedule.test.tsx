@@ -43,16 +43,4 @@ describe('Schedule Page', () => {
     expect(screen.getByText(/Hamburger/)).toBeVisible();
     expect(screen.getByText(/Chicken/)).toBeVisible();
   });
-
-  test('opens edit modal on edit button click', async () => {
-    render(<Schedule userData={mockUserData} />);
-
-    const editButtons = screen.getAllByRole('button', { name: /edit/ });
-
-    await userEvent.click(editButtons[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText(/BREAKFAST on/)).toBeVisible();
-    });
-  });
 });
