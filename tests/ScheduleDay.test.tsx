@@ -1,6 +1,5 @@
-import { describe, test, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
 import { type UserData } from '../firebase/firebase.ts';
 import ScheduleDay from '../src/components/ScheduleDay';
 
@@ -10,6 +9,9 @@ describe('ScheduleDay Component', () => {
     { name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
     { name: 'Hamburger', emoji: '🍔', ingredients: [] },
   ];
+  const mockSetModalIsOpen = vi.fn();
+  const mockSetCurrentMealType = vi.fn();
+  const mockSetCurrentDay = vi.fn();
 
   beforeEach(() => {
     render(
@@ -19,6 +21,9 @@ describe('ScheduleDay Component', () => {
         lunch="Turkey sandwich"
         dinner="Hamburger"
         meals={mockMeals}
+        setModalIsOpen={mockSetModalIsOpen}
+        setMealToEdit={mockSetCurrentMealType}
+        setDateToEdit={mockSetCurrentDay}
       />
     );
   });
@@ -42,5 +47,10 @@ describe('ScheduleDay Component', () => {
   test('renders dinner with emoji', () => {
     const dinner = screen.getByText(/Dinner:/);
     expect(dinner).toHaveTextContent('🍔 Hamburger');
+  });
+
+  test('renders edit buttons for each meal', () => {
+    const editButtons = screen.getAllByRole('button', { name: 'edit' });
+    expect(editButtons.length).toBe(3);
   });
 });
