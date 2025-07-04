@@ -1,27 +1,82 @@
-import { type UserData } from "../../firebase/firebase";
+import { type UserData } from '../../firebase/firebase';
+import Button from './Button.tsx';
+import { icon } from '../utils/utils.tsx';
 
 type Props = {
-  date: Date;
+  date: number;
   breakfast: string;
   lunch: string;
   dinner: string;
-  meals: UserData["meals"];
+  meals: UserData['meals'];
+  setModalIsOpen: (isOpen: boolean) => void;
+  setMealToEdit: (meal: string) => void;
+  setDateToEdit: (date: number) => void;
 };
 
-export default function ScheduleDay({ date, breakfast, lunch, dinner, meals }: Props) {
-  const dateString = `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`;
+export default function ScheduleDay({
+  date,
+  breakfast,
+  lunch,
+  dinner,
+  meals,
+  setModalIsOpen,
+  setMealToEdit,
+  setDateToEdit,
+}: Props) {
+  const dateObj = new Date(date);
+  const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj
+    .getFullYear()
+    .toString()
+    .slice(-2)}`;
   const breakfastMeal = meals.find(meal => meal.name === breakfast);
-  const breakfastEmoji = breakfastMeal?.emoji || "🍽️";
+  const breakfastEmoji = breakfastMeal?.emoji;
   const lunchMeal = meals.find(meal => meal.name === lunch);
-  const lunchEmoji = lunchMeal?.emoji || "🍽️" 
+  const lunchEmoji = lunchMeal?.emoji;
   const dinnerMeal = meals.find(meal => meal.name === dinner);
-  const dinnerEmoji = dinnerMeal?.emoji || "🍽️";
+  const dinnerEmoji = dinnerMeal?.emoji;
+
+  function openModal(mealToEdit: string) {
+    setMealToEdit(mealToEdit);
+    setDateToEdit(date);
+    setModalIsOpen(true);
+  }
+
   return (
-    <div key={date.getTime()} className="schedule-day">
+    <div key={date} className="schedule-day">
       <p>Date: {dateString}</p>
-      <p>Breakfast: {breakfastEmoji} {breakfast}</p>
-      <p>Lunch: {lunchEmoji} {lunch}</p>
-      <p>Dinner: {dinnerEmoji} {dinner}</p>
+      <p>
+        <span>
+          Breakfast: {breakfastEmoji} {breakfast}
+        </span>
+        <Button
+          icon={icon('edit')}
+          classOverrides="!bg-transparent !p-0"
+          ariaLabel="edit"
+          onClick={() => openModal('breakfast')}
+        />
+      </p>
+      <p>
+        <span>
+          Lunch: {lunchEmoji} {lunch}
+        </span>
+        <Button
+          icon={icon('edit')}
+          classOverrides="!bg-transparent !p-0"
+          ariaLabel="edit"
+          onClick={() => openModal('lunch')}
+        />
+      </p>
+      <p>
+        <span>
+          Dinner: {dinnerEmoji} {dinner}
+        </span>
+        <Button
+          icon={icon('edit')}
+          classOverrides="!bg-transparent !p-0"
+          ariaLabel="edit"
+          onClick={() => openModal('dinner')}
+        />
+      </p>
     </div>
   );
 }

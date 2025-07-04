@@ -6,18 +6,20 @@ import Schedule from '../src/pages/Schedule';
 
 
 describe('Schedule Page', () => {
+  const mockUser: any = { uid: '123', email: 'test@example.com' };
+
   const mockUserData: UserData = {
     meals: [],
     groceryList: [],
     schedule: [
       {
-        date: new Date(Date.now()),
+        date: Date.now(),
         breakfast: 'Cereal',
         lunch: 'Turkey sandwich',
         dinner: 'Spaghetti',
       },
       {
-        date: new Date(Date.now() + 86400),
+        date: Date.now() + 86400,
         breakfast: 'Bacon and eggs',
         lunch: 'Hamburger',
         dinner: 'Chicken',
@@ -26,7 +28,7 @@ describe('Schedule Page', () => {
   };
 
   test('renders correct number of days', async () => {
-    render(<Schedule userData={mockUserData} />);
+    render(<Schedule userData={mockUserData} user={mockUser} />);
 
     const daysRendered = screen.getAllByText(/Date:/);
 
@@ -42,5 +44,17 @@ describe('Schedule Page', () => {
     expect(screen.getByText(/Spaghetti/)).toBeVisible();
     expect(screen.getByText(/Hamburger/)).toBeVisible();
     expect(screen.getByText(/Chicken/)).toBeVisible();
+  });
+
+  test('opens edit modal on edit button click', async () => {
+    render(<Schedule userData={mockUserData} user={mockUser} />);
+
+    const editButtons = screen.getAllByRole('button', { name: 'edit' });
+
+    await userEvent.click(editButtons[0]);
+
+    await waitFor(() => {
+      expect(screen.getByText(/BREAKFAST on/)).toBeVisible();
+    });
   });
 });

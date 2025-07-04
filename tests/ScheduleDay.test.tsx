@@ -14,7 +14,7 @@ describe('ScheduleDay Component', () => {
   beforeEach(() => {
     render(
       <ScheduleDay
-        date={new Date()}
+        date={Date.now()}
         breakfast="Cereal"
         lunch="Turkey sandwich"
         dinner="Hamburger"
@@ -42,15 +42,5 @@ describe('ScheduleDay Component', () => {
   test('renders dinner with emoji', () => {
     const dinner = screen.getByText(/Dinner:/);
     expect(dinner).toHaveTextContent('🍔 Hamburger');
-  });
-
-  test('opens edit modal on edit button click', async () => {
-    const editButtons = screen.getAllByRole('button', { name: /edit/ });
-
-    await userEvent.click(editButtons[0]);
-
-    await waitFor(() => {
-      expect(screen.getByText(/BREAKFAST on/)).toBeVisible();
-    });
   });
 });

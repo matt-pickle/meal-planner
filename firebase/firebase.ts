@@ -14,7 +14,7 @@ export type UserData = {
     }>;
   }>;
   schedule: Array<{
-    date: Date;
+    date: number;
     breakfast: string;
     lunch: string;
     dinner: string;
