@@ -3,7 +3,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../firebase/firebase.ts'
 import Schedule from '../src/pages/Schedule';
-import { before } from 'node:test';
 
 
 describe('Schedule Page', () => {
