@@ -49,6 +49,12 @@ export default function Schedule({ user, userData }: Props) {
           setDateToEdit={setDateToEdit}
         />
       );
+      userData.schedule.push({
+        date: futureDate,
+        breakfast: '',
+        lunch: '',
+        dinner: '',
+      });
     }
   }
 
