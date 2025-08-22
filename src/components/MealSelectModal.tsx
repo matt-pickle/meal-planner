@@ -1,39 +1,64 @@
-import { useState } from "react"
-import { updateUserData } from "../../firebase/firebase"
+import { useState } from 'react';
+import { type UserData, updateUserData } from '../../firebase/firebase';
+import { type User } from 'firebase/auth';
 
-export default function MealSelectModal({ dateToUpdate, mealToChange, user, userData, setModalIsOpen }) {
-  // const [selectedMeal, setSelectedMeal ] = useState("")
-  const mealString = mealToChange.toUpperCase()
-  const dateString = new Date(dateToUpdate).toLocaleDateString()
-  let schedule = userData.schedule
+type Props = {
+  dateToUpdate: number;
+  mealToChange: 'breakfast' | 'lunch' | 'dinner';
+  user: User;
+  userData: UserData;
+  setModalIsOpen: (isOpen: boolean) => void;
+};
 
-  // function assignMeal() {
-  //   const dayIndex = schedule.findIndex(day => day.date === dateToUpdate)
-  //   schedule[dayIndex][mealToChange] = selectedMeal
-  //   updateUserData(user.uid, { schedule: schedule })
-  //   setModalIsOpen(false)
-  // }
+export default function MealSelectModal({
+  dateToUpdate,
+  mealToChange,
+  user,
+  userData,
+  setModalIsOpen,
+}: Props) {
+  const [selectedMeal, setSelectedMeal] = useState('');
+  const mealString = mealToChange.toUpperCase();
+  const dateString = new Date(dateToUpdate).toLocaleDateString();
+  let schedule = userData.schedule;
 
-  // const mealList = userData.meals.map((meal, index) => {
-  //   let optionStyle = styles.option
-  //   if (`${meal.emoji}  ${meal.name}` === selectedMeal) {
-  //     optionStyle = [styles.option, styles.optionSelected ]
-  //   }
-  //   return (
-  //     <Pressable style={optionStyle}
-  //       onPress={() => setSelectedMeal(`${meal.emoji}  ${meal.name}`)}
-  //       key={index}
-  //     >
-  //       <Text style={styles.optionText}>
-  //         {meal.emoji}&nbsp;&nbsp;{meal.name}
-  //       </Text>
-  //     </Pressable>
-  //   )
-  // })
+  function assignMeal() {
+    const dayIndex = schedule.findIndex(day => day.date == dateToUpdate);
+    schedule[dayIndex][mealToChange] = selectedMeal;
+    updateUserData(user.uid, {
+      schedule: schedule,
+      meals: userData.meals,
+      groceryList: userData.groceryList,
+    });
+    setModalIsOpen(false);
+  }
+
+  const mealList: React.JSX.Element[] = userData.meals.map((meal, index) => {
+    return (
+      <button
+        onClick={() => setSelectedMeal(`${meal.emoji}  ${meal.name}`)}
+        key={index}
+        className={`meal-option ${
+          selectedMeal === `${meal.emoji}  ${meal.name}` ? 'selected' : ''
+        }`}
+      >
+        {meal.emoji}&nbsp;&nbsp;{meal.name}
+      </button>
+    );
+  });
 
   return (
-    <div>
-      <h2>{mealString} on {dateString}</h2>
+    <div className="meal-select-modal">
+      <h2>
+        {mealString} on {dateString}
+      </h2>
+      <div>{mealList}</div>
+      <button onClick={() => setModalIsOpen(false)} aria-label="cancel">
+        Cancel
+      </button>
+      <button onClick={() => assignMeal()} aria-label="assign">
+        Assign
+      </button>
     </div>
   );
 }
