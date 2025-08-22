@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { type UserData, updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
+import Button from './Button';
+import { icon } from '../utils/utils';
 
 type Props = {
   dateToUpdate: number;
@@ -53,12 +55,13 @@ export default function MealSelectModal({
         {mealString} on {dateString}
       </h2>
       <div>{mealList}</div>
-      <button onClick={() => setModalIsOpen(false)} aria-label="cancel">
-        Cancel
-      </button>
-      <button onClick={() => assignMeal()} aria-label="assign">
-        Assign
-      </button>
+      <Button
+        icon={icon('x')}
+        onClick={() => setModalIsOpen(false)}
+        ariaLabel="cancel"
+        classOverrides="bg-red-600 hover:bg-red-800"
+      />
+      <Button icon={icon('check')} onClick={() => assignMeal()} ariaLabel="assign" />
     </div>
   );
 }
