@@ -1,12 +1,12 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../firebase/firebase.ts';
 import Schedule from '../src/pages/Schedule';
 
 describe('MealSelectModal Component', () => {
 
-  beforeEach(() => {
+  beforeEach(async () => {
     const mockUser: any = { uid: '123', email: 'test@example.com' };
     const mockUserData: UserData = {
       meals: [
@@ -14,13 +14,13 @@ describe('MealSelectModal Component', () => {
         { name: 'Salad', emoji: '🥗', ingredients: [] },
         { name: 'Hot dogs', emoji: '🌭', ingredients: [] },
       ],
-      schedule: [],
+      schedule: [{ date: Date.now(), breakfast: '', lunch: '', dinner: '' }],
       groceryList: [],
     };
 
     render(<Schedule userData={mockUserData} user={mockUser} />);
     const editButtons = screen.getAllByRole('button', { name: 'edit' });
-    userEvent.click(editButtons[0]);
+    await userEvent.click(editButtons[0]);
   });
 
   test('renders meal options', () => {
@@ -34,35 +34,29 @@ describe('MealSelectModal Component', () => {
 
   test('highlights meal when selected', async () => {
     const eggs = screen.getByText(/Eggs/);
-    userEvent.click(eggs);
+    await userEvent.click(eggs);
     
-    await waitFor(() => {
-      expect(eggs).toHaveClass('selected');
-    });
+    expect(eggs).toHaveClass('selected');
   });
 
   test('modal closes on cancel', async () => {
     const title = screen.getByText(/BREAKFAST on/);
-    const cancelButton = screen.getByRole('button', { name: /cancel/i });
-    userEvent.click(cancelButton);
+    const cancelButton = screen.getByRole('button', { name: 'cancel' });
+    await userEvent.click(cancelButton);
 
-    await waitFor(() => {
-      expect(title).not.toBeVisible();
-    });
+    expect(title).not.toBeVisible();
   });
 
   test('modal closes and meal is correctly assigned on submit', async () => {
     const title = screen.getByText(/BREAKFAST on/);
     const eggs = screen.getByText(/Eggs/);
-    userEvent.click(eggs);
+    await userEvent.click(eggs);
 
-    const submitButton = screen.getByRole('button', { name: /submit/i });
-    userEvent.click(submitButton);
+    const assignButton = screen.getByRole('button', { name: 'assign' });
+    await userEvent.click(assignButton);
 
-    await waitFor(() => {
-      expect(title).not.toBeVisible();
-      const breakfast = screen.getByText(/Breakfast:/);
-      expect(breakfast).toHaveTextContent('🥚 Eggs');
-    });
+    expect(title).not.toBeVisible();
+    const breakfast = screen.getAllByText(/Breakfast:/)[0];
+    expect(breakfast).toHaveTextContent('🥚 Eggs');
   });
 });
