@@ -41,10 +41,10 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoutes user={user} />}>
-            <Route path="/schedule" element={<Schedule userData={userData} />} />
-            <Route path="/meals" element={<Meals userData={userData} />} />
-            <Route path="/grocery-list" element={<GroceryList userData={userData} />} />
-            <Route path="/settings" element={<Settings />} />
+            <Route path="/schedule" element={<Schedule userData={userData} user={user}/>} />
+            <Route path="/meals" element={<Meals userData={userData} user={user}/>} />
+            <Route path="/grocery-list" element={<GroceryList userData={userData} user={user}/>} />
+            <Route path="/settings" element={<Settings user={user}/>} />
           </Route>
         </Routes>
       </div>
