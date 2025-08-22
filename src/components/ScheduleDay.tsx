@@ -9,7 +9,7 @@ type Props = {
   dinner: string;
   meals: UserData['meals'];
   setModalIsOpen: (isOpen: boolean) => void;
-  setMealToEdit: (meal: string) => void;
+  setMealToEdit: (meal: 'breakfast' | 'lunch' | 'dinner') => void;
   setDateToEdit: (date: number) => void;
 };
 
@@ -35,7 +35,7 @@ export default function ScheduleDay({
   const dinnerMeal = meals.find(meal => meal.name === dinner);
   const dinnerEmoji = dinnerMeal?.emoji;
 
-  function openModal(mealToEdit: string) {
+  function openModal(mealToEdit: 'breakfast' | 'lunch' | 'dinner') {
     setMealToEdit(mealToEdit);
     setDateToEdit(date);
     setModalIsOpen(true);

@@ -6,12 +6,12 @@ import MealSelectModal from '../components/MealSelectModal.tsx';
 
 type Props = {
   user: User;
-  userData: UserData | undefined;
+  userData: UserData;
 }
 
 export default function Schedule({ user, userData }: Props) {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [mealToEdit, setMealToEdit] = useState('');
+  const [mealToEdit, setMealToEdit] = useState<'breakfast' | 'lunch' | 'dinner'>('breakfast');
   const [dateToEdit, setDateToEdit] = useState(0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
