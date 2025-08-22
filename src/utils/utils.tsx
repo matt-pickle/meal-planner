@@ -1,4 +1,4 @@
-import { FaEdit, FaCheck, FaTimes } from 'react-icons/fa';
+import { FaEdit, FaCheck, FaTimes, FaChevronDown } from 'react-icons/fa';
 
 export function icon(name: string): React.JSX.Element {
   return (
@@ -6,6 +6,7 @@ export function icon(name: string): React.JSX.Element {
       {name == 'edit' ? <FaEdit /> : null}
       {name == 'check' ? <FaCheck /> : null}
       {name == 'x' ? <FaTimes /> : null}
+      {name == 'chevron-down' ? <FaChevronDown /> : null}
     </>
   );
 }

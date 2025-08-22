@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { type UserData, updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import Button from './Button';
+import Dropdown from './Dropdown';
 import { icon } from '../utils/utils';
 
 type Props = {
@@ -35,26 +36,18 @@ export default function MealSelectModal({
     setModalIsOpen(false);
   }
 
-  const mealList: React.JSX.Element[] = userData.meals.map((meal, index) => {
-    return (
-      <button
-        onClick={() => setSelectedMeal(`${meal.emoji}  ${meal.name}`)}
-        key={index}
-        className={`meal-option ${
-          selectedMeal === `${meal.emoji}  ${meal.name}` ? 'selected' : ''
-        }`}
-      >
-        {meal.emoji}&nbsp;&nbsp;{meal.name}
-      </button>
-    );
-  });
-
   return (
     <div className="meal-select-modal">
       <h2>
         {mealString} on {dateString}
       </h2>
-      <div>{mealList}</div>
+      <Dropdown
+        options={userData.meals.map(meal => ({
+          label: `${meal.emoji}  ${meal.name}`,
+          value: `${meal.emoji}  ${meal.name}`,
+        }))}
+        onSelect={setSelectedMeal}
+      />
       <Button
         icon={icon('x')}
         onClick={() => setModalIsOpen(false)}
