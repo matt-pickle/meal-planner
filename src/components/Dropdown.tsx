@@ -3,14 +3,14 @@ import { icon } from '../utils/utils';
 
 type Option = {
   label: string;
-  value: string | number;
+  value: string;
 };
 
 type Props = {
   options: Array<Option>;
   placeholder?: string;
   width?: number;
-  onSelect: (value: string | number) => void;
+  onSelect: (value: string) => void;
 };
 
 export default function DropdownInput({
