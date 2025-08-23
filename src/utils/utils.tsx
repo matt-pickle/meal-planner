@@ -1,4 +1,15 @@
-import { FaEdit, FaCheck, FaTimes, FaChevronDown, FaPlus, FaRegTrashAlt } from 'react-icons/fa';
+import {
+  FaEdit,
+  FaCheck,
+  FaTimes,
+  FaChevronDown,
+  FaPlus,
+  FaRegTrashAlt,
+  FaRegCalendarAlt,
+  FaRegListAlt,
+  FaRegUserCircle,
+} from 'react-icons/fa';
+import { PiHamburgerBold } from 'react-icons/pi';
 import { IconContext } from 'react-icons';
 
 export function icon(name: string, color?: string, size?: string): React.JSX.Element {
@@ -10,6 +21,10 @@ export function icon(name: string, color?: string, size?: string): React.JSX.Ele
       {name == 'chevron-down' && <FaChevronDown />}
       {name == 'plus' && <FaPlus />}
       {name == 'trash' && <FaRegTrashAlt />}
+      {name == 'calendar' && <FaRegCalendarAlt />}
+      {name == 'list' && <FaRegListAlt />}
+      {name == 'user' && <FaRegUserCircle />}
+      {name == 'hamburger' && <PiHamburgerBold />}
     </IconContext.Provider>
   );
 }
