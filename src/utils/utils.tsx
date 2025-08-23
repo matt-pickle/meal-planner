@@ -1,4 +1,4 @@
-import { FaEdit, FaCheck, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { FaEdit, FaCheck, FaTimes, FaChevronDown, FaPlus } from 'react-icons/fa';
 import { IconContext } from 'react-icons';
 
 export function icon(name: string, color?: string, size?: string): React.JSX.Element {
@@ -8,6 +8,7 @@ export function icon(name: string, color?: string, size?: string): React.JSX.Ele
       {name == 'check' && <FaCheck />}
       {name == 'x' && <FaTimes />}
       {name == 'chevron-down' && <FaChevronDown />}
+      {name == 'plus' && <FaPlus />}
     </IconContext.Provider>
   );
 }
