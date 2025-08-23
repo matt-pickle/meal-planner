@@ -1,12 +1,13 @@
 import { FaEdit, FaCheck, FaTimes, FaChevronDown } from 'react-icons/fa';
+import { IconContext } from 'react-icons';
 
-export function icon(name: string): React.JSX.Element {
+export function icon(name: string, color?: string, size?: string): React.JSX.Element {
   return (
-    <>
-      {name == 'edit' ? <FaEdit /> : null}
-      {name == 'check' ? <FaCheck /> : null}
-      {name == 'x' ? <FaTimes /> : null}
-      {name == 'chevron-down' ? <FaChevronDown /> : null}
-    </>
+    <IconContext.Provider value={{ color: color, size: size }}>
+      {name == 'edit' && <FaEdit />}
+      {name == 'check' && <FaCheck />}
+      {name == 'x' && <FaTimes />}
+      {name == 'chevron-down' && <FaChevronDown />}
+    </IconContext.Provider>
   );
 }
