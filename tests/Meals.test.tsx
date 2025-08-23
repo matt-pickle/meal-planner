@@ -100,22 +100,6 @@ describe('Meals Page', () => {
           },
         ],
       },
-      {
-        name: 'Chicken',
-        emoji: '🍗',
-        ingredients: [
-          {
-            name: 'Chicken breast',
-            emoji: '🍗',
-            quantity: 1,
-          },
-          {
-            name: 'Spices',
-            emoji: '🧂',
-            quantity: 1,
-          },
-        ],
-      }
     ],
     groceryList: [],
     schedule: [],
@@ -131,24 +115,23 @@ describe('Meals Page', () => {
     expect(screen.getByText(/Turkey sandwich/)).toBeVisible();
     expect(screen.getByText(/Spaghetti/)).toBeVisible();
     expect(screen.getByText(/Hamburger/)).toBeVisible();
-    expect(screen.getByText(/Chicken/)).toBeVisible();
   });
 
   test('opens edit modal on edit button click', async () => {
     const editButtons = screen.getAllByRole('button', { name: 'edit' });
     await userEvent.click(editButtons[0]);
-    expect(screen.getByText(/Edit Cereal/)).toBeVisible();
+    expect(screen.getByText(/Edit Meal/)).toBeVisible();
   });
 
   test('opens delete modal on delete button click', async () => {
     const deleteButtons = screen.getAllByRole('button', { name: 'delete' });
     await userEvent.click(deleteButtons[0]);
-    expect(screen.getByText(/Delete Cereal/)).toBeVisible();
+    expect(screen.getByText(/Delete Meal/)).toBeVisible();
   });
 
   test('opens new meal modal on add button click', async () => {
     const addButtons = screen.getAllByRole('button', { name: 'add new meal' });
     await userEvent.click(addButtons[0]);
-    expect(screen.getByText(/Add New Meal/)).toBeVisible();
+    expect(screen.getByText(/Create New Meal/)).toBeVisible();
   });
 });

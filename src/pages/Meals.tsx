@@ -3,6 +3,9 @@ import { type UserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import Meal from '../components/Meal';
 import Button from '../components/Button';
+import CreateMealModal from '../components/CreateMealModal';
+import EditMealModal from '../components/EditMealModal';
+import DeleteMealModal from '../components/DeleteMealModal';
 import { icon } from '../utils/utils';
 
 type Props = {
@@ -11,7 +14,9 @@ type Props = {
 };
 
 export default function Meals({ user, userData }: Props) {
-  const [newMealModalIsOpen, setNewMealModalIsOpen] = useState(false);
+  const [createMealModalIsOpen, setCreateMealModalIsOpen] = useState(false);
+  const [editMealModalIsOpen, setEditMealModalIsOpen] = useState(false);
+  const [deleteMealModalIsOpen, setDeleteMealModalIsOpen] = useState(false);
 
   const mealList: Array<React.JSX.Element> =
     userData?.meals.map((meal, index) => (
@@ -22,6 +27,8 @@ export default function Meals({ user, userData }: Props) {
         name={meal.name}
         emoji={meal.emoji}
         ingredients={meal.ingredients}
+        setEditMealModalIsOpen={setEditMealModalIsOpen}
+        setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
       />
     )) || [];
 
@@ -32,8 +39,17 @@ export default function Meals({ user, userData }: Props) {
       <Button
         icon={icon('plus')}
         ariaLabel="add new meal"
-        onClick={() => setNewMealModalIsOpen(true)}
+        onClick={() => setCreateMealModalIsOpen(true)}
       />
+      {createMealModalIsOpen && (
+        <CreateMealModal setCreateMealModalIsOpen={setCreateMealModalIsOpen} />
+      )}
+      {editMealModalIsOpen && (
+        <EditMealModal setEditMealModalIsOpen={setEditMealModalIsOpen} />
+      )}
+      {deleteMealModalIsOpen && (
+        <DeleteMealModal setDeleteMealModalIsOpen={setDeleteMealModalIsOpen} />
+      )}
     </>
   );
 }
