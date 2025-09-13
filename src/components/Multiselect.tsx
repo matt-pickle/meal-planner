@@ -10,17 +10,17 @@ type Props = {
   options: Array<Option>;
   placeholder?: string;
   width?: number;
-  onSelect: (value: string) => void;
+  onSelect: (options: Array<string>) => void;
 };
 
-export default function Dropdown({
+export default function Multiselect({
   options,
-  placeholder = 'Select an option...',
+  placeholder = 'Select option(s)...',
   width,
   onSelect,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<Option>({ value: '', label: '' });
+  const [selectedOptions, setSelectedOptions] = useState<Array<string>>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -38,10 +38,13 @@ export default function Dropdown({
   }, []);
 
   function handleOptionClick(option: Option) {
-    setSelectedOption(option);
-    setIsOpen(false);
-    onSelect(option.value);
-  };
+    if (selectedOptions.includes(option.value)) {
+      setSelectedOptions(prev => prev.filter(v => v !== option.value));
+    } else {
+      setSelectedOptions(prev => [...prev, option.value]);
+    }
+    onSelect(selectedOptions);
+  }
 
   const style = {
     maxWidth: width,
@@ -55,8 +58,30 @@ export default function Dropdown({
           onClick={() => setIsOpen(!isOpen)}
           aria-label="dropdown"
         >
-          <span>{selectedOption.label || <span className="text-primary">{placeholder}</span>}</span>
-          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{icon('chevron-down')}</div>
+          {selectedOptions.length === 0 ? (
+            <span className="text-primary">{placeholder}</span>
+          ) : (
+            selectedOptions.map(value => {
+              const option = options.find(opt => opt.value === value);
+              return (
+                <span key={value}>
+                  {option?.label}
+                  <button
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setSelectedOptions(prev => prev.filter(v => v !== value));
+                      onSelect(selectedOptions);
+                    }}
+                  >
+                    {icon('x')}
+                  </button>
+                </span>
+              );
+            })
+          )}
+          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+            {icon('chevron-down')}
+          </div>
         </div>
 
         <div
@@ -68,10 +93,18 @@ export default function Dropdown({
             <div
               key={option.value}
               className={`p-[.7rem] cursor-pointer hover:bg-gray-200 ${
-                selectedOption.value === option.value ? 'text-secondary selected' : ''
+                selectedOptions.includes(option.value) ? 'text-secondary selected' : ''
               }`}
               onClick={() => handleOptionClick(option)}
             >
+              <div className="inline-block w-5 h-5 border-gray-400 rounded-sm">
+                <div
+                  className={selectedOptions.includes(option.value) ? '' : 'invisible'}
+                  aria-label="check icon"
+                >
+                  {icon('check')}
+                </div>
+              </div>
               {option.label}
             </div>
           ))}
