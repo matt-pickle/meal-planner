@@ -1,6 +1,6 @@
-import { type UserData } from '../../firebase/firebase';
 import Button from './Button.tsx';
 import { icon } from '../utils/utils.tsx';
+import { type UserData } from '../utils/types';
 
 type Props = {
   date: number;

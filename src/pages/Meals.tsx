@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { type UserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import Meal from '../components/Meal';
 import Button from '../components/Button';
@@ -7,6 +6,7 @@ import CreateMealModal from '../components/CreateMealModal';
 import EditMealModal from '../components/EditMealModal';
 import DeleteMealModal from '../components/DeleteMealModal';
 import { icon } from '../utils/utils';
+import { type UserData } from '../utils/types';
 
 type Props = {
   user: User | null;

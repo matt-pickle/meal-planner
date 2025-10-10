@@ -1,12 +1,6 @@
-import { type UserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import { icon } from '../utils/utils';
-
-type Ingredient = {
-  name: string;
-  emoji: string;
-  quantity: number;
-}
+import { type UserData, type Ingredient } from '../utils/types';
 
 type Props = {
   user: User | null;
@@ -26,7 +20,7 @@ export default function Meal({ user, userData, name, emoji, ingredients, setEdit
       <ul>
         {ingredients.map((ingredient, index) => (
           <li key={index}>
-            {ingredient.emoji} {ingredient.name} (x{ingredient.quantity})
+            {ingredient.quantity}{ingredient.units} {ingredient.name}
           </li>
         ))}
       </ul>

@@ -1,26 +1,8 @@
 import { initializeApp } from "firebase/app"
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"
+import { type UserData } from "../src/utils/types.tsx"
 const env = import.meta.env;
-
-export type UserData = {
-  meals: Array<{
-    name: string;
-    emoji: string;
-    ingredients: Array<{
-      name: string;
-      emoji: string;
-      quantity: number;
-    }>;
-  }>;
-  schedule: Array<{
-    date: number;
-    breakfast: string;
-    lunch: string;
-    dinner: string;
-  }>;
-  groceryList: [];
-};
 
 const firebaseConfig = {
   apiKey: env.VITE_API_KEY,

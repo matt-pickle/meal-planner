@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { type UserData } from '../../firebase/firebase.ts';
 import { type User } from 'firebase/auth';
 import ScheduleDay from '../components/ScheduleDay.tsx';
 import MealSelectModal from '../components/MealSelectModal.tsx';
+import { type UserData } from '../utils/types';
 
 type Props = {
   user: User;

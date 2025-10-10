@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { type UserData, updateUserData } from '../../firebase/firebase';
+import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import Button from './Button';
 import Dropdown from './Dropdown';
 import { icon } from '../utils/utils';
+import { type UserData } from '../utils/types';
 
 type Props = {
   dateToUpdate: number;
