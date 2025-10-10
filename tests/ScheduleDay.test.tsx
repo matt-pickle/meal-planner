@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { type UserData } from '../firebase/firebase.ts';
+import { type UserData } from '../src/utils/types';
 import ScheduleDay from '../src/components/ScheduleDay';
 
 describe('ScheduleDay Component', () => {

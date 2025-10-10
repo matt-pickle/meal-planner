@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { type UserData } from '../firebase/firebase.ts'
+import { type UserData } from '../src/utils/types';
 import Schedule from '../src/pages/Schedule';
 
 
