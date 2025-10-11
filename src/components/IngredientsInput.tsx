@@ -10,6 +10,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
   let inputRows = ingredients.map((ingredient, index) => (
     <div key={index} className="flex gap-2">
       <input
+        aria-label="ingredient name"
         type="text"
         placeholder="Butter"
         value={ingredient.name}
@@ -21,6 +22,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         className="border p-1 rounded w-1/2"
       />
       <input
+        aria-label="ingredient quantity"
         type="number"
         placeholder="1"
         value={ingredient.quantity}
@@ -32,6 +34,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         className="border p-1 rounded w-1/4"
       />
       <input
+        aria-label="ingredient units"
         type="text"
         placeholder="tbsp"
         value={ingredient.units}

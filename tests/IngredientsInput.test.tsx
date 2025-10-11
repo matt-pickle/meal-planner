@@ -31,14 +31,24 @@ describe('IngredientsInput Component', () => {
   test('adds new input row when "Add Ingredient" button is clicked', async () => {
     const addButton = screen.getByRole('button', { name: 'add ingredient' });
     await userEvent.click(addButton);
+    const nameInputs = screen.getAllByRole('textbox', { name: 'ingredient name' });
+    const quantityInputs = screen.getAllByRole('spinbutton', { name: 'ingredient quantity' });
+    const unitsInputs = screen.getAllByRole('textbox', { name: 'ingredient units' });
     const removeButtons = screen.getAllByRole('button', { name: 'remove ingredient' });
+    expect(nameInputs).toHaveLength(4);
+    expect(quantityInputs).toHaveLength(4);
+    expect(unitsInputs).toHaveLength(4);
     expect(removeButtons).toHaveLength(4);
   });
 
   test('removes input row when remove button is clicked', async () => {
     const removeButtons = screen.getAllByRole('button', { name: 'remove ingredient' });
     await userEvent.click(removeButtons[0]);
-    const milk = screen.queryByText('Milk');
-    expect(milk).not.toBeInTheDocument();
+    const nameInputs = screen.getAllByRole('textbox', { name: 'ingredient name' });
+    const quantityInputs = screen.getAllByRole('spinbutton', { name: 'ingredient quantity' });
+    const unitsInputs = screen.getAllByRole('textbox', { name: 'ingredient units' });
+    expect(nameInputs).toHaveLength(2);
+    expect(quantityInputs).toHaveLength(2);
+    expect(unitsInputs).toHaveLength(2);
   });
 });
