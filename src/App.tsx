@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, getUserData, UserData } from '../firebase/firebase';
+import { auth, getUserData } from '../firebase/firebase';
 import { Routes, Route, useNavigate } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
 import Home from './pages/Home';
@@ -10,6 +10,7 @@ import Meals from './pages/Meals';
 import GroceryList from './pages/GroceryList';
 import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
+import { type UserData } from './utils/types';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
