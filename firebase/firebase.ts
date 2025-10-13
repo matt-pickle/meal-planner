@@ -84,7 +84,7 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
   }
 }
 
-export async function updateUserData(userId: string, userData: UserData) {
+export async function updateUserData(userId: string, userData: Partial<UserData>) {
   await setDoc(doc(db, "users", userId), userData, { merge: true })
-  .catch(error => console.log(error))
+    .catch(error => console.log(error))
 }
