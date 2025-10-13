@@ -6,7 +6,7 @@ import CreateMealModal from '../components/CreateMealModal';
 import EditMealModal from '../components/EditMealModal';
 import DeleteMealModal from '../components/DeleteMealModal';
 import { icon } from '../utils/utils';
-import { type UserData } from '../utils/types';
+import { type UserData, type MealType } from '../utils/types';
 
 type Props = {
   user: User | null;
@@ -14,12 +14,13 @@ type Props = {
 };
 
 export default function Meals({ user, userData }: Props) {
+  const [meals, setMeals] = useState<Array<MealType>>(userData?.meals || []);
   const [createMealModalIsOpen, setCreateMealModalIsOpen] = useState(false);
   const [editMealModalIsOpen, setEditMealModalIsOpen] = useState(false);
   const [deleteMealModalIsOpen, setDeleteMealModalIsOpen] = useState(false);
 
   const mealList: Array<React.JSX.Element> =
-    userData?.meals.map((meal, index) => (
+    meals.map((meal, index) => (
       <Meal
         key={index}
         user={user}
@@ -42,11 +43,14 @@ export default function Meals({ user, userData }: Props) {
         onClick={() => setCreateMealModalIsOpen(true)}
       />
       {createMealModalIsOpen && (
-        <CreateMealModal setCreateMealModalIsOpen={setCreateMealModalIsOpen} />
+        <CreateMealModal
+          user={user}
+          userData={userData}
+          setCreateMealModalIsOpen={setCreateMealModalIsOpen}
+          setMeals={setMeals}
+        />
       )}
-      {editMealModalIsOpen && (
-        <EditMealModal setEditMealModalIsOpen={setEditMealModalIsOpen} />
-      )}
+      {editMealModalIsOpen && <EditMealModal setEditMealModalIsOpen={setEditMealModalIsOpen} />}
       {deleteMealModalIsOpen && (
         <DeleteMealModal setDeleteMealModalIsOpen={setDeleteMealModalIsOpen} />
       )}
