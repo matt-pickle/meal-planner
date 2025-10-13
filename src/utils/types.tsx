@@ -4,14 +4,14 @@ export type Ingredient = {
   units: string;
 };
 
-export type Meal = {
+export type MealType = {
   name: string;
   emoji: string;
   ingredients: Array<Ingredient>;
 };
 
 export type UserData = {
-  meals: Array<Meal>;
+  meals: Array<MealType>;
   schedule: Array<{
     date: number;
     breakfast: string;
