@@ -1,31 +1,48 @@
 import { type User } from 'firebase/auth';
 import { icon } from '../utils/utils';
-import { type UserData, type Ingredient } from '../utils/types';
+import { type UserData, type MealType } from '../utils/types';
 
 type Props = {
   user: User | null;
   userData: UserData | undefined;
-  name: string;
-  emoji: string;
-  ingredients: Array<Ingredient>;
+  meal: MealType;
   setEditMealModalIsOpen: (isOpen: boolean) => void;
+  setMealToEdit: (meal: MealType | null) => void;
   setDeleteMealModalIsOpen: (isOpen: boolean) => void;
 };
 
-export default function Meal({ user, userData, name, emoji, ingredients, setEditMealModalIsOpen, setDeleteMealModalIsOpen }: Props) {
+export default function Meal({
+  user,
+  userData,
+  meal,
+  setEditMealModalIsOpen,
+  setMealToEdit,
+  setDeleteMealModalIsOpen,
+}: Props) {
+
+  function handleEditClick() {
+    setMealToEdit(meal);
+    setEditMealModalIsOpen(true);
+  }
+
   return (
     <>
-      <h2>{name}</h2>
-      <span>{emoji}</span>
+      <h2>{meal.name}</h2>
+      <span>{meal.emoji}</span>
       <ul>
-        {ingredients.map((ingredient, index) => (
+        {meal.ingredients.map((ingredient, index) => (
           <li key={index}>
-            {ingredient.quantity}{ingredient.units} {ingredient.name}
+            {ingredient.quantity}
+            {ingredient.units} {ingredient.name}
           </li>
         ))}
       </ul>
-      <button onClick={() => setEditMealModalIsOpen(true)} aria-label="edit">{icon('edit')}</button>
-      <button onClick={() => setDeleteMealModalIsOpen(true)} aria-label="delete">{icon('trash')}</button>
+      <button onClick={handleEditClick} aria-label="edit">
+        {icon('edit')}
+      </button>
+      <button onClick={() => setDeleteMealModalIsOpen(true)} aria-label="delete">
+        {icon('trash')}
+      </button>
     </>
   );
 }
