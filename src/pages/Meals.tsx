@@ -25,8 +25,6 @@ export default function Meals({ user, userData }: Props) {
     meals.map((meal, index) => (
       <Meal
         key={index}
-        user={user}
-        userData={userData}
         meal={meal}
         setEditMealModalIsOpen={setEditMealModalIsOpen}
         setMealToEdit={setMealToEdit}

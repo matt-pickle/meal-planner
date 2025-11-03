@@ -1,10 +1,7 @@
-import { type User } from 'firebase/auth';
 import { icon } from '../utils/utils';
-import { type UserData, type MealType } from '../utils/types';
+import { type MealType } from '../utils/types';
 
 type Props = {
-  user: User | null;
-  userData: UserData | undefined;
   meal: MealType;
   setEditMealModalIsOpen: (isOpen: boolean) => void;
   setMealToEdit: (meal: MealType | null) => void;
@@ -13,8 +10,6 @@ type Props = {
 };
 
 export default function Meal({
-  user,
-  userData,
   meal,
   setEditMealModalIsOpen,
   setMealToEdit,
