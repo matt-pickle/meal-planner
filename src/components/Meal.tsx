@@ -9,6 +9,7 @@ type Props = {
   setEditMealModalIsOpen: (isOpen: boolean) => void;
   setMealToEdit: (meal: MealType | null) => void;
   setDeleteMealModalIsOpen: (isOpen: boolean) => void;
+  setMealToDelete: (meal: MealType | null) => void;
 };
 
 export default function Meal({
@@ -18,11 +19,17 @@ export default function Meal({
   setEditMealModalIsOpen,
   setMealToEdit,
   setDeleteMealModalIsOpen,
+  setMealToDelete,
 }: Props) {
 
   function handleEditClick() {
     setMealToEdit(meal);
     setEditMealModalIsOpen(true);
+  }
+
+  function handleDeleteClick() {
+    setMealToDelete(meal);
+    setDeleteMealModalIsOpen(true);
   }
 
   return (
@@ -40,7 +47,7 @@ export default function Meal({
       <button onClick={handleEditClick} aria-label="edit">
         {icon('edit')}
       </button>
-      <button onClick={() => setDeleteMealModalIsOpen(true)} aria-label="delete">
+      <button onClick={handleDeleteClick} aria-label="delete">
         {icon('trash')}
       </button>
     </>

@@ -19,6 +19,7 @@ export default function Meals({ user, userData }: Props) {
   const [editMealModalIsOpen, setEditMealModalIsOpen] = useState(false);
   const [mealToEdit, setMealToEdit] = useState<MealType | null>(null);
   const [deleteMealModalIsOpen, setDeleteMealModalIsOpen] = useState(false);
+  const [mealToDelete, setMealToDelete] = useState<MealType | null>(null);
 
   const mealList: Array<React.JSX.Element> =
     meals.map((meal, index) => (
@@ -30,6 +31,7 @@ export default function Meals({ user, userData }: Props) {
         setEditMealModalIsOpen={setEditMealModalIsOpen}
         setMealToEdit={setMealToEdit}
         setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
+        setMealToDelete={setMealToDelete}
       />
     )) || [];
 
@@ -60,7 +62,13 @@ export default function Meals({ user, userData }: Props) {
         />
       )}
       {deleteMealModalIsOpen && (
-        <DeleteMealModal setDeleteMealModalIsOpen={setDeleteMealModalIsOpen} />
+        <DeleteMealModal
+          meal={mealToDelete}
+          user={user}
+          userData={userData}
+          setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
+          setMeals={setMeals}
+        />
       )}
     </>
   );
