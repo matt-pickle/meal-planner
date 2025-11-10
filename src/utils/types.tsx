@@ -10,6 +10,13 @@ export type MealType = {
   ingredients: Array<Ingredient>;
 };
 
+export type GroceryItem = {
+  name: string;
+  quantity: number;
+  units: string;
+  status: 'to buy' | 'bought';
+};
+
 export type UserData = {
   meals: Array<MealType>;
   schedule: Array<{
@@ -18,7 +25,7 @@ export type UserData = {
     lunch: string;
     dinner: string;
   }>;
-  groceryList: [];
+  groceryList: Array<GroceryItem>;
 };
 
 export type EmojiObject = {
