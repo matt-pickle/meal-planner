@@ -35,28 +35,28 @@ export async function createDocument(userId: string) {
         ingredients: [
           {
             name: "Hamburger buns",
-            emoji: "🍔",
-            quantity: 2
+            quantity: 2,
+            units: "buns"
           },
           {
             name: "Ground beef",
-            emoji: "🥩",
-            quantity: 1
+            quantity: 1,
+            units: "lbs"
           },
           {
             name: "Sliced cheese",
-            emoji: "🧀",
-            quantity: 1
+            quantity: 1,
+            units: "slices"
           },
           {
             name: "Lettuce",
-            emoji: "🥬",
-            quantity: 1
+            quantity: 10,
+            units: "leaves"
           },
           {
             name: "French Fries",
-            emoji: "🍟",
-            quantity: 1
+            quantity: 2,
+            units: "cups"
           }
         ]
       }
