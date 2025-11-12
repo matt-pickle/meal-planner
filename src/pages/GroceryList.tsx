@@ -83,7 +83,7 @@ export default function GroceryList({ user, userData }: Props) {
 
   return (
     <div>
-      <h1 className="text-blue-300">Grocery List Page</h1>
+      <h1 className="text-blue-300">Grocery List</h1>
       {itemsToDisplay ? itemsToDisplay : <p>Your grocery list is empty.</p>}
       <Button text="Add Item" onClick={() => setAddItemModalIsOpen(true)} ariaLabel="add item" />
       <Button

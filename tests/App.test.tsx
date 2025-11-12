@@ -43,7 +43,7 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
-        expect(screen.getByText('Schedule Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Schedule', level: 1 })).toBeVisible();
       });
     });
 
@@ -51,7 +51,7 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/meals');
 
       await waitFor(() => {
-        expect(screen.getByText('Meals Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Meals', level: 1 })).toBeVisible();
       });
     });
 
@@ -59,7 +59,7 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/schedule');
 
       await waitFor(() => {
-        expect(screen.getByText('Schedule Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Schedule', level: 1 })).toBeVisible();
       });
     });
 
@@ -67,7 +67,7 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/grocery-list');
 
       await waitFor(() => {
-        expect(screen.getByText('Grocery List Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Grocery List', level: 1 })).toBeVisible();
       });
     });
 
@@ -75,63 +75,60 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/settings');
 
       await waitFor(() => {
-        expect(screen.getByText('Settings Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible();
       });
     });
 
     test('renders navigation links', async () => {
       renderWithRouter(<App />, '/');
 
-      await waitFor(() => {
-        const scheduleLink = screen.getByText('Schedule');
-        const mealsLink = screen.getByText('Meals');
-        const groceryListLink = screen.getByText('Grocery List');
-        const settingsLink = screen.getByText('Settings');
-        expect(scheduleLink).toBeVisible();
-        expect(mealsLink).toBeVisible();
-        expect(groceryListLink).toBeVisible();
-        expect(settingsLink).toBeVisible();
-      });
+      const scheduleLink = screen.getByRole('link', { name: 'Schedule' });
+      const mealsLink = screen.getByRole('link', { name: 'Meals' });
+      const groceryListLink = screen.getByRole('link', { name: 'Grocery List' });
+      const settingsLink = screen.getByRole('link', { name: 'Settings' });
+      expect(scheduleLink).toBeVisible();
+      expect(mealsLink).toBeVisible();
+      expect(groceryListLink).toBeVisible();
+      expect(settingsLink).toBeVisible();
     });
 
     test('Meals link renders Meals Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Meals'));
+      await userEvent.click(screen.getByRole('link', { name: 'Meals' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Meals Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Meals', level: 1 })).toBeVisible();
       });
     });
 
     test('Schedule link renders Schedule Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Schedule'));
+      await userEvent.click(screen.getByRole('link', { name: 'Schedule' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Schedule Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Schedule', level: 1 })).toBeVisible();
       });
     });
 
     test('Grocery List link renders Grocery List Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Grocery List'));
+      await userEvent.click(screen.getByRole('link', { name: 'Grocery List' }));
 
       await waitFor(() => {
-        expect(screen.getByText('Grocery List Page')).toBeVisible();
+        expect(screen.getByRole('heading', { name: 'Grocery List', level: 1 })).toBeVisible();
       });
     });
 
     test('Settings link renders Settings Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Settings'));
+      await userEvent.click(screen.getByRole('link', { name: 'Settings' }));
 
-      await waitFor(() => {
-        expect(screen.getByText('Settings Page')).toBeVisible();
-      });
+      expect(screen.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible();
+
     });
   });
 
@@ -188,10 +185,10 @@ describe ('App Component', () => {
       renderWithRouter(<App />, '/');
 
       await waitFor(() => {
-        const scheduleLink = screen.getByText('Schedule');
-        const mealsLink = screen.getByText('Meals');
-        const groceryListLink = screen.getByText('Grocery List');
-        const settingsLink = screen.getByText('Settings');
+        const scheduleLink = screen.getByRole('link', { name: 'Schedule' });
+        const mealsLink = screen.getByRole('link', { name: 'Meals' });
+        const groceryListLink = screen.getByRole('link', { name: 'Grocery List' });
+        const settingsLink = screen.getByRole('link', { name: 'Settings' });
         expect(scheduleLink).toBeVisible();
         expect(mealsLink).toBeVisible();
         expect(groceryListLink).toBeVisible();
@@ -202,7 +199,7 @@ describe ('App Component', () => {
     test('Meals link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Meals'));
+      await userEvent.click(screen.getByRole('link', { name: 'Meals' }));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
@@ -212,7 +209,7 @@ describe ('App Component', () => {
     test('Schedule link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Schedule'));
+      await userEvent.click(screen.getByRole('link', { name: 'Schedule' }));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
@@ -222,7 +219,7 @@ describe ('App Component', () => {
     test('Grocery List link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Grocery List'));
+      await userEvent.click(screen.getByRole('link', { name: 'Grocery List' }));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
@@ -232,7 +229,7 @@ describe ('App Component', () => {
     test('Settings link redirects to Login Page', async () => {
       renderWithRouter(<App />, '/');
 
-      await userEvent.click(screen.getByText('Settings'));
+      await userEvent.click(screen.getByRole('link', { name: 'Settings' }));
 
       await waitFor(() => {
         expect(screen.getByText('Log In with Google')).toBeVisible();

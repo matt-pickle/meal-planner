@@ -35,7 +35,7 @@ export default function Meals({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="text-blue-200">Meals Page</h1>
+      <h1 className="text-blue-200">Meals</h1>
       {mealList}
       <Button
         icon={icon('plus')}

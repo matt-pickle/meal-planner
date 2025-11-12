@@ -60,7 +60,7 @@ export default function Schedule({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="text-blue-500">Schedule Page</h1>
+      <h1 className="text-blue-500">Schedule</h1>
       {dayList}
       {modalIsOpen && (
         <MealSelectModal
