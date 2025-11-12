@@ -3,6 +3,7 @@ import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import { type UserData, type GroceryItem } from '../utils/types';
 import Button from '../components/Button';
+import Accordion from '../components/Accordion';
 
 type Props = {
   user: User | null;
@@ -77,20 +78,30 @@ export default function GroceryList({ user, userData }: Props) {
     }
   }
 
-  const itemsToDisplay = groceryItems.map((item, index) => (
-    <div key={index}>{item.name} {item.quantity} {item.units}</div>
-  ));
+  const itemsToBuy = groceryItems
+    .filter(item => item.status === 'to buy')
+    .map((item, index) => {
+      return <div key={index}>{item.name} {item.quantity} {item.units}</div>;
+    });
+
+  const boughtItems = groceryItems
+    .filter(item => item.status === 'bought')
+    .map((item, index) => {
+      return <div key={index}>{item.name} {item.quantity} {item.units}</div>;
+    });
 
   return (
     <div>
       <h1 className="text-blue-300">Grocery List</h1>
-      {itemsToDisplay ? itemsToDisplay : <p>Your grocery list is empty.</p>}
+      <h2 className="text-blue-200">Items to Buy</h2>
+      {itemsToBuy.length > 0 ? itemsToBuy : <p>Your grocery list is empty.</p>}
       <Button text="Add Item" onClick={() => setAddItemModalIsOpen(true)} ariaLabel="add item" />
       <Button
         text="Add Ingredients from Upcoming Meals"
         onClick={addIngredientsFromMeals}
         ariaLabel="add ingredients from upcoming meals"
       />
+      <Accordion heading="Bought Items" content={boughtItems} />
     </div>
   );
 }
