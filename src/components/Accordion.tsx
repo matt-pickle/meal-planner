@@ -29,6 +29,7 @@ export default function Accordion({ heading, content }: Props) {
         className={`grid transition-all duration-300 ease-in-out ${
           isOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         }`}
+        data-testid="accordion-content"
       >
         <div className="overflow-hidden">{content}</div>
       </div>

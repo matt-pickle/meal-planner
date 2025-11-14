@@ -58,27 +58,16 @@ describe('GroceryList Component', () => {
     expect(boughtToggle).toBeVisible();
   });
 
-  // test('Toggles bought items section on toggle click', async () => {
-  //   const boughtToggle = screen.getByRole('button', { name: 'toggle accordion' });
-  //   const applesItem = screen.getByText(/Apples/);
-
-  //   // Initially hidden
-  //   expect(applesItem).not.toBeVisible();
-
-  //   // Click to show
-  //   await userEvent.click(boughtToggle);
-  //   expect(applesItem).toBeVisible();
-
-  //   // Click to hide
-  //   await userEvent.click(boughtToggle);
-  //   expect(applesItem).not.toBeVisible();
-  // });
-
-  test('Opens add item modal on add item button click', async () => {
+  test('Creates new Grocery Item on add item button click', async () => {
     const addItemButton = screen.getByRole('button', { name: 'add item' });
     await userEvent.click(addItemButton);
-    const modalTitle = screen.getByText(/Add Grocery Item/);
-    expect(modalTitle).toBeVisible();
+    const nameInput = screen.getByRole('textbox', { name: 'item name' });
+    const quantityInput = screen.getByRole('spinbutton', { name: 'quantity' });
+    const unitsInput = screen.getByRole('textbox', { name: 'units' });
+
+    expect(nameInput).toBeVisible();
+    expect(quantityInput).toBeVisible();
+    expect(unitsInput).toBeVisible();
   });
 
   test('Adds ingredients on "Add Ingredients from Upcoming Meals" click', async () => {
