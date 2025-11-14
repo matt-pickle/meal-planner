@@ -1,9 +1,8 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
 import { type UserData } from '../src/utils/types';
-import { wait } from '@testing-library/user-event/dist/cjs/utils/index.js';
 
 describe('GroceryList Component', () => {
   beforeEach(async () => {
