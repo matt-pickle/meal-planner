@@ -42,8 +42,8 @@ describe('GroceryList Component', () => {
     const addItemButton = screen.getByRole('button', { name: 'add item' });
     const addIngredientsButton = screen.getByRole('button', { name: 'add ingredients from upcoming meals' });
     const toBuySection = screen.getByText(/Items to Buy/);
-    const cheeseItem = screen.getByText(/Cheese/);
-    const applesItem = screen.getByText(/Apples/);
+    const cheeseItem = screen.getByDisplayValue(/Cheese/);
+    const applesItem = screen.getByDisplayValue(/Apples/);
     const boughtSection = screen.getByText(/Bought Items/);
     const boughtToggle = screen.getByRole('button', { name: 'toggle accordion' });
 
@@ -60,23 +60,26 @@ describe('GroceryList Component', () => {
   test('Creates new Grocery Item on add item button click', async () => {
     const addItemButton = screen.getByRole('button', { name: 'add item' });
     await userEvent.click(addItemButton);
-    const nameInput = screen.getByRole('textbox', { name: 'item name' });
-    const quantityInput = screen.getByRole('spinbutton', { name: 'quantity' });
-    const unitsInput = screen.getByRole('textbox', { name: 'units' });
+    const nameInputs = screen.getAllByRole('textbox', { name: 'item name' });
+    const quantityInputs = screen.getAllByRole('spinbutton', { name: 'quantity' });
+    const unitsInputs = screen.getAllByRole('textbox', { name: 'units' });
 
-    expect(nameInput).toBeVisible();
-    expect(quantityInput).toBeVisible();
-    expect(unitsInput).toBeVisible();
+    expect(nameInputs).toHaveLength(3);
+    expect(quantityInputs).toHaveLength(3);
+    expect(unitsInputs).toHaveLength(3);
+    expect(nameInputs[1]).toHaveDisplayValue('');
+    expect(quantityInputs[1]).toHaveValue(0);
+    expect(unitsInputs[1]).toHaveDisplayValue('');
   });
 
   test('Adds ingredients on "Add Ingredients from Upcoming Meals" click', async () => {
     const addIngredientsButton = screen.getByRole('button', { name: 'add ingredients from upcoming meals' });
     await userEvent.click(addIngredientsButton);
 
-    expect(screen.getByText(/Noodles/)).toBeVisible();
-    expect(screen.getByText(/Sauce/)).toBeVisible();
-    expect(screen.getByText(/Buns/)).toBeVisible();
-    expect(screen.getByText(/Ground Beef/)).toBeVisible();
-    expect(screen.getByText(/4 lbs/)).toBeVisible();
+    expect(screen.getByDisplayValue(/Noodles/)).toBeVisible();
+    expect(screen.getByDisplayValue(/Sauce/)).toBeVisible();
+    expect(screen.getByDisplayValue(/Buns/)).toBeVisible();
+    expect(screen.getByDisplayValue(/Ground Beef/)).toBeVisible();
+    expect(screen.getByDisplayValue(/4/)).toBeVisible();
   });
 });

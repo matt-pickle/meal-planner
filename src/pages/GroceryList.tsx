@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
-import { type UserData, type GroceryItem } from '../utils/types';
+import { type UserData, type GroceryItemType } from '../utils/types';
 import Button from '../components/Button';
 import Accordion from '../components/Accordion';
+import GroceryItem from '../components/GroceryItem';
 
 type Props = {
   user: User | null;
@@ -11,8 +12,24 @@ type Props = {
 };
 
 export default function GroceryList({ user, userData }: Props) {
-  const [groceryItems, setGroceryItems] = useState<Array<GroceryItem>>(userData?.groceryList || []);
-  const [addItemModalIsOpen, setAddItemModalIsOpen] = useState(false);
+  const [groceryItems, setGroceryItems] = useState<Array<GroceryItemType>>(userData?.groceryList || []);
+
+  // Debounced database updates when groceryItems change
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (user) {
+        updateUserData(user.uid, { groceryList: groceryItems });
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [groceryItems, user]);
+
+  function addGroceryItem() {
+    const newItem: GroceryItemType = { name: '', quantity: 0, units: '', status: 'to buy' };
+    const updatedItems = [...groceryItems, newItem];
+    setGroceryItems(updatedItems);
+  }
 
   function addIngredientsFromMeals() {
     const today = new Date();
@@ -38,7 +55,7 @@ export default function GroceryList({ user, userData }: Props) {
       return userData?.meals.find(meal => meal.name === mealName);
     });
 
-    const ingredientsToAdd: Array<GroceryItem> = [];
+    const ingredientsToAdd: Array<GroceryItemType> = [];
     upcomingMeals.forEach(meal => {
       if (!meal) return;
       meal.ingredients.forEach(ingredient => {
@@ -81,13 +98,27 @@ export default function GroceryList({ user, userData }: Props) {
   const itemsToBuy = groceryItems
     .filter(item => item.status === 'to buy')
     .map((item, index) => {
-      return <div key={index}>{item.name} {item.quantity} {item.units}</div>;
+      return (
+        <GroceryItem
+          key={index}
+          item={item}
+          groceryItems={groceryItems}
+          setGroceryItems={setGroceryItems}
+        />
+      );
     });
 
   const boughtItems = groceryItems
     .filter(item => item.status === 'bought')
     .map((item, index) => {
-      return <div key={index}>{item.name} {item.quantity} {item.units}</div>;
+      return (
+        <GroceryItem
+          key={index}
+          item={item}
+          groceryItems={groceryItems}
+          setGroceryItems={setGroceryItems}
+        />
+      );
     });
 
   return (
@@ -95,7 +126,7 @@ export default function GroceryList({ user, userData }: Props) {
       <h1 className="text-blue-300">Grocery List</h1>
       <h2 className="text-blue-200">Items to Buy</h2>
       {itemsToBuy.length > 0 ? itemsToBuy : <p>Your grocery list is empty.</p>}
-      <Button text="Add Item" onClick={() => setAddItemModalIsOpen(true)} ariaLabel="add item" />
+      <Button text="Add Item" onClick={addGroceryItem} ariaLabel="add item" />
       <Button
         text="Add Ingredients from Upcoming Meals"
         onClick={addIngredientsFromMeals}

@@ -10,7 +10,7 @@ export type MealType = {
   ingredients: Array<Ingredient>;
 };
 
-export type GroceryItem = {
+export type GroceryItemType = {
   name: string;
   quantity: number;
   units: string;
@@ -25,7 +25,7 @@ export type UserData = {
     lunch: string;
     dinner: string;
   }>;
-  groceryList: Array<GroceryItem>;
+  groceryList: Array<GroceryItemType>;
 };
 
 export type EmojiObject = {
