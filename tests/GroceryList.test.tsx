@@ -68,7 +68,7 @@ describe('GroceryList Component', () => {
     expect(quantityInputs).toHaveLength(3);
     expect(unitsInputs).toHaveLength(3);
     expect(nameInputs[1]).toHaveDisplayValue('');
-    expect(quantityInputs[1]).toHaveValue(0);
+    expect(quantityInputs[1]).toHaveValue(null);
     expect(unitsInputs[1]).toHaveDisplayValue('');
   });
 

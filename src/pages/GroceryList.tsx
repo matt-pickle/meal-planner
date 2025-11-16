@@ -26,7 +26,7 @@ export default function GroceryList({ user, userData }: Props) {
   }, [groceryItems, user]);
 
   function addGroceryItem() {
-    const newItem: GroceryItemType = { name: '', quantity: 0, units: '', status: 'to buy' };
+    const newItem: GroceryItemType = { name: '', quantity: undefined, units: '', status: 'to buy' };
     const updatedItems = [...groceryItems, newItem];
     setGroceryItems(updatedItems);
   }
@@ -64,7 +64,9 @@ export default function GroceryList({ user, userData }: Props) {
         );
         if (existingItem) {
           console.log('Existing item found:', existingItem);
-          existingItem.quantity += ingredient.quantity;
+          existingItem.quantity
+            ? (existingItem.quantity += ingredient.quantity)
+            : (existingItem.quantity = ingredient.quantity);
         } else {
           console.log('New item found:', ingredient);
           ingredientsToAdd.push({
@@ -83,7 +85,9 @@ export default function GroceryList({ user, userData }: Props) {
         item => item.name === ingredient.name && item.units === ingredient.units
       );
       if (existingItem) {
-        existingItem.quantity += ingredient.quantity;
+          existingItem.quantity
+            ? (existingItem.quantity += ingredient.quantity ?? 0)
+            : (existingItem.quantity = ingredient.quantity);
       } else {
         updatedGroceryList.push({ ...ingredient });
       }

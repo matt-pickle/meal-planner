@@ -12,7 +12,7 @@ export type MealType = {
 
 export type GroceryItemType = {
   name: string;
-  quantity: number;
+  quantity: number | undefined;
   units: string;
   status: 'to buy' | 'bought';
 };
