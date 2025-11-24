@@ -1,24 +1,52 @@
-import { Link } from 'react-router';
+import { NavLink } from 'react-router';
 import { icon } from '../utils/utils';
 
 export default function Navigation() {
   return (
-    <nav className="flex md:flex-col justify-center md:justify-start bg-gray-800 p-4 gap-6">
-      <Link to="/schedule" className="text-white hover:text-gray-300 flex items-center gap-2">
-        {icon('calendar', undefined, '20px')} Schedule
-      </Link>
-      <Link to="/meals" className="text-white hover:text-gray-300 flex items-center gap-2">
+    <nav className="flex md:flex-col justify-center md:justify-start bg-gray-800 p-4 md:p-2 gap-10 md:gap-2">
+      <NavLink
+        to="/schedule"
+        className={({ isActive }) =>
+          `${
+            isActive ? 'text-white' : 'text-gray-400'
+          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+        }
+      >
+        {icon('calendar', undefined, '20px')} <span className="hidden md:inline">Schedule</span>
+      </NavLink>
+      <NavLink
+        to="/meals"
+        className={({ isActive }) =>
+          `${
+            isActive ? 'text-white' : 'text-gray-400'
+          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+        }
+      >
         {icon('hamburger', undefined, '22px')}
-        Meals
-      </Link>
-      <Link to="/grocery-list" className="text-white hover:text-gray-300 flex items-center gap-2">
+        <span className="hidden md:inline">Meals</span>
+      </NavLink>
+      <NavLink
+        to="/grocery-list"
+        className={({ isActive }) =>
+          `${
+            isActive ? 'text-white' : 'text-gray-400'
+          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+        }
+      >
         {icon('list', undefined, '20px')}
-        Grocery List
-      </Link>
-      <Link to="/settings" className="text-white hover:text-gray-300 flex items-center gap-2">
+        <span className="hidden md:inline">Grocery List</span>
+      </NavLink>
+      <NavLink
+        to="/settings"
+        className={({ isActive }) =>
+          `${
+            isActive ? 'text-white' : 'text-gray-400'
+          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+        }
+      >
         {icon('user', undefined, '21px')}
-        Settings
-      </Link>
+        <span className="hidden md:inline">Settings</span>
+      </NavLink>
     </nav>
   );
 }
