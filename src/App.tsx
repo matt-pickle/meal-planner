@@ -45,7 +45,7 @@ export default function App() {
             <Route path="/schedule" element={<Schedule userData={userData!} user={user!}/>} />
             <Route path="/meals" element={<Meals userData={userData!} user={user!}/>} />
             <Route path="/grocery-list" element={<GroceryList userData={userData!} user={user!}/>} />
-            <Route path="/settings" element={<Settings user={user!}/>} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
         </Routes>
       </div>
