@@ -10,8 +10,9 @@ type Props = {
   initialChecked?: boolean;
 };
 
-export default function Checkbox({ id, ariaLabel, onChange, size, color, initialChecked = false }: Props) {
+export default function Checkbox({ id, ariaLabel, onChange, size = '12px', color, initialChecked = false }: Props) {
   const [checked, setChecked] = useState(initialChecked);
+  const iconSize = `${parseFloat(size) * 0.9}px`;
 
   function handleClick() {
     const newChecked = !checked;
@@ -20,7 +21,7 @@ export default function Checkbox({ id, ariaLabel, onChange, size, color, initial
   }
 
   return (
-    <label htmlFor={id} className="checkbox">
+    <label htmlFor={id} className={`checkbox w-[${size}] h-[${size}]`}>
       <input
         type="checkbox"
         id={id}
@@ -29,7 +30,7 @@ export default function Checkbox({ id, ariaLabel, onChange, size, color, initial
         checked={checked}
         onChange={handleClick}
       />
-      {checked && icon('check', size, color)}
+      {checked && icon('check', color, iconSize)}
     </label>
   );
 }
