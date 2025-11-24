@@ -1,0 +1,88 @@
+import { describe, test, expect, beforeEach } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import GroceryList from '../src/pages/GroceryList';
+import { type UserData } from '../src/utils/types';
+
+describe('GroceryItem Component', () => {
+  beforeEach(async () => {
+    const mockUser: any = { uid: '123', email: 'test@example.com' };
+    const mockUserData: UserData = {
+      meals: [],
+      schedule: [],
+      groceryList: [
+        { name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' },
+        { name: 'Apples', quantity: 6, units: 'apples', status: 'bought' },
+      ],
+    };
+    render(<GroceryList userData={mockUserData} user={mockUser} />);
+  });
+
+  test('renders all elements', async () => {
+    const nameInput = screen.getAllByRole('textbox', { name: 'item name' });
+    const quantityInput = screen.getAllByRole('spinbutton', { name: 'quantity' });
+    const unitsInput = screen.getAllByRole('textbox', { name: 'units' });
+    const statusCheckbox = screen.getAllByRole('checkbox', { name: 'mark as bought' });
+    const deleteButton = screen.getAllByRole('button', { name: 'delete item' });
+
+    expect(nameInput).toHaveLength(2);
+    expect(quantityInput).toHaveLength(2);
+    expect(unitsInput).toHaveLength(2);
+    expect(statusCheckbox).toHaveLength(2);
+    expect(deleteButton).toHaveLength(2);
+  });
+
+  test('updates item name on input change', async () => {
+    const nameInput = screen.getByDisplayValue('Cheese');
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'Chicken');
+
+    expect(nameInput).toHaveDisplayValue('Chicken');
+  });
+
+  test('updates item quantity on input change', async () => {
+    const quantityInput = screen.getByDisplayValue('1');
+    await userEvent.clear(quantityInput);
+    await userEvent.type(quantityInput, '3');
+
+    expect(quantityInput).toHaveValue(3);
+  });
+
+  test('updates item units on input change', async () => {
+    const unitsInput = screen.getByDisplayValue('lbs');
+    await userEvent.clear(unitsInput);
+    await userEvent.type(unitsInput, 'kg');
+
+    expect(unitsInput).toHaveDisplayValue('kg');
+  });
+
+  test('toggles item status when checked/unchecked', async () => {
+    let groceryItem = screen.getByDisplayValue('Cheese').parentElement;
+    let statusCheckbox = within(groceryItem!).getByRole('checkbox', { name: 'mark as bought' });
+    const boughtSection = screen.getByTestId('accordion-content');
+
+    expect(boughtSection).not.toContainElement(groceryItem);
+
+    await userEvent.click(statusCheckbox);
+    groceryItem = screen.getByDisplayValue('Cheese').parentElement;
+
+    expect(boughtSection).toContainElement(groceryItem);
+
+    statusCheckbox = within(groceryItem!).getByRole('checkbox', {
+      name: 'mark as bought'
+    });
+
+    await userEvent.click(statusCheckbox);
+    groceryItem = await screen.findByDisplayValue('Cheese');
+
+    expect(boughtSection).not.toContainElement(groceryItem);
+  });
+
+  test('deletes item on delete button click', async () => {
+    const groceryItem = screen.getByDisplayValue('Cheese').parentElement;
+    const deleteButton = within(groceryItem!).getByRole('button', { name: 'delete item' });
+
+    await userEvent.click(deleteButton);
+    expect(screen.queryByDisplayValue('Cheese')).not.toBeInTheDocument();
+  });
+});

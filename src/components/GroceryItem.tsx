@@ -1,5 +1,7 @@
 import Button from './Button';
+import Checkbox from './Checkbox';
 import { type UserData, type GroceryItemType } from '../utils/types';
+import { className } from '../utils/utils';
 
 type Props = {
   item: GroceryItemType;
@@ -8,10 +10,28 @@ type Props = {
 };
 
 export default function GroceryItem({ item, groceryItems, setGroceryItems }: Props) {
+  function toggleStatus(checked: boolean) {
+    const newItems = [...groceryItems];
+    const thisItem = newItems.find(i => i === item);
+    if (thisItem && checked) {
+      thisItem.status = 'bought';
+    } else if (thisItem) {
+      thisItem.status = 'to buy';
+    }
+    setGroceryItems(newItems);
+  }
 
   return (
     <div className="grocery-item">
       <div className="flex gap-2">
+        <Checkbox
+          id={`checkbox-${className(item.name)}`}
+          ariaLabel={`mark as bought`}
+          onChange={toggleStatus}
+          size="16px"
+          color="#000000"
+          initialChecked={item.status === 'bought'}
+        />
         <input
           aria-label="item name"
           type="text"
@@ -59,11 +79,11 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
         />
         <button
           onClick={() => {
-            const newItems = groceryItems.filter((i) => i !== item);
+            const newItems = groceryItems.filter(i => i !== item);
             setGroceryItems(newItems);
           }}
           className="text-red-500"
-          aria-label="remove item"
+          aria-label="delete item"
         >
           &times;
         </button>

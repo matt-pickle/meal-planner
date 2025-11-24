@@ -28,3 +28,7 @@ export function icon(name: string, color?: string, size?: string): React.JSX.Ele
     </IconContext.Provider>
   );
 }
+
+export function className(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+}
