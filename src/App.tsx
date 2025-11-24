@@ -36,16 +36,16 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row-reverse bg-gray-600 min-h-screen">
-      <div className="flex-1">
+    <div className="flex flex-col md:flex-row-reverse bg-gray-600 min-h-screen max-h-screen">
+      <div className="flex-1 p-4 md:p-8 overflow-scroll">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoutes user={user} />}>
-            <Route path="/schedule" element={<Schedule userData={userData} user={user}/>} />
-            <Route path="/meals" element={<Meals userData={userData} user={user}/>} />
-            <Route path="/grocery-list" element={<GroceryList userData={userData} user={user}/>} />
-            <Route path="/settings" element={<Settings user={user}/>} />
+            <Route path="/schedule" element={<Schedule userData={userData!} user={user!}/>} />
+            <Route path="/meals" element={<Meals userData={userData!} user={user!}/>} />
+            <Route path="/grocery-list" element={<GroceryList userData={userData!} user={user!}/>} />
+            <Route path="/settings" element={<Settings user={user!}/>} />
           </Route>
         </Routes>
       </div>
