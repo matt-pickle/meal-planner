@@ -8,7 +8,7 @@ export default function Navigation() {
         to="/schedule"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white' : 'text-gray-400'
+            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
           } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
@@ -18,7 +18,7 @@ export default function Navigation() {
         to="/meals"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white' : 'text-gray-400'
+            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
           } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
@@ -29,7 +29,7 @@ export default function Navigation() {
         to="/grocery-list"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white' : 'text-gray-400'
+            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
           } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
@@ -40,7 +40,7 @@ export default function Navigation() {
         to="/settings"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white' : 'text-gray-400'
+            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
           } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
