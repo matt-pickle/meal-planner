@@ -42,7 +42,7 @@ describe('Checkbox Component', () => {
     render(<Checkbox id="test-checkbox" onChange={vi.fn()} size="50px" ariaLabel="test checkbox" />);
     const checkboxContainer = screen.getByRole('checkbox', { name: 'test checkbox' }).parentElement;
 
-    expect(checkboxContainer).toHaveClass('w-[50px] h-[50px]');
+    expect(checkboxContainer).toHaveStyle({ width: '50px', height: '50px' });
   });
 
   test('color prop correctly sets the color', async () => {

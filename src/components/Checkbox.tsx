@@ -20,8 +20,10 @@ export default function Checkbox({ id, ariaLabel, onChange, size = '12px', color
     onChange(newChecked);
   }
 
+  const containerStyles = { width: size, height: size };
+
   return (
-    <label htmlFor={id} className={`checkbox w-[${size}] h-[${size}]`}>
+    <label htmlFor={id} className="checkbox" style={containerStyles}>
       <input
         type="checkbox"
         id={id}
