@@ -3,6 +3,7 @@ import { type User } from 'firebase/auth';
 import ScheduleDay from '../components/ScheduleDay.tsx';
 import MealSelectModal from '../components/MealSelectModal.tsx';
 import { type UserData } from '../utils/types';
+import { icon } from '../utils/utils.tsx'
 
 type Props = {
   user: User;
@@ -60,7 +61,9 @@ export default function Schedule({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="text-blue-200 text-4xl font-semibold mb-4">Schedule</h1>
+      <h1 className="flex items-center gap-3 text-blue-300 text-4xl font-semibold mb-4">
+        {icon('calendar', undefined, '30px')} Schedule
+      </h1>
       {dayList}
       {modalIsOpen && (
         <MealSelectModal
