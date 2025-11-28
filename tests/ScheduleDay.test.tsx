@@ -16,7 +16,7 @@ describe('ScheduleDay Component', () => {
   beforeEach(() => {
     render(
       <ScheduleDay
-        date={Date.now()}
+        date={1764299759000}
         breakfast="Cereal"
         lunch="Turkey sandwich"
         dinner="Hamburger"
@@ -29,23 +29,23 @@ describe('ScheduleDay Component', () => {
   });
 
   test('renders the date with MM/DD/YY format', async () => {
-    const dates = screen.getAllByText(/Date:/);
-    const dateFormatIsCorrect = dates[0].textContent?.match(/\d{1,2}\/\d{1,2}\/\d{2}/);
+    const dates = screen.getAllByText(/THURSDAY/);
+    const dateFormatIsCorrect = dates[0].parentElement?.textContent?.match(/\d{1,2}\/\d{1,2}\/\d{2}/);
     expect(dateFormatIsCorrect).toBeTruthy();
   });
 
   test('renders breakfast with emoji', () => {
-    const breakfast = screen.getByText(/Breakfast:/);
+    const breakfast = screen.getByText(/BREAKFAST:/).parentElement;
     expect(breakfast).toHaveTextContent('🥣 Cereal');
   });
 
   test('renders lunch with emoji', () => {
-    const lunch = screen.getByText(/Lunch:/);
+    const lunch = screen.getByText(/LUNCH:/).parentElement;
     expect(lunch).toHaveTextContent('🥪 Turkey sandwich');
   });
 
   test('renders dinner with emoji', () => {
-    const dinner = screen.getByText(/Dinner:/);
+    const dinner = screen.getByText(/DINNER:/).parentElement;
     expect(dinner).toHaveTextContent('🍔 Hamburger');
   });
 

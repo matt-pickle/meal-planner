@@ -13,13 +13,13 @@ describe('Schedule Page', () => {
     groceryList: [],
     schedule: [
       {
-        date: Date.now(),
+        date: 1764299759000,
         breakfast: 'Cereal',
         lunch: 'Turkey sandwich',
         dinner: 'Spaghetti',
       },
       {
-        date: Date.now() + 86400,
+        date: 1764386159000,
         breakfast: 'Bacon and eggs',
         lunch: 'Hamburger',
         dinner: 'Chicken',
@@ -32,7 +32,16 @@ describe('Schedule Page', () => {
   });
 
   test('renders correct number of days', async () => {
-    const daysRendered = screen.getAllByText(/Date:/);
+    const dayNames = [
+      'SUNDAY',
+      'MONDAY',
+      'TUESDAY',
+      'WEDNESDAY',
+      'THURSDAY',
+      'FRIDAY',
+      'SATURDAY',
+    ];
+    const daysRendered = screen.getAllByText(new RegExp(dayNames.join('|')));
     expect(daysRendered.length).toBe(14);
   });
 

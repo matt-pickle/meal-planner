@@ -24,7 +24,9 @@ export default function ScheduleDay({
   setDateToEdit,
 }: Props) {
   const dateObj = new Date(date);
-  const dateString = `${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj
+  const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+  const dayOfWeek = dayNames[dateObj.getDay()];
+  const dateString = `${dayOfWeek} ${dateObj.getMonth() + 1}/${dateObj.getDate()}/${dateObj
     .getFullYear()
     .toString()
     .slice(-2)}`;
@@ -42,41 +44,51 @@ export default function ScheduleDay({
   }
 
   return (
-    <div key={date} className="schedule-day">
-      <p>Date: {dateString}</p>
-      <p>
-        <span>
-          Breakfast: {breakfastEmoji} {breakfast}
-        </span>
-        <Button
-          icon={icon('edit')}
-          classOverrides="!bg-transparent !p-0"
-          ariaLabel="edit"
-          onClick={() => openModal('breakfast')}
-        />
+    <div
+      key={date}
+      className="schedule-day py-4 border-b-1 border-slate-200 mb-4"
+    >
+      <p className="text-blue-200 text-lg font-semibold mb-4">
+        {dateString}
       </p>
-      <p>
-        <span>
-          Lunch: {lunchEmoji} {lunch}
-        </span>
-        <Button
-          icon={icon('edit')}
-          classOverrides="!bg-transparent !p-0"
-          ariaLabel="edit"
-          onClick={() => openModal('lunch')}
-        />
-      </p>
-      <p>
-        <span>
-          Dinner: {dinnerEmoji} {dinner}
-        </span>
-        <Button
-          icon={icon('edit')}
-          classOverrides="!bg-transparent !p-0"
-          ariaLabel="edit"
-          onClick={() => openModal('dinner')}
-        />
-      </p>
+      <div className="flex flex-col md:flex-row gap-6 flex-1">
+        <p className="text-white flex-1 mb-1">
+          <span className="text-slate-200 font-semibold mr-2">BREAKFAST:</span>
+          <span className="whitespace-nowrap">
+            {breakfastEmoji} {breakfast}
+            <Button
+              icon={icon('edit')}
+              classOverrides="!bg-transparent !p-0 translate-y-[1px] ml-2"
+              ariaLabel="edit"
+              onClick={() => openModal('breakfast')}
+            />
+          </span>
+        </p>
+        <p className="text-white flex-1 mb-1">
+          <span className="text-slate-200 font-semibold mr-2">LUNCH:</span>
+          <span className="whitespace-nowrap">
+            {lunchEmoji} {lunch}
+            <Button
+              icon={icon('edit')}
+              classOverrides="!bg-transparent !p-0 translate-y-[1px] ml-2"
+              ariaLabel="edit"
+              onClick={() => openModal('lunch')}
+            />
+          </span>
+        </p>
+        <p className="text-white flex-1 mb-1">
+          <span className="text-slate-200 font-semibold mr-2">DINNER:</span>
+          <span className="whitespace-nowrap">
+            {dinnerEmoji} {dinner}
+            <Button
+              icon={icon('edit')}
+              classOverrides="!bg-transparent !p-0 translate-y-[1px] ml-2"
+              ariaLabel="edit"
+              onClick={() => openModal('dinner')}
+            />
+          </span>
+        </p>
+      </div>
     </div>
   );
 }

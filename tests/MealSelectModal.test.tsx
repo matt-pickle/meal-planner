@@ -56,7 +56,7 @@ describe('MealSelectModal Component', () => {
     await userEvent.click(assignButton);
 
     expect(title).not.toBeVisible();
-    const breakfast = screen.getAllByText(/Breakfast:/)[0];
+    const breakfast = screen.getAllByText(/BREAKFAST:/)[0].parentElement;
     expect(breakfast).toHaveTextContent('🥚 Eggs');
   });
 });
