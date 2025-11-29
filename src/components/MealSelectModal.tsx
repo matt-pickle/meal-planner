@@ -38,24 +38,28 @@ export default function MealSelectModal({
   }
 
   return (
-    <div className="meal-select-modal">
-      <h2>
-        {mealString} on {dateString}
-      </h2>
-      <Dropdown
-        options={userData.meals.map(meal => ({
-          label: `${meal.emoji}  ${meal.name}`,
-          value: `${meal.emoji}  ${meal.name}`,
-        }))}
-        onSelect={setSelectedMeal}
-      />
-      <Button
-        icon={icon('x')}
-        onClick={() => setModalIsOpen(false)}
-        ariaLabel="cancel"
-        classOverrides="bg-red-600 hover:bg-red-800"
-      />
-      <Button icon={icon('check')} onClick={() => assignMeal()} ariaLabel="assign" />
+    <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center">
+      <div className="meal-select-modal bg-gray-700 min-w-[50%] p-8 rounded-md">
+        <h2 className="text-blue-200 text-lg text-center font-semibold mb-4">
+          {mealString} on {dateString}
+        </h2>
+        <Dropdown
+          options={userData.meals.map(meal => ({
+            label: `${meal.emoji}\u00A0\u00A0${meal.name}`,
+            value: `${meal.emoji}\u00A0\u00A0${meal.name}`,
+          }))}
+          onSelect={setSelectedMeal}
+        />
+        <div className="flex justify-center gap-4">
+          <Button
+            icon={icon('x')}
+            onClick={() => setModalIsOpen(false)}
+            ariaLabel="cancel"
+            classOverrides="bg-red-600 hover:bg-red-800"
+          />
+          <Button icon={icon('check')} onClick={() => assignMeal()} ariaLabel="assign" />
+        </div>
+      </div>
     </div>
   );
 }

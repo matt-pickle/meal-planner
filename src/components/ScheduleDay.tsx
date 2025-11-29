@@ -48,9 +48,9 @@ export default function ScheduleDay({
       key={date}
       className="schedule-day py-4 border-b-1 border-slate-200 mb-4"
     >
-      <p className="text-blue-200 text-lg font-semibold mb-4">
+      <h2 className="text-blue-200 text-lg font-semibold mb-4">
         {dateString}
-      </p>
+      </h2>
       <div className="flex flex-col md:flex-row gap-6 flex-1">
         <p className="text-white flex-1 mb-1">
           <span className="text-slate-200 font-semibold mr-2">BREAKFAST:</span>

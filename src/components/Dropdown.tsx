@@ -48,27 +48,27 @@ export default function Dropdown({
   };
 
   return (
-    <div className="dropdown w-full">
+    <div className="dropdown w-full mb-8">
       <div ref={dropdownRef} className="relative w-full cursor-pointer" style={style}>
         <div
-          className="flex justify-between items-center"
+          className="flex justify-between items-center border-b-1 border-slate-200 py-2"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="dropdown"
         >
-          <span>{selectedOption.label || <span className="text-primary">{placeholder}</span>}</span>
-          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{icon('chevron-down')}</div>
+          <span className="text-white">{selectedOption.label || <span>{placeholder}</span>}</span>
+          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{icon('chevron-down', "#ffffff")}</div>
         </div>
 
         <div
-          className={`absolute left-0 right-0 !p-0 z-2 border-t-0 transition-all duration-300 ease-in-out ${
+          className={`absolute left-0 right-0 !p-0 z-2 border-t-0 transition-all duration-300 ease-in-out bg-slate-200 ${
             isOpen ? 'max-h-48 overflow-y-auto opacity-100' : 'max-h-0 overflow-y-hidden opacity-0'
           }`}
         >
           {options.map(option => (
             <div
               key={option.value}
-              className={`p-[.7rem] cursor-pointer hover:bg-gray-200 ${
-                selectedOption.value === option.value ? 'text-secondary selected' : ''
+              className={`p-[.7rem] cursor-pointer hover:bg-gray-800 hover:text-white ${
+                selectedOption.value === option.value ? 'bg-gray-800 text-white selected' : ''
               }`}
               onClick={() => handleOptionClick(option)}
             >
