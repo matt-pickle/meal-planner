@@ -61,7 +61,7 @@ export default function Schedule({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="flex items-center gap-3 text-blue-300 text-4xl font-semibold mb-4">
+      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-4">
         {icon('calendar', undefined, '30px')} Schedule
       </h1>
       {dayList}

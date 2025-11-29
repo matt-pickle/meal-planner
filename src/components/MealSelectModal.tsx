@@ -39,8 +39,8 @@ export default function MealSelectModal({
 
   return (
     <div className="absolute top-0 left-0 w-full h-full bg-black/50 flex items-center justify-center">
-      <div className="meal-select-modal bg-gray-700 min-w-[50%] p-8 rounded-md">
-        <h2 className="text-blue-200 text-lg text-center font-semibold mb-4">
+      <div className="meal-select-modal bg-medium min-w-[50%] p-8 rounded-md">
+        <h2 className="text-subtitle text-lg text-center font-semibold mb-4">
           {mealString} on {dateString}
         </h2>
         <Dropdown

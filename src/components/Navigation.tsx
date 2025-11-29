@@ -3,13 +3,13 @@ import { icon } from '../utils/utils';
 
 export default function Navigation() {
   return (
-    <nav className="flex md:flex-col justify-center md:justify-start bg-gray-800 p-4 md:p-2 gap-10 md:gap-2">
+    <nav className="flex md:flex-col justify-center md:justify-start bg-dark p-4 md:p-2 gap-10 md:gap-2">
       <NavLink
         to="/schedule"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
-          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+            isActive ? 'text-white bg-medium' : 'text-gray-400'
+          } md:hover:bg-medium hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
         {icon('calendar', undefined, '20px')} <span className="hidden md:inline">Schedule</span>
@@ -18,8 +18,8 @@ export default function Navigation() {
         to="/meals"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
-          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+            isActive ? 'text-white bg-medium' : 'text-gray-400'
+          } md:hover:bg-medium hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
         {icon('hamburger', undefined, '22px')}
@@ -29,8 +29,8 @@ export default function Navigation() {
         to="/grocery-list"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
-          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+            isActive ? 'text-white bg-medium' : 'text-gray-400'
+          } md:hover:bg-medium hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
         {icon('list', undefined, '20px')}
@@ -40,8 +40,8 @@ export default function Navigation() {
         to="/settings"
         className={({ isActive }) =>
           `${
-            isActive ? 'text-white bg-gray-700' : 'text-gray-400'
-          } md:hover:bg-gray-700 hover:text-white flex items-center gap-2 md:p-4 rounded-md`
+            isActive ? 'text-white bg-medium' : 'text-gray-400'
+          } md:hover:bg-medium hover:text-white flex items-center gap-2 md:p-4 rounded-md`
         }
       >
         {icon('user', undefined, '21px')}

@@ -36,7 +36,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row-reverse bg-gray-700 min-h-screen max-h-screen">
+    <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
         <Routes>
           <Route path="/" element={<Home />} />
