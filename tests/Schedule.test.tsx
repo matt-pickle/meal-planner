@@ -13,13 +13,13 @@ describe('Schedule Page', () => {
     groceryList: [],
     schedule: [
       {
-        date: 1764299759000,
+        date: Date.now(),
         breakfast: 'Cereal',
         lunch: 'Turkey sandwich',
         dinner: 'Spaghetti',
       },
       {
-        date: 1764386159000,
+        date: Date.now() + 86400000,
         breakfast: 'Bacon and eggs',
         lunch: 'Hamburger',
         dinner: 'Chicken',
