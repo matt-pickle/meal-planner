@@ -8,3 +8,7 @@
   --color-subtitle: #bfdbfe;
 }
 
+button {
+  cursor: pointer;
+}
+

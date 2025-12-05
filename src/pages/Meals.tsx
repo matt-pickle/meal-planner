@@ -35,8 +35,12 @@ export default function Meals({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="text-blue-200">Meals</h1>
-      {mealList}
+      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
+        {icon('hamburger', undefined, '34px')} Meals
+      </h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {mealList}
+      </div>
       <Button
         icon={icon('plus')}
         ariaLabel="add new meal"
