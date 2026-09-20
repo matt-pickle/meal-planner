@@ -21,8 +21,10 @@ export default function Meals({ user, userData }: Props) {
   const [deleteMealModalIsOpen, setDeleteMealModalIsOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<MealType | null>(null);
 
+  const sortedMeals = [...meals].sort((a, b) => a.name.localeCompare(b.name));
+
   const mealList: Array<React.JSX.Element> =
-    meals.map((meal, index) => (
+    sortedMeals.map((meal, index) => (
       <Meal
         key={index}
         meal={meal}
