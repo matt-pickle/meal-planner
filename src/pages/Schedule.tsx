@@ -1,8 +1,7 @@
-import { useState } from 'react';
 import { type User } from 'firebase/auth';
+import { updateUserData } from '../../firebase/firebase';
 import ScheduleDay from '../components/ScheduleDay.tsx';
-import MealSelectModal from '../components/MealSelectModal.tsx';
-import { type UserData } from '../utils/types';
+import { type MealSlot, type UserData } from '../utils/types';
 import { icon } from '../utils/utils.tsx'
 
 type Props = {
@@ -11,11 +10,20 @@ type Props = {
 }
 
 export default function Schedule({ user, userData }: Props) {
-  const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [mealToEdit, setMealToEdit] = useState<'breakfast' | 'lunch' | 'dinner'>('breakfast');
-  const [dateToEdit, setDateToEdit] = useState(0);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+
+  function assignMeal(date: number, slot: MealSlot, mealName: string) {
+    const schedule = userData.schedule;
+    const dayIndex = schedule.findIndex(day => day.date === date);
+    if (dayIndex === -1) return;
+    schedule[dayIndex][slot] = mealName;
+    updateUserData(user.uid, {
+      schedule: schedule,
+      meals: userData.meals,
+      groceryList: userData.groceryList,
+    });
+  }
 
   let dayList: Array<React.JSX.Element> = [];
   if (userData) {
@@ -29,9 +37,7 @@ export default function Schedule({ user, userData }: Props) {
           lunch={day.lunch}
           dinner={day.dinner}
           meals={userData.meals}
-          setModalIsOpen={setModalIsOpen}
-          setMealToEdit={setMealToEdit}
-          setDateToEdit={setDateToEdit}
+          onMealChange={assignMeal}
         />
       );
     });
@@ -45,9 +51,7 @@ export default function Schedule({ user, userData }: Props) {
           lunch=""
           dinner=""
           meals={userData.meals}
-          setModalIsOpen={setModalIsOpen}
-          setMealToEdit={setMealToEdit}
-          setDateToEdit={setDateToEdit}
+          onMealChange={assignMeal}
         />
       );
       userData.schedule.push({
@@ -65,15 +69,6 @@ export default function Schedule({ user, userData }: Props) {
         {icon('calendar', undefined, '30px')} Schedule
       </h1>
       {dayList}
-      {modalIsOpen && (
-        <MealSelectModal
-          dateToUpdate={dateToEdit}
-          mealToChange={mealToEdit}
-          user={user}
-          userData={userData}
-          setModalIsOpen={setModalIsOpen}
-        />
-      )}
     </>
   );
 }

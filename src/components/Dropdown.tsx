@@ -10,6 +10,8 @@ type Props = {
   options: Array<Option>;
   placeholder?: string;
   width?: number;
+  value?: string;
+  classOverrides?: string;
   onSelect: (value: string) => void;
 };
 
@@ -17,11 +19,14 @@ export default function Dropdown({
   options,
   placeholder = 'Select an option...',
   width,
+  value = '',
+  classOverrides,
   onSelect,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedOption, setSelectedOption] = useState<Option>({ value: '', label: '' });
+  const [selectedValue, setSelectedValue] = useState(value);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const selectedOption = options.find(option => option.value === selectedValue);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -37,8 +42,13 @@ export default function Dropdown({
     };
   }, []);
 
+  // Follow the selection along when the parent changes it
+  useEffect(() => {
+    setSelectedValue(value);
+  }, [value]);
+
   function handleOptionClick(option: Option) {
-    setSelectedOption(option);
+    setSelectedValue(option.value);
     setIsOpen(false);
     onSelect(option.value);
   };
@@ -48,14 +58,14 @@ export default function Dropdown({
   };
 
   return (
-    <div className="dropdown w-full mb-8">
+    <div className={`dropdown w-full mb-8 ${classOverrides}`}>
       <div ref={dropdownRef} className="relative w-full cursor-pointer" style={style}>
         <div
           className="flex justify-between items-center border-b-1 border-slate-200 py-2"
           onClick={() => setIsOpen(!isOpen)}
           aria-label="dropdown"
         >
-          <span className="text-white">{selectedOption.label || <span>{placeholder}</span>}</span>
+          <span className="text-light">{selectedOption?.label || <span>{placeholder}</span>}</span>
           <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{icon('chevron-down', "#ffffff")}</div>
         </div>
 
@@ -68,7 +78,7 @@ export default function Dropdown({
             <div
               key={option.value}
               className={`p-[.7rem] cursor-pointer hover:bg-gray-800 hover:text-white ${
-                selectedOption.value === option.value ? 'bg-gray-800 text-white selected' : ''
+                selectedValue === option.value ? 'bg-gray-800 text-white selected' : ''
               }`}
               onClick={() => handleOptionClick(option)}
             >

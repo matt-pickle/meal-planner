@@ -1,6 +1,5 @@
-import Button from './Button.tsx';
-import { icon } from '../utils/utils.tsx';
-import { type UserData } from '../utils/types';
+import Dropdown from './Dropdown.tsx';
+import { type MealSlot, type UserData } from '../utils/types';
 
 type Props = {
   date: number;
@@ -8,9 +7,7 @@ type Props = {
   lunch: string;
   dinner: string;
   meals: UserData['meals'];
-  setModalIsOpen: (isOpen: boolean) => void;
-  setMealToEdit: (meal: 'breakfast' | 'lunch' | 'dinner') => void;
-  setDateToEdit: (date: number) => void;
+  onMealChange: (date: number, slot: MealSlot, mealName: string) => void;
 };
 
 export default function ScheduleDay({
@@ -19,9 +16,7 @@ export default function ScheduleDay({
   lunch,
   dinner,
   meals,
-  setModalIsOpen,
-  setMealToEdit,
-  setDateToEdit,
+  onMealChange,
 }: Props) {
   const dateObj = new Date(date);
   const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -30,18 +25,15 @@ export default function ScheduleDay({
     .getFullYear()
     .toString()
     .slice(-2)}`;
-  const breakfastMeal = meals.find(meal => meal.name === breakfast);
-  const breakfastEmoji = breakfastMeal?.emoji;
-  const lunchMeal = meals.find(meal => meal.name === lunch);
-  const lunchEmoji = lunchMeal?.emoji;
-  const dinnerMeal = meals.find(meal => meal.name === dinner);
-  const dinnerEmoji = dinnerMeal?.emoji;
-
-  function openModal(mealToEdit: 'breakfast' | 'lunch' | 'dinner') {
-    setMealToEdit(mealToEdit);
-    setDateToEdit(date);
-    setModalIsOpen(true);
-  }
+  const mealOptions = meals.map(meal => ({
+    label: `${meal.emoji}\u00A0\u00A0${meal.name}`,
+    value: meal.name,
+  }));
+  const slots: Array<{ name: MealSlot; meal: string }> = [
+    { name: 'breakfast', meal: breakfast },
+    { name: 'lunch', meal: lunch },
+    { name: 'dinner', meal: dinner },
+  ];
 
   return (
     <div
@@ -52,42 +44,18 @@ export default function ScheduleDay({
         {dateString}
       </h2>
       <div className="flex flex-col md:flex-row gap-6 flex-1">
-        <p className="text-white flex-1 mb-1">
-          <span className="text-light font-semibold mr-2">BREAKFAST:</span>
-          <span className="whitespace-nowrap">
-            {breakfastEmoji} {breakfast}
-            <Button
-              icon={icon('edit')}
-              classOverrides="!bg-transparent !p-0 translate-y-[1px] ml-2"
-              ariaLabel="edit"
-              onClick={() => openModal('breakfast')}
+        {slots.map(slot => (
+          <div key={slot.name} className="flex-1">
+            <span className="text-light font-semibold">{slot.name.toUpperCase()}:</span>
+            <Dropdown
+              options={mealOptions}
+              value={slot.meal}
+              placeholder="Select a meal..."
+              classOverrides="!mb-0"
+              onSelect={mealName => onMealChange(date, slot.name, mealName)}
             />
-          </span>
-        </p>
-        <p className="text-white flex-1 mb-1">
-          <span className="text-light font-semibold mr-2">LUNCH:</span>
-          <span className="whitespace-nowrap">
-            {lunchEmoji} {lunch}
-            <Button
-              icon={icon('edit')}
-              classOverrides="!bg-transparent !p-0 translate-y-[1px] ml-2"
-              ariaLabel="edit"
-              onClick={() => openModal('lunch')}
-            />
-          </span>
-        </p>
-        <p className="text-white flex-1 mb-1">
-          <span className="text-light font-semibold mr-2">DINNER:</span>
-          <span className="whitespace-nowrap">
-            {dinnerEmoji} {dinner}
-            <Button
-              icon={icon('edit')}
-              classOverrides="!bg-transparent !p-0 translate-y-[1px] ml-2"
-              ariaLabel="edit"
-              onClick={() => openModal('dinner')}
-            />
-          </span>
-        </p>
+          </div>
+        ))}
       </div>
     </div>
   );

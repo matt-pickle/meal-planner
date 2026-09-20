@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { type UserData } from '../src/utils/types';
 import ScheduleDay from '../src/components/ScheduleDay';
 
@@ -9,21 +10,19 @@ describe('ScheduleDay Component', () => {
     { name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
     { name: 'Hamburger', emoji: '🍔', ingredients: [] },
   ];
-  const mockSetModalIsOpen = vi.fn();
-  const mockSetCurrentMealType = vi.fn();
-  const mockSetCurrentDay = vi.fn();
+  const mockDate = 1764299759000;
+  const mockOnMealChange = vi.fn();
 
   beforeEach(() => {
+    mockOnMealChange.mockClear();
     render(
       <ScheduleDay
-        date={1764299759000}
+        date={mockDate}
         breakfast="Cereal"
         lunch="Turkey sandwich"
         dinner="Hamburger"
         meals={mockMeals}
-        setModalIsOpen={mockSetModalIsOpen}
-        setMealToEdit={mockSetCurrentMealType}
-        setDateToEdit={mockSetCurrentDay}
+        onMealChange={mockOnMealChange}
       />
     );
   });
@@ -49,8 +48,20 @@ describe('ScheduleDay Component', () => {
     expect(dinner).toHaveTextContent('🍔 Hamburger');
   });
 
-  test('renders edit buttons for each meal', () => {
-    const editButtons = screen.getAllByRole('button', { name: 'edit' });
-    expect(editButtons.length).toBe(3);
+  test('renders a dropdown for each meal', () => {
+    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    expect(dropdowns.length).toBe(3);
+  });
+
+  test('reports the new meal when an option is selected', async () => {
+    const lunchSection = screen.getByText(/LUNCH:/).parentElement as HTMLElement;
+    const dropdown = within(lunchSection).getByRole('generic', { name: 'dropdown' });
+
+    await userEvent.click(dropdown);
+    await userEvent.click(within(lunchSection).getByText(/Hamburger/));
+
+    expect(mockOnMealChange).toHaveBeenCalledTimes(1);
+    expect(mockOnMealChange).toHaveBeenCalledWith(mockDate, 'lunch', 'Hamburger');
+    expect(dropdown).toHaveTextContent('🍔 Hamburger');
   });
 });

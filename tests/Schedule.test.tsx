@@ -1,15 +1,28 @@
-import { describe, test, expect, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { updateUserData } from '../firebase/firebase';
 import { type UserData } from '../src/utils/types';
 import Schedule from '../src/pages/Schedule';
 
+vi.mock('../firebase/firebase', () => {
+  return {
+    updateUserData: vi.fn(),
+  };
+});
 
 describe('Schedule Page', () => {
   const mockUser: any = { uid: '123', email: 'test@example.com' };
 
   const mockUserData: UserData = {
-    meals: [],
+    meals: [
+      { name: 'Cereal', emoji: '🥣', ingredients: [] },
+      { name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
+      { name: 'Spaghetti', emoji: '🍝', ingredients: [] },
+      { name: 'Bacon and eggs', emoji: '🥓', ingredients: [] },
+      { name: 'Hamburger', emoji: '🍔', ingredients: [] },
+      { name: 'Chicken', emoji: '🍗', ingredients: [] },
+    ],
     groceryList: [],
     schedule: [
       {
@@ -28,6 +41,7 @@ describe('Schedule Page', () => {
   };
 
   beforeEach(() => {
+    vi.mocked(updateUserData).mockClear();
     render(<Schedule userData={mockUserData} user={mockUser} />);
   });
 
@@ -46,21 +60,33 @@ describe('Schedule Page', () => {
   });
 
   test('renders meals from userData', () => {
-    expect(screen.getByText(/Cereal/)).toBeVisible();
-    expect(screen.getByText(/Bacon and eggs/)).toBeVisible();
-    expect(screen.getByText(/Turkey sandwich/)).toBeVisible();
-    expect(screen.getByText(/Spaghetti/)).toBeVisible();
-    expect(screen.getByText(/Hamburger/)).toBeVisible();
-    expect(screen.getByText(/Chicken/)).toBeVisible();
+    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    expect(dropdowns[0]).toHaveTextContent('🥣 Cereal');
+    expect(dropdowns[1]).toHaveTextContent('🥪 Turkey sandwich');
+    expect(dropdowns[2]).toHaveTextContent('🍝 Spaghetti');
+    expect(dropdowns[3]).toHaveTextContent('🥓 Bacon and eggs');
+    expect(dropdowns[4]).toHaveTextContent('🍔 Hamburger');
+    expect(dropdowns[5]).toHaveTextContent('🍗 Chicken');
   });
 
-  test('opens edit modal on edit button click', async () => {
-    const editButtons = screen.getAllByRole('button', { name: 'edit' });
+  test('renders a dropdown for every meal of every day', () => {
+    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    expect(dropdowns.length).toBe(42);
+  });
 
-    await userEvent.click(editButtons[0]);
+  test('assigns the selected meal and saves it', async () => {
+    const dropdown = screen.getAllByRole('generic', { name: 'dropdown' })[0];
+    const options = dropdown.parentElement as HTMLElement;
 
-    await waitFor(() => {
-      expect(screen.getByText(/BREAKFAST on/)).toBeVisible();
+    await userEvent.click(dropdown);
+    await userEvent.click(within(options).getByText(/Hamburger/));
+
+    expect(dropdown).toHaveTextContent('🍔 Hamburger');
+    expect(mockUserData.schedule[0].breakfast).toBe('Hamburger');
+    expect(updateUserData).toHaveBeenCalledWith('123', {
+      schedule: mockUserData.schedule,
+      meals: mockUserData.meals,
+      groceryList: mockUserData.groceryList,
     });
   });
 });

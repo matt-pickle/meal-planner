@@ -17,6 +17,8 @@ export type GroceryItemType = {
   status: 'to buy' | 'bought';
 };
 
+export type MealSlot = 'breakfast' | 'lunch' | 'dinner';
+
 export type UserData = {
   meals: Array<MealType>;
   schedule: Array<{
