@@ -65,10 +65,13 @@ export default function Schedule({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-4">
+      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
         {icon('calendar', undefined, '30px')} Schedule
       </h1>
-      {dayList}
+      <div className="schedule-weeks grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="week flex flex-col gap-4">{dayList.slice(0, 7)}</div>
+        <div className="week flex flex-col gap-4">{dayList.slice(7)}</div>
+      </div>
     </>
   );
 }

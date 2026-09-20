@@ -77,8 +77,8 @@ export default function Dropdown({
           {options.map(option => (
             <div
               key={option.value}
-              className={`p-[.7rem] cursor-pointer hover:bg-gray-800 hover:text-white ${
-                selectedValue === option.value ? 'bg-gray-800 text-white selected' : ''
+              className={`p-[.7rem] cursor-pointer hover:bg-medium hover:text-white ${
+                selectedValue === option.value ? 'bg-medium text-white selected' : ''
               }`}
               onClick={() => handleOptionClick(option)}
             >

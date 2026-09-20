@@ -38,14 +38,14 @@ export default function ScheduleDay({
   return (
     <div
       key={date}
-      className="schedule-day py-4 border-b-1 border-light mb-4"
+      className="schedule-day bg-dark rounded-md p-8"
     >
       <h2 className="text-subtitle text-lg font-semibold mb-4">
         {dateString}
       </h2>
-      <div className="flex flex-col md:flex-row gap-6 flex-1">
+      <div className="flex flex-col gap-4">
         {slots.map(slot => (
-          <div key={slot.name} className="flex-1">
+          <div key={slot.name}>
             <span className="text-light font-semibold">{slot.name.toUpperCase()}:</span>
             <Dropdown
               options={mealOptions}
