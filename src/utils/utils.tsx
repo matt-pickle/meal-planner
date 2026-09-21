@@ -10,6 +10,7 @@ import {
   FaRegUserCircle,
 } from 'react-icons/fa';
 import { PiHamburgerBold } from 'react-icons/pi';
+import { FcGoogle } from 'react-icons/fc';
 import { BsThreeDotsVertical } from 'react-icons/bs';
 import { IconContext } from 'react-icons';
 
@@ -27,6 +28,7 @@ export function icon(name: string, color?: string, size?: string): React.JSX.Ele
       {name == 'user' && <FaRegUserCircle />}
       {name == 'hamburger' && <PiHamburgerBold />}
       {name == 'dots' && <BsThreeDotsVertical />}
+      {name == 'google' && <FcGoogle />}
     </IconContext.Provider>
   );
 }
