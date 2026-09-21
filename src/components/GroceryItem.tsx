@@ -22,14 +22,16 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
   return (
     <div className="grocery-item">
       <div className="flex items-center gap-2">
-        <Checkbox
-          id={`checkbox-${groceryItems.indexOf(item)}`}
-          ariaLabel={`mark as bought`}
-          onChange={toggleStatus}
-          size="16px"
-          color="#e2e8f0"
-          checked={item.status === 'bought'}
-        />
+        <div className="pr-2">
+          <Checkbox
+            id={`checkbox-${groceryItems.indexOf(item)}`}
+            ariaLabel={`mark as bought`}
+            onChange={toggleStatus}
+            size="20px"
+            color="#e2e8f0"
+            checked={item.status === 'bought'}
+          />
+        </div>
         <input
           aria-label="item name"
           type="text"
