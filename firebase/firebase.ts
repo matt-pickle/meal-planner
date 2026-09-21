@@ -66,7 +66,7 @@ export async function createDocument(userId: string) {
     schedule: [],
     groceryList: []
   })
-  .catch(error => console.log(error))
+  .catch(() => {})
 }
 
 export async function getUserData(userId: string): Promise<UserData | undefined> {
@@ -80,13 +80,12 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
       await createDocument(userId);
       return await getUserData(userId);
     }
-  } catch (error) {
-    console.log(error);
+  } catch {
     return undefined;
   }
 }
 
 export async function updateUserData(userId: string, userData: Partial<UserData>) {
   await setDoc(doc(db, "users", userId), userData, { merge: true })
-    .catch(error => console.log(error))
+    .catch(() => {})
 }

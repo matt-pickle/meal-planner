@@ -24,12 +24,10 @@ export default function App() {
         const data = await getUserData(userObj.uid);
         setUserData(data);
         navigate('/schedule');
-        console.log('logged in as ' + userObj.uid);
       } else {
         navigate('/login');
         setUserData(undefined);
         setUser(null);
-        console.log('logged out');
       }
     });
     return unsubscribe;
