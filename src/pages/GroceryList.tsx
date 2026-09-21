@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
-import { type UserData, type GroceryItemType } from '../utils/types';
+import { type UserData, type GroceryItemType, type MealSlot } from '../utils/types';
 import Button from '../components/Button';
 import { icon } from '../utils/utils';
 import Accordion from '../components/Accordion';
@@ -37,20 +37,14 @@ export default function GroceryList({ user, userData }: Props) {
     today.setHours(0, 0, 0, 0);
 
     const upcomingDays = userData?.schedule.filter(day => day.date >= today.getTime());
+    const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
     const upcomingMealNames: Array<string> = [];
     upcomingDays?.forEach(day => {
-      if (day.breakfast) {
-        const mealName = day.breakfast.slice(2).trim();
-        upcomingMealNames.push(mealName);
-      }
-      if (day.lunch) {
-        const mealName = day.lunch.slice(2).trim();
-        upcomingMealNames.push(mealName);
-      }
-      if (day.dinner) {
-        const mealName = day.dinner.slice(2).trim();
-        upcomingMealNames.push(mealName);
-      }
+      slots.forEach(slot => {
+        if (day[slot]) {
+          upcomingMealNames.push(day[slot]);
+        }
+      });
     });
     const upcomingMeals = upcomingMealNames.map(mealName => {
       return userData?.meals.find(meal => meal.name === mealName);
