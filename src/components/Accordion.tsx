@@ -16,13 +16,13 @@ export default function Accordion({ heading, content }: Props) {
   return (
     <div className="accordion">
       <div className="flex justify-between items-center w-full">
-        {heading}
+        <h2 className="text-subtitle text-xl font-semibold">{heading}</h2>
         <button
           className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : 'rotate-0'}`}
           onClick={toggleAccordion}
           aria-label="toggle accordion"
         >
-          {icon('chevron-down')}
+          {icon('chevron-down', '#bfdbfe')}
         </button>
       </div>
       <div
@@ -31,7 +31,7 @@ export default function Accordion({ heading, content }: Props) {
         }`}
         data-testid="accordion-content"
       >
-        <div className="overflow-hidden">{content}</div>
+        <div className="overflow-hidden flex flex-col gap-2 pt-4">{content}</div>
       </div>
     </div>
   );

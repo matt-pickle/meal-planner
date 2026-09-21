@@ -3,6 +3,7 @@ import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import { type UserData, type GroceryItemType } from '../utils/types';
 import Button from '../components/Button';
+import { icon } from '../utils/utils';
 import Accordion from '../components/Accordion';
 import GroceryItem from '../components/GroceryItem';
 
@@ -126,17 +127,35 @@ export default function GroceryList({ user, userData }: Props) {
     });
 
   return (
-    <div>
-      <h1 className="text-blue-300">Grocery List</h1>
-      <h2 className="text-blue-200">Items to Buy</h2>
-      {itemsToBuy.length > 0 ? itemsToBuy : <p>Your grocery list is empty.</p>}
-      <Button text="Add Item" onClick={addGroceryItem} ariaLabel="add item" />
-      <Button
-        text="Add Ingredients from Upcoming Meals"
-        onClick={addIngredientsFromMeals}
-        ariaLabel="add ingredients from upcoming meals"
-      />
-      <Accordion heading="Bought Items" content={boughtItems} />
-    </div>
+    <>
+      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
+        {icon('list', undefined, '30px')} Grocery List
+      </h1>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <Button
+          icon={icon('plus')}
+          text="Add Item"
+          onClick={addGroceryItem}
+          ariaLabel="add item"
+        />
+        <Button
+          icon={icon('plus')}
+          text="Add Ingredients from Upcoming Meals"
+          onClick={addIngredientsFromMeals}
+          ariaLabel="add ingredients from upcoming meals"
+        />
+      </div>
+      <div className="bg-dark rounded-md p-6 mb-4">
+        <h2 className="text-subtitle text-xl font-semibold mb-4">Items to Buy</h2>
+        {itemsToBuy.length > 0 ? (
+          <div className="flex flex-col gap-2">{itemsToBuy}</div>
+        ) : (
+          <p className="text-light">Your grocery list is empty.</p>
+        )}
+      </div>
+      <div className="bg-dark rounded-md p-6">
+        <Accordion heading="Bought Items" content={boughtItems} />
+      </div>
+    </>
   );
 }

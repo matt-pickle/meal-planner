@@ -23,7 +23,11 @@ export default function Checkbox({ id, ariaLabel, onChange, size = '12px', color
   const containerStyles = { width: size, height: size };
 
   return (
-    <label htmlFor={id} className="checkbox" style={containerStyles}>
+    <label
+      htmlFor={id}
+      className="checkbox flex items-center justify-center shrink-0 border-1 border-light rounded-sm cursor-pointer"
+      style={containerStyles}
+    >
       <input
         type="checkbox"
         id={id}

@@ -1,6 +1,5 @@
-import Button from './Button';
 import Checkbox from './Checkbox';
-import { type UserData, type GroceryItemType } from '../utils/types';
+import { type GroceryItemType } from '../utils/types';
 import { className } from '../utils/utils';
 
 type Props = {
@@ -23,13 +22,13 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
 
   return (
     <div className="grocery-item">
-      <div className="flex gap-2">
+      <div className="flex items-center gap-2">
         <Checkbox
           id={`checkbox-${className(item.name)}`}
           ariaLabel={`mark as bought`}
           onChange={toggleStatus}
           size="16px"
-          color="#000000"
+          color="#e2e8f0"
           initialChecked={item.status === 'bought'}
         />
         <input
@@ -45,7 +44,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             }
             setGroceryItems(newItems);
           }}
-          className="border p-1 rounded w-1/2"
+          className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/2"
         />
         <input
           aria-label="quantity"
@@ -60,7 +59,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             }
             setGroceryItems(newItems);
           }}
-          className="border p-1 rounded w-1/4"
+          className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
         />
         <input
           aria-label="units"
@@ -75,14 +74,14 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             }
             setGroceryItems(newItems);
           }}
-          className="border p-1 rounded w-1/4"
+          className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
         />
         <button
           onClick={() => {
             const newItems = groceryItems.filter(i => i !== item);
             setGroceryItems(newItems);
           }}
-          className="text-red-500"
+          className="text-red-500 cursor-pointer px-1"
           aria-label="delete item"
         >
           &times;
