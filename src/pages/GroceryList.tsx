@@ -128,7 +128,7 @@ export default function GroceryList({ user, userData }: Props) {
         </h1>
         <Button
           icon={icon('plus')}
-          text="Add Ingredients from Upcoming Meals"
+          text="Add From Meals"
           onClick={addIngredientsFromMeals}
           ariaLabel="add ingredients from upcoming meals"
         />
@@ -136,7 +136,7 @@ export default function GroceryList({ user, userData }: Props) {
       <div className="bg-dark rounded-md p-6 mb-4">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Items to Buy</h2>
         {itemsToBuy.length > 0 ? (
-          <div className="flex flex-col gap-2">{itemsToBuy}</div>
+          <div className="flex flex-col gap-4 sm:gap-2">{itemsToBuy}</div>
         ) : (
           <p className="text-light">Your grocery list is empty.</p>
         )}

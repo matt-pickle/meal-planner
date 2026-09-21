@@ -31,7 +31,7 @@ export default function Accordion({ heading, content }: Props) {
         }`}
         data-testid="accordion-content"
       >
-        <div className="overflow-hidden flex flex-col gap-2 pt-4">{content}</div>
+        <div className="overflow-hidden flex flex-col gap-4 sm:gap-2 pt-4">{content}</div>
       </div>
     </div>
   );
