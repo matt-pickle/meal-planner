@@ -78,6 +78,33 @@ describe('GroceryItem Component', () => {
     expect(boughtSection).not.toContainElement(groceryItem);
   });
 
+  test('other items keep their checked state when one is toggled', async () => {
+    const checkedFor = (name: string) => {
+      const row = screen.getByDisplayValue(name).parentElement;
+      return within(row!).getByRole('checkbox', { name: 'mark as bought' });
+    };
+
+    expect(checkedFor('Apples')).toBeChecked();
+
+    // Move Cheese into the bought section and straight back out again
+    await userEvent.click(checkedFor('Cheese'));
+    await userEvent.click(checkedFor('Cheese'));
+
+    expect(checkedFor('Cheese')).not.toBeChecked();
+    expect(checkedFor('Apples')).toBeChecked();
+  });
+
+  test('gives each item its own checkbox, even when unnamed', async () => {
+    const addItemButton = screen.getByRole('button', { name: 'add item' });
+    await userEvent.click(addItemButton);
+    await userEvent.click(addItemButton);
+
+    const checkboxIds = screen
+      .getAllByRole('checkbox', { name: 'mark as bought' })
+      .map(checkbox => checkbox.id);
+    expect(new Set(checkboxIds).size).toBe(checkboxIds.length);
+  });
+
   test('deletes item on delete button click', async () => {
     const groceryItem = screen.getByDisplayValue('Cheese').parentElement;
     const deleteButton = within(groceryItem!).getByRole('button', { name: 'delete item' });

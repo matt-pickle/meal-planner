@@ -8,15 +8,26 @@ type Props = {
   color?: string;
   ariaLabel?: string;
   initialChecked?: boolean;
+  checked?: boolean;
 };
 
-export default function Checkbox({ id, ariaLabel, onChange, size = '12px', color, initialChecked = false }: Props) {
-  const [checked, setChecked] = useState(initialChecked);
+export default function Checkbox({
+  id,
+  ariaLabel,
+  onChange,
+  size = '12px',
+  color,
+  initialChecked = false,
+  checked: controlledChecked,
+}: Props) {
+  // Uncontrolled unless the parent owns the value by passing `checked`
+  const [internalChecked, setInternalChecked] = useState(initialChecked);
+  const checked = controlledChecked ?? internalChecked;
   const iconSize = `${parseFloat(size) * 0.9}px`;
 
   function handleClick() {
     const newChecked = !checked;
-    setChecked(newChecked);
+    setInternalChecked(newChecked);
     onChange(newChecked);
   }
 

@@ -1,6 +1,5 @@
 import Checkbox from './Checkbox';
 import { type GroceryItemType } from '../utils/types';
-import { className } from '../utils/utils';
 
 type Props = {
   item: GroceryItemType;
@@ -24,12 +23,12 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
     <div className="grocery-item">
       <div className="flex items-center gap-2">
         <Checkbox
-          id={`checkbox-${className(item.name)}`}
+          id={`checkbox-${groceryItems.indexOf(item)}`}
           ariaLabel={`mark as bought`}
           onChange={toggleStatus}
           size="16px"
           color="#e2e8f0"
-          initialChecked={item.status === 'bought'}
+          checked={item.status === 'bought'}
         />
         <input
           aria-label="item name"
