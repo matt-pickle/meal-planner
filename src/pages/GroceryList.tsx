@@ -131,20 +131,13 @@ export default function GroceryList({ user, userData }: Props) {
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
         {icon('list', undefined, '30px')} Grocery List
       </h1>
-      <div className="flex flex-wrap gap-4 mb-4">
-        <Button
-          icon={icon('plus')}
-          text="Add Item"
-          onClick={addGroceryItem}
-          ariaLabel="add item"
-        />
-        <Button
-          icon={icon('plus')}
-          text="Add Ingredients from Upcoming Meals"
-          onClick={addIngredientsFromMeals}
-          ariaLabel="add ingredients from upcoming meals"
-        />
-      </div>
+      <Button
+        icon={icon('plus')}
+        text="Add Ingredients from Upcoming Meals"
+        onClick={addIngredientsFromMeals}
+        ariaLabel="add ingredients from upcoming meals"
+        classOverrides="mb-4"
+      />
       <div className="bg-dark rounded-md p-6 mb-4">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Items to Buy</h2>
         {itemsToBuy.length > 0 ? (
@@ -152,6 +145,13 @@ export default function GroceryList({ user, userData }: Props) {
         ) : (
           <p className="text-light">Your grocery list is empty.</p>
         )}
+        <Button
+          icon={icon('plus')}
+          text="Add Item"
+          onClick={addGroceryItem}
+          ariaLabel="add item"
+          classOverrides="mt-4"
+        />
       </div>
       <div className="bg-dark rounded-md p-6">
         <Accordion heading="Bought Items" content={boughtItems} />
