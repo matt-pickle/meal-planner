@@ -30,7 +30,7 @@ The app talks to Firebase, so you need a Firebase project before it will run:
      }
    }
    ```
-4. Register a **Web app** in project settings and copy its config values into a `.env` file in the project root:
+4. Register a **Web app** in project settings, copy `.env.example` to `.env` in the project root (`cp .env.example .env`), and fill in its config values:
 
    ```bash
    VITE_API_KEY=your-api-key
@@ -71,7 +71,8 @@ meal-planner/
 ├── server.js                  Express server: Vite middleware in dev, static + SSR in prod
 ├── index.html                 HTML shell with <!--app-html--> placeholder for SSR output
 ├── vite.config.ts             Vite plugins (React SWC, Tailwind) and Vitest config
-├── .env                       Firebase credentials (not committed)
+├── .env.example               Template for the Firebase config keys (committed)
+├── .env                       Firebase credentials (git-ignored)
 │
 ├── firebase/
 │   └── firebase.ts            Firebase init plus every data call: logIn, logOut,
