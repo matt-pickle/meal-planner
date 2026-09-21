@@ -91,8 +91,10 @@ app.use('*all', async (req, res) => {
     }, ABORT_DELAY);
   } catch (e) {
     vite?.ssrFixStacktrace(e);
-    console.log(e.stack);
-    res.status(500).end(e.stack);
+    console.error(e);
+    // Detailed stacks stay server-side in production so we don't disclose
+    // filesystem paths, dependency versions, or internal module structure.
+    res.status(500).end(isProduction ? 'Internal Server Error' : e.stack);
   }
 });
 
