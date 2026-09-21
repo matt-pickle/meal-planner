@@ -18,17 +18,13 @@ The app talks to Firebase, so you need a Firebase project before it will run:
 
 1. Create a project at [console.firebase.google.com](https://console.firebase.google.com).
 2. Under **Authentication → Sign-in method**, enable the **Google** provider.
-3. Under **Firestore Database**, create a database. The app writes one document per user at `users/{uid}`, so your security rules should let a signed-in user read and write only their own document:
+3. Under **Firestore Database**, create a database. The app writes one document per user at `users/{uid}`. The security rules live in [`firebase/firestore.rules`](firebase/firestore.rules) — they let a signed-in user read and write only their own document, and validate its shape and array sizes. They are the only authorization layer, since the client talks to Firestore directly. Deploy them with the [Firebase CLI](https://firebase.google.com/docs/cli):
 
-   ```
-   rules_version = '2';
-   service cloud.firestore {
-     match /databases/{database}/documents {
-       match /users/{userId} {
-         allow read, write: if request.auth != null && request.auth.uid == userId;
-       }
-     }
-   }
+   ```bash
+   npm install -g firebase-tools
+   firebase login
+   firebase use --add          # select your project
+   firebase deploy --only firestore:rules
    ```
 4. Register a **Web app** in project settings, copy `.env.example` to `.env` in the project root (`cp .env.example .env`), and fill in its config values:
 
@@ -71,12 +67,16 @@ meal-planner/
 ├── server.js                  Express server: Vite middleware in dev, static + SSR in prod
 ├── index.html                 HTML shell with <!--app-html--> placeholder for SSR output
 ├── vite.config.ts             Vite plugins (React SWC, Tailwind) and Vitest config
+├── firebase.json              Firebase CLI config (points into firebase/)
+├── .firebaserc                Project alias used by the CLI
 ├── .env.example               Template for the Firebase config keys (committed)
 ├── .env                       Firebase credentials (git-ignored)
 │
 ├── firebase/
-│   └── firebase.ts            Firebase init plus every data call: logIn, logOut,
-│                              getUserData, createDocument, updateUserData
+│   ├── firebase.ts            Firebase init plus every data call: logIn, logOut,
+│   │                          getUserData, createDocument, updateUserData
+│   ├── firestore.rules        Firestore security rules — the only authorization layer
+│   └── firestore.indexes.json Firestore composite indexes (none needed so far)
 │
 ├── src/
 │   ├── entry-client.tsx       Hydrates the SSR markup inside BrowserRouter

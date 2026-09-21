@@ -1,0 +1,37 @@
+rules_version = '2';
+
+// These rules are the application's only authorization layer: the client
+// writes to Firestore directly and there is no backend API in front of it.
+// Deploy with: firebase deploy --only firestore:rules
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // One document per signed-in user, at users/{uid}.
+    match /users/{userId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      // Every write goes through setDoc(..., { merge: true }), so
+      // request.resource.data is the merged result and carries all three
+      // top-level fields even when the client sent only one of them.
+      //
+      // Rules cannot iterate arrays, so element shape is not checked here;
+      // these caps exist to bound document size (Firestore's limit is 1 MB)
+      // and to stop a modified client writing an arbitrary payload.
+      function isValidShape() {
+        let data = request.resource.data;
+        return data.keys().hasOnly(['meals', 'schedule', 'groceryList'])
+          && data.keys().hasAll(['meals', 'schedule', 'groceryList'])
+          && data.meals is list && data.meals.size() <= 500
+          && data.schedule is list && data.schedule.size() <= 2000
+          && data.groceryList is list && data.groceryList.size() <= 1000;
+      }
+
+      allow read: if isOwner();
+      allow create, update: if isOwner() && isValidShape();
+      // The app never deletes the user document.
+      allow delete: if false;
+    }
+  }
+}
