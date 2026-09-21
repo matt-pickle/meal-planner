@@ -60,9 +60,9 @@ describe('AddFromMealsModal Component', () => {
 
   test('lists the ingredients to be added with totalled quantities and units', () => {
     // Spaghetti is scheduled twice, so its ingredients are doubled
-    expect(screen.getByText(/2 boxes - Noodles/)).toBeVisible();
-    expect(screen.getByText(/4 jars - Sauce/)).toBeVisible();
-    expect(screen.getByText(/1 lbs - Ground Beef/)).toBeVisible();
+    expect(screen.getByText(/Noodles - 2 boxes/)).toBeVisible();
+    expect(screen.getByText(/Sauce - 4 jars/)).toBeVisible();
+    expect(screen.getByText(/Ground Beef - 1 lbs/)).toBeVisible();
   });
 
   test('leaves out meals scheduled in the past', () => {
