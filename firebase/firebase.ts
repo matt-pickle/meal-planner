@@ -19,6 +19,8 @@ export const auth = getAuth(firebaseApp)
 
 export async function logIn() {
   const provider = new GoogleAuthProvider();
+  // Google skips the account chooser when only one account is signed in; always ask
+  provider.setCustomParameters({ prompt: 'select_account' });
   signInWithPopup(auth, provider);
 }
 
