@@ -140,12 +140,13 @@ export default function GroceryList({ user, userData }: Props) {
         ) : (
           <p className="text-light">Your grocery list is empty.</p>
         )}
+        {/* ml-9 clears the checkbox column so the button lines up with the item name inputs */}
         <Button
           icon={icon('plus')}
           text="Add Item"
           onClick={addGroceryItem}
           ariaLabel="add item"
-          classOverrides="mt-4"
+          classOverrides="mt-4 ml-9"
         />
       </div>
       <div className="bg-dark rounded-md p-6">
