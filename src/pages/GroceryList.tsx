@@ -6,6 +6,7 @@ import Button from '../components/Button';
 import { icon } from '../utils/utils';
 import Accordion from '../components/Accordion';
 import GroceryItem from '../components/GroceryItem';
+import AddFromMealsModal from '../components/AddFromMealsModal';
 
 type Props = {
   user: User | null;
@@ -14,6 +15,8 @@ type Props = {
 
 export default function GroceryList({ user, userData }: Props) {
   const [groceryItems, setGroceryItems] = useState<Array<GroceryItemType>>(userData?.groceryList || []);
+  const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
+  const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
 
   // Debounced database updates when groceryItems change
   useEffect(() => {
@@ -32,7 +35,8 @@ export default function GroceryList({ user, userData }: Props) {
     setGroceryItems(updatedItems);
   }
 
-  function addIngredientsFromMeals() {
+  // Totals up the ingredients for every meal scheduled from today onward
+  function getIngredientsFromMeals(): Array<GroceryItemType> {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -58,12 +62,10 @@ export default function GroceryList({ user, userData }: Props) {
           item => item.name === ingredient.name && item.units === ingredient.units
         );
         if (existingItem) {
-          console.log('Existing item found:', existingItem);
           existingItem.quantity
             ? (existingItem.quantity += ingredient.quantity)
             : (existingItem.quantity = ingredient.quantity);
         } else {
-          console.log('New item found:', ingredient);
           ingredientsToAdd.push({
             name: ingredient.name,
             quantity: ingredient.quantity,
@@ -74,6 +76,15 @@ export default function GroceryList({ user, userData }: Props) {
       });
     });
 
+    return ingredientsToAdd;
+  }
+
+  function openAddFromMealsModal() {
+    setIngredientsToAdd(getIngredientsFromMeals());
+    setAddFromMealsModalIsOpen(true);
+  }
+
+  function addIngredientsFromMeals() {
     const updatedGroceryList = [...groceryItems];
     ingredientsToAdd.forEach(ingredient => {
       const existingItem = updatedGroceryList.find(
@@ -129,7 +140,7 @@ export default function GroceryList({ user, userData }: Props) {
         <Button
           icon={icon('plus')}
           text="Add From Meals"
-          onClick={addIngredientsFromMeals}
+          onClick={openAddFromMealsModal}
           ariaLabel="add ingredients from upcoming meals"
         />
       </div>
@@ -152,6 +163,13 @@ export default function GroceryList({ user, userData }: Props) {
       <div className="bg-dark rounded-md p-6">
         <Accordion heading="Bought Items" content={boughtItems} />
       </div>
+      {addFromMealsModalIsOpen && (
+        <AddFromMealsModal
+          ingredients={ingredientsToAdd}
+          setAddFromMealsModalIsOpen={setAddFromMealsModalIsOpen}
+          addIngredientsFromMeals={addIngredientsFromMeals}
+        />
+      )}
     </>
   );
 }

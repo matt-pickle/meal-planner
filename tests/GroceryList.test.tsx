@@ -75,6 +75,7 @@ describe('GroceryList Component', () => {
   test('Adds ingredients on "Add Ingredients from Upcoming Meals" click', async () => {
     const addIngredientsButton = screen.getByRole('button', { name: 'add ingredients from upcoming meals' });
     await userEvent.click(addIngredientsButton);
+    await userEvent.click(screen.getByRole('button', { name: 'confirm add ingredients' }));
 
     expect(screen.getByDisplayValue(/Noodles/)).toBeVisible();
     expect(screen.getByDisplayValue(/Sauce/)).toBeVisible();
