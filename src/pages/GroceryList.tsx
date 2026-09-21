@@ -122,16 +122,17 @@ export default function GroceryList({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {icon('list', undefined, '30px')} Grocery List
-      </h1>
-      <Button
-        icon={icon('plus')}
-        text="Add Ingredients from Upcoming Meals"
-        onClick={addIngredientsFromMeals}
-        ariaLabel="add ingredients from upcoming meals"
-        classOverrides="mb-4"
-      />
+      <div className="flex flex-wrap items-center justify-between gap-8 mb-8">
+        <h1 className="flex items-center gap-3 text-title text-4xl font-semibold">
+          {icon('list', undefined, '30px')} Grocery List
+        </h1>
+        <Button
+          icon={icon('plus')}
+          text="Add Ingredients from Upcoming Meals"
+          onClick={addIngredientsFromMeals}
+          ariaLabel="add ingredients from upcoming meals"
+        />
+      </div>
       <div className="bg-dark rounded-md p-6 mb-4">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Items to Buy</h2>
         {itemsToBuy.length > 0 ? (

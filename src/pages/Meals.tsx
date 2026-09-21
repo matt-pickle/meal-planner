@@ -37,16 +37,17 @@ export default function Meals({ user, userData }: Props) {
 
   return (
     <>
-      <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {icon('hamburger', undefined, '34px')} Meals
-      </h1>
-      <Button
-        icon={icon('plus')}
-        text="Create Meal"
-        ariaLabel="add new meal"
-        onClick={() => setCreateMealModalIsOpen(true)}
-        classOverrides="mb-4"
-      />
+      <div className="flex flex-wrap items-center justify-between gap-8 mb-8">
+        <h1 className="flex items-center gap-3 text-title text-4xl font-semibold">
+          {icon('hamburger', undefined, '34px')} Meals
+        </h1>
+        <Button
+          icon={icon('plus')}
+          text="Create Meal"
+          ariaLabel="add new meal"
+          onClick={() => setCreateMealModalIsOpen(true)}
+        />
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
         {mealList}
       </div>
