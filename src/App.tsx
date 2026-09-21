@@ -10,12 +10,18 @@ import Meals from './pages/Meals';
 import GroceryList from './pages/GroceryList';
 import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
+import ErrorBanner from './components/ErrorBanner';
+import { onError } from './utils/errors';
 import { type UserData } from './utils/types';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
   const [userData, setUserData] = useState<UserData | undefined>();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Firestore reads and writes report failures here rather than failing silently
+  useEffect(() => onError(setErrorMessage), []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async userObj => {
@@ -48,6 +54,7 @@ export default function App() {
         </Routes>
       </div>
       <Navigation />
+      <ErrorBanner message={errorMessage} onDismiss={() => setErrorMessage(null)} />
     </div>
   );
 }
