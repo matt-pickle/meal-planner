@@ -33,7 +33,7 @@ export default function Meals({ userData, setMeals }: Props) {
         setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
         setMealToDelete={setMealToDelete}
       />
-    )) || [];
+    ));
 
   return (
     <>

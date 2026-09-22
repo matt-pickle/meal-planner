@@ -36,10 +36,7 @@ export default function ScheduleDay({
   ];
 
   return (
-    <div
-      key={date}
-      className="schedule-day bg-dark rounded-md p-8"
-    >
+    <div className="schedule-day bg-dark rounded-md p-8">
       <h2 className="text-subtitle text-lg font-semibold mb-4">
         {dateString}
       </h2>

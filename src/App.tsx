@@ -1,9 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, getUserData, updateUserData } from '../firebase/firebase';
-import { Routes, Route, useNavigate, useLocation } from 'react-router';
+import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
-import Home from './pages/Home';
 import Login from './pages/Login';
 import Schedule from './pages/Schedule';
 import Meals from './pages/Meals';
@@ -74,7 +73,7 @@ export default function App() {
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Navigate to="/schedule" replace />} />
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoutes user={user} />}>
             <Route

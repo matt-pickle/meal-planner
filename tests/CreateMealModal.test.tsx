@@ -53,23 +53,12 @@ describe('CreateMealModal Component', () => {
     expect(title).not.toBeVisible();
   });
 
-  // test('opens emoji picker when choose emoji button is clicked', async () => {
-  //   const chooseEmojiButton = screen.getByRole('button', { name: 'choose emoji' });
-  //   await userEvent.click(chooseEmojiButton);
-    // const emojiButtons = document.body.querySelectorAll('.epr-btn');
-    // expect(emojiButtons.length).toBeGreaterThan(0);
-  // });
-
   test('saves meal on submit', async () => {
     const modalTitle = screen.getByText(/Create New Meal/);
     const nameInput = screen.getByLabelText(/Meal Name/);
-    // const chooseEmojiButton = screen.getByRole('button', { name: 'choose emoji' });
     const addIngredientButton = screen.getByRole('button', { name: 'add ingredient' });
 
     await userEvent.type(nameInput, 'Pancakes');
-    // await userEvent.click(chooseEmojiButton);
-    // const pancakeEmoji = screen.getByRole('button', { name: 'pancakes' });
-    // await userEvent.click(pancakeEmoji);
     await userEvent.click(addIngredientButton);
     const ingredientNameInput = screen.getByRole('textbox', { name: 'ingredient name' });
     const quantityInput = screen.getByRole('spinbutton', { name: 'ingredient quantity' });
