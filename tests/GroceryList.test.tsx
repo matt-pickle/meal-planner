@@ -194,6 +194,68 @@ describe('GroceryList quantity merging', () => {
     const quantity = screen.getByRole('spinbutton', { name: 'quantity' });
     expect(quantity).toHaveValue(3);
   });
+
+  // Issue 6: `undefined ?? 0` on both sides turned "no amount" into 0, which
+  // reads as "buy none".
+  const noAmountSalt: UserData['meals'] = [
+    {
+      id: 'soup',
+      name: 'Soup',
+      emoji: '🍲',
+      ingredients: [{ name: 'Salt', quantity: undefined, units: 'pinch' }],
+    },
+    {
+      id: 'stew',
+      name: 'Stew',
+      emoji: '🥘',
+      ingredients: [{ name: 'Salt', quantity: undefined, units: 'pinch' }],
+    },
+  ];
+
+  async function addFromMeals() {
+    await userEvent.click(
+      screen.getByRole('button', { name: 'add ingredients from upcoming meals' }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'confirm add ingredients' }));
+  }
+
+  test('leaves the quantity empty when an ingredient without one appears twice', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: noAmountSalt,
+      schedule: [{ date: midnightPlus(1), breakfast: 'soup', lunch: 'stew', dinner: '' }],
+      groceryList: [],
+    });
+
+    await addFromMeals();
+
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(null);
+  });
+
+  test('leaves the quantity empty when merging into an item without one', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: noAmountSalt,
+      schedule: [{ date: midnightPlus(1), breakfast: 'soup', lunch: '', dinner: '' }],
+      groceryList: [
+        { id: 'salt', name: 'Salt', quantity: undefined, units: 'pinch', status: 'to buy' },
+      ],
+    });
+
+    await addFromMeals();
+
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(null);
+  });
+
+  test('keeps the amount when only one side has one', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: noAmountSalt,
+      schedule: [{ date: midnightPlus(1), breakfast: 'soup', lunch: '', dinner: '' }],
+      groceryList: [{ id: 'salt', name: 'Salt', quantity: 2, units: 'pinch', status: 'to buy' }],
+    });
+
+    await addFromMeals();
+
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(2);
+  });
 });
 
 // Issue 40: the merges scanned what had been gathered so far for every

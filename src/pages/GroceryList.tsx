@@ -13,6 +13,14 @@ function itemKey(name: string, units: string) {
   return `${name}\u0000${units}`;
 }
 
+// A missing quantity counts as 0 only beside a real one; two missing ones stay
+// missing, since a 0 on the list reads as "buy none". Summed explicitly because
+// a truthiness test treats a quantity of 0 as missing.
+function addQuantities(a: number | undefined, b: number | undefined) {
+  if (a === undefined && b === undefined) return undefined;
+  return (a ?? 0) + (b ?? 0);
+}
+
 export default function GroceryList() {
   // The list itself lives in the store, which debounces the write for us
   const { userData, setGroceryList, flushGroceryList } = useUserData();
@@ -58,8 +66,7 @@ export default function GroceryList() {
           const key = itemKey(ingredient.name, ingredient.units);
           const existingItem = totals.get(key);
           if (existingItem) {
-            // Sum explicitly: a truthiness test treats a quantity of 0 as missing
-            existingItem.quantity = (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0);
+            existingItem.quantity = addQuantities(existingItem.quantity, ingredient.quantity);
           } else {
             totals.set(key, {
               id: crypto.randomUUID(),
@@ -116,7 +123,7 @@ export default function GroceryList() {
               { ...existingItem, quantity: ingredient.quantity, status: 'to buy' }
             : {
                 ...existingItem,
-                quantity: (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0),
+                quantity: addQuantities(existingItem.quantity, ingredient.quantity),
               };
       }
     });
