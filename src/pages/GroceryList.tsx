@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import { type UserData, type GroceryItemType, type MealSlot } from '../utils/types';
@@ -18,8 +18,17 @@ export default function GroceryList({ user, userData }: Props) {
   const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
 
+  // The effect below runs on mount too. Writing then would persist the seeded
+  // state before the user has touched anything, so skip that first run.
+  const isFirstRun = useRef(true);
+
   // Debounced database updates when groceryItems change
   useEffect(() => {
+    if (isFirstRun.current) {
+      isFirstRun.current = false;
+      return;
+    }
+
     const timer = setTimeout(() => {
       if (user) {
         updateUserData(user.uid, { groceryList: groceryItems });

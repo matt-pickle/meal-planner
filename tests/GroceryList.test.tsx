@@ -1,7 +1,8 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
+import { updateUserData } from '../firebase/firebase';
 import { type UserData } from '../src/utils/types';
 
 describe('GroceryList Component', () => {
@@ -84,5 +85,43 @@ describe('GroceryList Component', () => {
     expect(screen.getByDisplayValue(/Buns/)).toBeVisible();
     expect(screen.getByDisplayValue(/Ground Beef/)).toBeVisible();
     expect(screen.getByDisplayValue(/4/)).toBeVisible();
+  });
+});
+
+// Regression: the 500 ms autosave also fired on mount. If the page mounted
+// before userData arrived, it wrote an empty list over the user's saved one.
+describe('GroceryList autosave', () => {
+  const mockUser: any = { uid: '123', email: 'test@example.com' };
+  const savedList: UserData = {
+    meals: [],
+    schedule: [],
+    groceryList: [{ name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
+  };
+
+  beforeEach(() => {
+    vi.mocked(updateUserData).mockClear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  test('does not write anything on mount', () => {
+    vi.useFakeTimers();
+    render(<GroceryList user={mockUser} userData={savedList} />);
+
+    vi.advanceTimersByTime(2000);
+
+    expect(updateUserData).not.toHaveBeenCalled();
+  });
+
+  test('still writes after the user changes something', async () => {
+    const user = userEvent.setup();
+    render(<GroceryList user={mockUser} userData={savedList} />);
+
+    await user.click(screen.getByRole('button', { name: 'add item' }));
+
+    await vi.waitFor(() => expect(updateUserData).toHaveBeenCalledTimes(1));
+    expect(vi.mocked(updateUserData).mock.calls[0][1].groceryList).toHaveLength(2);
   });
 });

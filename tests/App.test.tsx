@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import App from '../src/App';
 import { MemoryRouter } from 'react-router';
 import { onAuthStateChanged } from 'firebase/auth';
+import { getUserData } from '../firebase/firebase';
 
 vi.mock('firebase/auth', () => {
   return {
@@ -15,7 +16,7 @@ vi.mock('../firebase/firebase', () => {
   const mockUser = { uid: '123', email: 'test@test.com' };
   return {
     auth: { currentUser: mockUser },
-    getUserData: vi.fn(),
+    getUserData: vi.fn(async () => ({ meals: [], schedule: [], groceryList: [] })),
     updateUserData: vi.fn(),
     logOut: vi.fn(),
   };
@@ -78,6 +79,20 @@ describe ('App Component', () => {
       await waitFor(() => {
         expect(screen.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible();
       });
+    });
+
+    // Regression: data pages used to mount before getUserData resolved, seeding
+    // their state from undefined and autosaving that over the saved document.
+    test('shows a loading state instead of a data page until userData arrives', async () => {
+      vi.mocked(getUserData).mockImplementationOnce(() => new Promise(() => {}));
+      renderWithRouter(<App />, '/grocery-list');
+
+      await waitFor(() => {
+        expect(screen.getByRole('status')).toHaveTextContent(/Loading/);
+      });
+      expect(
+        screen.queryByRole('heading', { name: 'Grocery List', level: 1 })
+      ).not.toBeInTheDocument();
     });
 
     test('renders navigation links', async () => {

@@ -11,6 +11,7 @@ import GroceryList from './pages/GroceryList';
 import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
 import ErrorBanner from './components/ErrorBanner';
+import Loading from './components/Loading';
 import { onError } from './utils/errors';
 import { type UserData, type MealType } from './utils/types';
 
@@ -55,9 +56,20 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoutes user={user} />}>
-            <Route path="/schedule" element={<Schedule userData={userData!} user={user!}/>} />
-            <Route path="/meals" element={<Meals userData={userData!} setMeals={setMeals} />} />
-            <Route path="/grocery-list" element={<GroceryList userData={userData!} user={user!}/>} />
+            <Route
+              path="/schedule"
+              element={userData ? <Schedule userData={userData} user={user!} /> : <Loading />}
+            />
+            <Route
+              path="/meals"
+              element={userData ? <Meals userData={userData} setMeals={setMeals} /> : <Loading />}
+            />
+            <Route
+              path="/grocery-list"
+              element={
+                userData ? <GroceryList userData={userData} user={user!} /> : <Loading />
+              }
+            />
             <Route path="/settings" element={<Settings user={user} />} />
           </Route>
         </Routes>
