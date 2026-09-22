@@ -1,10 +1,15 @@
-import { useState } from 'react';
-import EmojiPicker, { Theme } from 'emoji-picker-react';
+import { lazy, Suspense, useState } from 'react';
+import { type Theme } from 'emoji-picker-react';
 import IngredientsInput from './IngredientsInput';
 import Button from './Button';
 import Modal from './Modal';
 import { isDuplicateMealName } from '../utils/utils';
 import { type EmojiObject, type MealType, type Ingredient } from '../utils/types';
+
+// One of the largest dependencies in the app, and most visitors never open it,
+// so it is fetched on demand rather than shipped in the main bundle.
+const EmojiPicker = lazy(() => import('emoji-picker-react'));
+const DARK = 'dark' as Theme;
 
 type Props = {
   title: string;
@@ -84,12 +89,14 @@ export default function MealFormModal({
         </button>
         {emojiPickerIsOpen && (
           <div className="absolute left-0 top-12 z-20">
-            <EmojiPicker
-              onEmojiClick={pickEmoji}
-              theme={Theme.DARK}
-              height={350}
-              open={emojiPickerIsOpen}
-            />
+            <Suspense fallback={<p className="text-light">Loading emoji...</p>}>
+              <EmojiPicker
+                onEmojiClick={pickEmoji}
+                theme={DARK}
+                height={350}
+                open={emojiPickerIsOpen}
+              />
+            </Suspense>
           </div>
         )}
       </div>

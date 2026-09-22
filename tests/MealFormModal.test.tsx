@@ -199,3 +199,19 @@ describe('MealFormModal cancelling', () => {
     expect(storedMeal.ingredients[0].quantity).toBe(1);
   });
 });
+
+// Issue 37: emoji-picker-react shipped in the main bundle for every visitor.
+// It is now behind React.lazy, so it is fetched only when the picker is opened
+// — the build puts it in its own chunk.
+//
+// Only its absence is asserted here: once mounted, the picker fetches its emoji
+// set from a CDN, and with no network in jsdom it tears its own UI down again,
+// so anything about its rendered DOM is unreliable.
+describe('MealFormModal emoji picker', () => {
+  test('does not render the picker until it is opened', () => {
+    render(<MealFormModal title="Create New Meal" meals={[]} onSave={vi.fn()} onClose={vi.fn()} />);
+
+    expect(screen.queryByPlaceholderText(/search/i)).not.toBeInTheDocument();
+    expect(document.querySelector('.EmojiPickerReact')).toBeNull();
+  });
+});
