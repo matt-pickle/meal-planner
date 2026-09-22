@@ -157,3 +157,54 @@ describe('EditMealModal meal matching', () => {
     ]);
   });
 });
+
+// Regression: IngredientsInput edited ingredient objects in place, and the
+// modal seeded its state from meal.ingredients — the very objects held in
+// userData. Typing applied the change immediately, and Cancel left it applied.
+describe('EditMealModal cancelling', () => {
+  const storedMeal: MealType = {
+    id: 'spaghetti',
+    name: 'Spaghetti',
+    emoji: '🍝',
+    ingredients: [{ name: 'Noodles', quantity: 1, units: 'boxes' }],
+  };
+
+  test('leaves the stored meal untouched while the user types', async () => {
+    const setMeals = vi.fn();
+    render(
+      <EditMealModal
+        meal={storedMeal}
+        meals={[storedMeal]}
+        setEditMealModalIsOpen={vi.fn()}
+        setMeals={setMeals}
+      />
+    );
+
+    await userEvent.clear(screen.getByRole('textbox', { name: 'ingredient name' }));
+    await userEvent.type(screen.getByRole('textbox', { name: 'ingredient name' }), 'Linguine');
+
+    expect(storedMeal.ingredients[0].name).toBe('Noodles');
+    expect(setMeals).not.toHaveBeenCalled();
+  });
+
+  test('discards ingredient edits on cancel', async () => {
+    const setMeals = vi.fn();
+    const setOpen = vi.fn();
+    render(
+      <EditMealModal
+        meal={storedMeal}
+        meals={[storedMeal]}
+        setEditMealModalIsOpen={setOpen}
+        setMeals={setMeals}
+      />
+    );
+
+    await userEvent.clear(screen.getByRole('spinbutton', { name: 'ingredient quantity' }));
+    await userEvent.type(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), '9');
+    await userEvent.click(screen.getByRole('button', { name: 'cancel' }));
+
+    expect(setOpen).toHaveBeenCalledWith(false);
+    expect(setMeals).not.toHaveBeenCalled();
+    expect(storedMeal.ingredients[0].quantity).toBe(1);
+  });
+});

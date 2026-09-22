@@ -96,15 +96,19 @@ export default function GroceryList({ user, userData }: Props) {
   function addIngredientsFromMeals() {
     const updatedGroceryList = [...groceryItems];
     ingredientsToAdd.forEach(ingredient => {
-      const existingItem = updatedGroceryList.find(
+      const existingIndex = updatedGroceryList.findIndex(
         item => item.name === ingredient.name && item.units === ingredient.units
       );
-      if (existingItem) {
-          existingItem.quantity
-            ? (existingItem.quantity += ingredient.quantity ?? 0)
-            : (existingItem.quantity = ingredient.quantity);
-      } else {
+      if (existingIndex === -1) {
         updatedGroceryList.push({ ...ingredient });
+      } else {
+        // Replace rather than edit in place: the existing item is the object
+        // held in state, and in-place edits skip the re-render
+        const existingItem = updatedGroceryList[existingIndex];
+        updatedGroceryList[existingIndex] = {
+          ...existingItem,
+          quantity: (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0),
+        };
       }
     });
 

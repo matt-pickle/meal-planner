@@ -22,7 +22,11 @@ export default function EditMealModal({
   const [emoji, setEmoji] = useState<string | null>(meal?.emoji || null);
   const [emojiPickerIsOpen, setEmojiPickerIsOpen] = useState(false);
   const [nameError, setNameError] = useState('');
-  const [ingredients, setIngredients] = useState<Array<Ingredient>>(meal?.ingredients || []);
+  // Copy the ingredients: editing the stored objects would apply the changes
+  // before the user saves, and leave them applied after Cancel.
+  const [ingredients, setIngredients] = useState<Array<Ingredient>>(
+    meal?.ingredients.map(ingredient => ({ ...ingredient })) || []
+  );
 
   function pickEmoji(emojiObject: EmojiObject) {
     setEmoji(emojiObject.emoji);

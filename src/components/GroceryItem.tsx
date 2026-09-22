@@ -8,15 +8,14 @@ type Props = {
 };
 
 export default function GroceryItem({ item, groceryItems, setGroceryItems }: Props) {
+  // Replace the item rather than editing it in place: these objects are the
+  // ones held in the page's state, and editing them skips the re-render.
+  function updateItem(changes: Partial<GroceryItemType>) {
+    setGroceryItems(groceryItems.map(i => (i === item ? { ...i, ...changes } : i)));
+  }
+
   function toggleStatus(checked: boolean) {
-    const newItems = [...groceryItems];
-    const thisItem = newItems.find(i => i === item);
-    if (thisItem && checked) {
-      thisItem.status = 'bought';
-    } else if (thisItem) {
-      thisItem.status = 'to buy';
-    }
-    setGroceryItems(newItems);
+    updateItem({ status: checked ? 'bought' : 'to buy' });
   }
 
   return (
@@ -37,14 +36,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
           type="text"
           placeholder="Butter"
           value={item.name}
-          onChange={e => {
-            const newItems = [...groceryItems];
-            const thisItem = newItems.find(i => i === item);
-            if (thisItem) {
-              thisItem.name = e.target.value;
-            }
-            setGroceryItems(newItems);
-          }}
+          onChange={e => updateItem({ name: e.target.value })}
           className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title min-w-0 flex-1 sm:w-1/2 sm:flex-none"
         />
         <button
@@ -63,14 +55,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             type="number"
             placeholder="1"
             value={item.quantity}
-            onChange={e => {
-              const newItems = [...groceryItems];
-              const thisItem = newItems.find(i => i === item);
-              if (thisItem) {
-                thisItem.quantity = parseFloat(e.target.value);
-              }
-              setGroceryItems(newItems);
-            }}
+            onChange={e => updateItem({ quantity: parseFloat(e.target.value) })}
             className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/3 sm:w-1/2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <input
@@ -78,14 +63,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             type="text"
             placeholder="tbsp"
             value={item.units}
-            onChange={e => {
-              const newItems = [...groceryItems];
-              const thisItem = newItems.find(i => i === item);
-              if (thisItem) {
-                thisItem.units = e.target.value;
-              }
-              setGroceryItems(newItems);
-            }}
+            onChange={e => updateItem({ units: e.target.value })}
             className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-2/3 sm:w-1/2"
           />
         </div>

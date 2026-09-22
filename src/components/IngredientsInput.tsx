@@ -7,6 +7,15 @@ type Props = {
 };
 
 export default function IngredientsInput({ ingredients, setIngredients }: Props) {
+  // Replace the row rather than editing it in place: these objects can be the
+  // same ones held in userData, where an in-place edit applies immediately and
+  // survives Cancel.
+  function updateIngredient(index: number, changes: Partial<Ingredient>) {
+    setIngredients(
+      ingredients.map((ingredient, i) => (i === index ? { ...ingredient, ...changes } : ingredient))
+    );
+  }
+
   let inputRows = ingredients.map((ingredient, index) => (
     <div key={index} className="flex gap-2 mb-2">
       <input
@@ -14,11 +23,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="text"
         placeholder="Butter"
         value={ingredient.name}
-        onChange={(e) => {
-          const newIngredients = [...ingredients];
-          newIngredients[index].name = e.target.value;
-          setIngredients(newIngredients);
-        }}
+        onChange={(e) => updateIngredient(index, { name: e.target.value })}
         className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/2"
       />
       <input
@@ -26,11 +31,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="number"
         placeholder="1"
         value={ingredient.quantity}
-        onChange={(e) => {
-          const newIngredients = [...ingredients];
-          newIngredients[index].quantity = parseFloat(e.target.value);
-          setIngredients(newIngredients);
-        }}
+        onChange={(e) => updateIngredient(index, { quantity: parseFloat(e.target.value) })}
         className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
       />
       <input
@@ -38,11 +39,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="text"
         placeholder="tbsp"
         value={ingredient.units}
-        onChange={(e) => {
-          const newIngredients = [...ingredients];
-          newIngredients[index].units = e.target.value;
-          setIngredients(newIngredients);
-        }}
+        onChange={(e) => updateIngredient(index, { units: e.target.value })}
         className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
       />
       <button
