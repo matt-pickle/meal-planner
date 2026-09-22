@@ -2,11 +2,13 @@ import { describe, test, expect, vi, beforeEach } from 'vitest';
 
 vi.unmock('../firebase/firebase');
 vi.mock('firebase/app', () => ({ initializeApp: vi.fn(() => ({})) }));
+const signInWithPopup = vi.fn();
+const signOut = vi.fn();
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({})),
-  GoogleAuthProvider: vi.fn(),
-  signInWithPopup: vi.fn(),
-  signOut: vi.fn(),
+  GoogleAuthProvider: vi.fn(() => ({ setCustomParameters: vi.fn() })),
+  signInWithPopup: (...a: any[]) => signInWithPopup(...a),
+  signOut: (...a: any[]) => signOut(...a),
 }));
 const getDoc = vi.fn();
 const setDoc = vi.fn();
@@ -17,7 +19,7 @@ vi.mock('firebase/firestore', () => ({
   setDoc: (...a: any[]) => setDoc(...a),
 }));
 
-import { getUserData, updateUserData } from '../firebase/firebase';
+import { getUserData, updateUserData, logIn, logOut } from '../firebase/firebase';
 import { onError } from '../src/utils/errors';
 
 describe('updateUserData', () => {
@@ -107,5 +109,29 @@ describe('legacy document migration', () => {
 
     expect(result!.meals[0].id).toBe('abc');
     expect(result!.schedule[0].breakfast).toBe('abc');
+  });
+});
+
+// Regression: these were `async` but never returned the underlying promise, so
+// `await logIn()` resolved immediately and a caller's catch could never fire.
+describe('logIn / logOut', () => {
+  beforeEach(() => { signInWithPopup.mockReset(); signOut.mockReset(); });
+
+  test('logIn rejects when the popup fails', async () => {
+    signInWithPopup.mockRejectedValue(new Error('popup blocked'));
+
+    await expect(logIn()).rejects.toThrow('popup blocked');
+  });
+
+  test('logIn resolves with the credential', async () => {
+    signInWithPopup.mockResolvedValue({ user: { uid: '123' } });
+
+    await expect(logIn()).resolves.toEqual({ user: { uid: '123' } });
+  });
+
+  test('logOut rejects when sign-out fails', async () => {
+    signOut.mockRejectedValue(new Error('network'));
+
+    await expect(logOut()).rejects.toThrow('network');
   });
 });

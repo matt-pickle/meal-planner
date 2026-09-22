@@ -2,12 +2,21 @@ import { type User } from 'firebase/auth';
 import { logOut } from '../../firebase/firebase.ts';
 import Button from '../components/Button';
 import { icon } from '../utils/utils';
+import { notifyError } from '../utils/errors';
 
 type Props = {
   user: User | null;
 };
 
 export default function Settings({ user }: Props) {
+  async function handleLogOut() {
+    try {
+      await logOut();
+    } catch {
+      notifyError("Couldn't sign you out. Please try again.");
+    }
+  }
+
   // Google sign-in supplies a display name; fall back to the email alone if it is missing
   const username = user?.displayName
     ? `${user.displayName}${user.email ? ` (${user.email})` : ''}`
@@ -21,7 +30,7 @@ export default function Settings({ user }: Props) {
       <div className="bg-dark rounded-md p-6 max-w-md">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Account</h2>
         {username && <p className="text-light mb-6">Logged in as {username}</p>}
-        <Button text="Log Out" onClick={logOut} ariaLabel="log out" />
+        <Button text="Log Out" onClick={handleLogOut} ariaLabel="log out" />
       </div>
     </>
   );

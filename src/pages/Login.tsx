@@ -1,13 +1,23 @@
 import Button from '../components/Button';
 import { logIn } from '../../firebase/firebase.ts';
 import { icon } from '../utils/utils';
+import { notifyError } from '../utils/errors';
 
 export default function Login() {
   async function handleLogin() {
     try {
       await logIn();
     } catch (error) {
-      console.error('Login failed:', error);
+      const code = (error as { code?: string }).code;
+      // Closing the popup is a deliberate cancel, not a failure to report
+      if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') {
+        return;
+      }
+      notifyError(
+        code === 'auth/popup-blocked'
+          ? 'Your browser blocked the sign-in window. Allow popups for this site and try again.'
+          : "Sign-in didn't work. Please try again."
+      );
     }
   }
 

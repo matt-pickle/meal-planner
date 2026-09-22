@@ -22,11 +22,12 @@ export async function logIn() {
   const provider = new GoogleAuthProvider();
   // Google skips the account chooser when only one account is signed in; always ask
   provider.setCustomParameters({ prompt: 'select_account' });
-  signInWithPopup(auth, provider);
+  // Returned, not fired and forgotten: callers await this to catch a failure
+  return signInWithPopup(auth, provider);
 }
 
 export async function logOut() {
-  signOut(auth);
+  return signOut(auth);
 }
 
 // A fresh copy each call: the caller owns the returned object and the app
