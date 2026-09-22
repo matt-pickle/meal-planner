@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { icon } from '../utils/utils';
+import Icon from './Icon';
 
 type Option = {
   label: string;
@@ -66,7 +66,7 @@ export default function Dropdown({
           aria-label="dropdown"
         >
           <span className="text-light">{selectedOption?.label || <span>{placeholder}</span>}</span>
-          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{icon('chevron-down', "#ffffff")}</div>
+          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{<Icon name="chevron-down" color="#ffffff" />}</div>
         </div>
 
         <div

@@ -3,7 +3,7 @@ import { updateUserData } from '../../firebase/firebase';
 import { type User } from 'firebase/auth';
 import { type UserData, type GroceryItemType, type MealSlot } from '../utils/types';
 import Button from '../components/Button';
-import { icon } from '../utils/utils';
+import Icon from '../components/Icon';
 import Accordion from '../components/Accordion';
 import GroceryItem from '../components/GroceryItem';
 import AddFromMealsModal from '../components/AddFromMealsModal';
@@ -154,10 +154,10 @@ export default function GroceryList({ user, userData }: Props) {
     <>
       <div className="flex flex-wrap items-center justify-between gap-8 mb-8">
         <h1 className="flex items-center gap-3 text-title text-4xl font-semibold">
-          {icon('list', undefined, '30px')} Grocery List
+          {<Icon name="list" size="30px" />} Grocery List
         </h1>
         <Button
-          icon={icon('plus')}
+          icon={<Icon name="plus" />}
           text="Add From Meals"
           onClick={openAddFromMealsModal}
           ariaLabel="add ingredients from upcoming meals"
@@ -172,7 +172,7 @@ export default function GroceryList({ user, userData }: Props) {
         )}
         {/* ml-9 clears the checkbox column so the button lines up with the item name inputs */}
         <Button
-          icon={icon('plus')}
+          icon={<Icon name="plus" />}
           text="Add Item"
           onClick={addGroceryItem}
           ariaLabel="add item"

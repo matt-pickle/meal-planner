@@ -1,6 +1,6 @@
 import Button from '../components/Button';
 import { logIn } from '../../firebase/firebase';
-import { icon } from '../utils/utils';
+import Icon from '../components/Icon';
 import { notifyError } from '../utils/errors';
 
 export default function Login() {
@@ -24,7 +24,7 @@ export default function Login() {
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {icon('hamburger', undefined, '30px')} Meal Planner
+        {<Icon name="hamburger" size="30px" />} Meal Planner
       </h1>
       <div className="bg-dark rounded-md p-6 max-w-md">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Log In</h2>
@@ -35,7 +35,7 @@ export default function Login() {
           // White disc keeps the multicolor G legible against the blue button
           icon={
             <span className="flex items-center justify-center bg-white rounded-full p-1">
-              {icon('google', undefined, '16px')}
+              {<Icon name="google" size="16px" />}
             </span>
           }
           text="Log In with Google"

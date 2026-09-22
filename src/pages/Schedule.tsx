@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import ScheduleDay from '../components/ScheduleDay';
 import { type MealSlot, type UserData } from '../utils/types';
-import { icon } from '../utils/utils'
+import Icon from '../components/Icon'
 
 type Props = {
   userData: UserData;
@@ -64,7 +64,7 @@ export default function Schedule({ userData, setSchedule }: Props) {
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {icon('calendar', undefined, '30px')} Schedule
+        {<Icon name="calendar" size="30px" />} Schedule
       </h1>
       <div className="schedule-weeks grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="week flex flex-col gap-4">{dayList.slice(0, 7)}</div>

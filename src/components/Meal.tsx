@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { icon } from '../utils/utils';
+import Icon from './Icon';
 import { type MealType } from '../utils/types';
 
 type Props = {
@@ -56,7 +56,7 @@ export default function Meal({
           {meal.emoji}&nbsp;&nbsp;{meal.name}
         </h2>
         <button className="translate-x-2" onClick={handleDotsClick}>
-          {icon('dots', '#ffffff', '24px')}
+          {<Icon name="dots" color="#ffffff" size="24px" />}
         </button>
         <div
           className={`flex flex-col absolute right-0 top-8 transition-all duration-300 overflow-hidden rounded-md ${

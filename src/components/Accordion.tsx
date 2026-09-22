@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { icon } from '../utils/utils';
+import Icon from './Icon';
 
 type Props = {
   heading: string;
@@ -22,7 +22,7 @@ export default function Accordion({ heading, content }: Props) {
           onClick={toggleAccordion}
           aria-label="toggle accordion"
         >
-          {icon('chevron-down', '#bfdbfe')}
+          {<Icon name="chevron-down" color="#bfdbfe" />}
         </button>
       </div>
       <div

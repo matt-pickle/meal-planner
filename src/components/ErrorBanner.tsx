@@ -1,5 +1,5 @@
 import Button from './Button';
-import { icon } from '../utils/utils';
+import Icon from './Icon';
 
 type Props = {
   message: string | null;
@@ -16,7 +16,7 @@ export default function ErrorBanner({ message, onDismiss }: Props) {
     >
       <p className="flex-1">{message}</p>
       <Button
-        icon={icon('x')}
+        icon={<Icon name="x" />}
         ariaLabel="dismiss error"
         onClick={onDismiss}
         classOverrides="!bg-transparent hover:!bg-red-800 !p-2"

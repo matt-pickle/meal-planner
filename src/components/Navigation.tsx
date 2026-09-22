@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router';
-import { icon } from '../utils/utils';
+import Icon, { type IconName } from './Icon';
 
-const links = [
+const links: Array<{ to: string; label: string; icon: IconName; size: string }> = [
   { to: '/schedule', label: 'Schedule', icon: 'calendar', size: '20px' },
   { to: '/meals', label: 'Meals', icon: 'hamburger', size: '22px' },
   { to: '/grocery-list', label: 'Grocery List', icon: 'list', size: '20px' },
@@ -19,7 +19,7 @@ export default function Navigation() {
     <nav className="flex md:flex-col justify-center md:justify-start bg-dark p-4 md:p-2 gap-10 md:gap-2">
       {links.map(link => (
         <NavLink key={link.to} to={link.to} className={linkClasses}>
-          {icon(link.icon, undefined, link.size)}
+          <Icon name={link.icon} size={link.size} />
           <span className="hidden md:inline">{link.label}</span>
         </NavLink>
       ))}

@@ -4,7 +4,7 @@ import Button from '../components/Button';
 import CreateMealModal from '../components/CreateMealModal';
 import EditMealModal from '../components/EditMealModal';
 import DeleteMealModal from '../components/DeleteMealModal';
-import { icon } from '../utils/utils';
+import Icon from '../components/Icon';
 import { type UserData, type MealType } from '../utils/types';
 
 type Props = {
@@ -39,10 +39,10 @@ export default function Meals({ userData, setMeals }: Props) {
     <>
       <div className="flex flex-wrap items-center justify-between gap-8 mb-8">
         <h1 className="flex items-center gap-3 text-title text-4xl font-semibold">
-          {icon('hamburger', undefined, '34px')} Meals
+          {<Icon name="hamburger" size="34px" />} Meals
         </h1>
         <Button
-          icon={icon('plus')}
+          icon={<Icon name="plus" />}
           text="Create Meal"
           ariaLabel="add new meal"
           onClick={() => setCreateMealModalIsOpen(true)}

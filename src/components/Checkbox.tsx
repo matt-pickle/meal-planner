@@ -1,4 +1,4 @@
-import { icon } from '../utils/utils';
+import Icon from './Icon';
 
 type Props = {
   id: string;
@@ -39,7 +39,7 @@ export default function Checkbox({
         checked={checked}
         onChange={handleClick}
       />
-      {checked && icon('check', color, iconSize)}
+      {checked && <Icon name="check" color={color} size={iconSize} />}
     </label>
   );
 }

@@ -1,7 +1,7 @@
 import { type User } from 'firebase/auth';
 import { logOut } from '../../firebase/firebase';
 import Button from '../components/Button';
-import { icon } from '../utils/utils';
+import Icon from '../components/Icon';
 import { notifyError } from '../utils/errors';
 
 type Props = {
@@ -25,7 +25,7 @@ export default function Settings({ user }: Props) {
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {icon('user', undefined, '30px')} Settings
+        {<Icon name="user" size="30px" />} Settings
       </h1>
       <div className="bg-dark rounded-md p-6 max-w-md">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Account</h2>
