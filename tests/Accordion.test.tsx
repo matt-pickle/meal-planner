@@ -43,14 +43,32 @@ describe('Accordion Component', () => {
     const container = screen.getByTestId('accordion-content');
 
     // Initially closed
-    expect(container).toHaveClass('grid-rows-[0fr]');
+    expect(container).not.toBeVisible();
 
     // Click to open
     await userEvent.click(toggleButton);
-    expect(container).toHaveClass('grid-rows-[1fr]');
+    expect(container).toBeVisible();
 
     // Click to close
     await userEvent.click(toggleButton);
-    expect(container).toHaveClass('grid-rows-[0fr]');
+    expect(container).not.toBeVisible();
+  });
+
+  test('describes its state for assistive technology', async () => {
+    const toggleButton = screen.getByRole('button', { name: 'toggle accordion' });
+    const container = screen.getByTestId('accordion-content');
+
+    expect(toggleButton).toHaveAttribute('aria-expanded', 'false');
+    expect(toggleButton).toHaveAttribute('aria-controls', container.id);
+
+    await userEvent.click(toggleButton);
+
+    expect(toggleButton).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  test('keeps collapsed content out of the accessibility tree', () => {
+    // hidden content must not be reachable: it used to stay focusable and
+    // announced while collapsed to a zero-height grid row
+    expect(screen.queryByText('Item 1')).not.toBeVisible();
   });
 });

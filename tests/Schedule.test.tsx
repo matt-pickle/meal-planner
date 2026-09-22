@@ -84,7 +84,7 @@ describe('Schedule Page', () => {
   });
 
   test('renders meals from userData', () => {
-    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    const dropdowns = screen.getAllByRole('combobox');
     expect(dropdowns[0]).toHaveTextContent('🥣 Cereal');
     expect(dropdowns[1]).toHaveTextContent('🥪 Turkey sandwich');
     expect(dropdowns[2]).toHaveTextContent('🍝 Spaghetti');
@@ -94,12 +94,12 @@ describe('Schedule Page', () => {
   });
 
   test('renders a dropdown for every meal of every day', () => {
-    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    const dropdowns = screen.getAllByRole('combobox');
     expect(dropdowns.length).toBe(42);
   });
 
   test('assigns the selected meal and saves it', async () => {
-    const dropdown = screen.getAllByRole('generic', { name: 'dropdown' })[0];
+    const dropdown = screen.getAllByRole('combobox')[0];
     const options = dropdown.parentElement as HTMLElement;
 
     await userEvent.click(dropdown);
@@ -152,7 +152,7 @@ describe('Schedule Page with a gap in the stored schedule', () => {
   test('keeps the stored days in place rather than duplicating them', () => {
     render(<ScheduleHarness initialUserData={gappedUserData} />);
 
-    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    const dropdowns = screen.getAllByRole('combobox');
     // day index 3, breakfast slot -> the stored 'cereal' assignment
     expect(dropdowns[3 * 3]).toHaveTextContent('🥣 Cereal');
     // day index 9, lunch slot

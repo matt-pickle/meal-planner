@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useId } from 'react';
 import Icon from './Icon';
 
 type Option = {
@@ -12,6 +12,7 @@ type Props = {
   width?: number;
   value?: string;
   classOverrides?: string;
+  ariaLabel?: string;
   onSelect: (value: string) => void;
 };
 
@@ -21,12 +22,21 @@ export default function Dropdown({
   width,
   value = '',
   classOverrides,
+  ariaLabel,
   onSelect,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  // Which option the keyboard is on while the list is open
+  const [activeIndex, setActiveIndex] = useState(0);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+  const id = useId();
+  const listId = `${id}-listbox`;
+
   // Fully controlled: the selection is whatever the parent passes
-  const selectedOption = options.find(option => option.value === value);
+  const selectedIndex = options.findIndex(option => option.value === value);
+  const selectedOption = selectedIndex === -1 ? undefined : options[selectedIndex];
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,9 +52,68 @@ export default function Dropdown({
     };
   }, []);
 
-  function handleOptionClick(option: Option) {
+  // Move focus into the list when it opens so arrow keys work straight away
+  useEffect(() => {
+    if (isOpen) {
+      listRef.current?.focus();
+    }
+  }, [isOpen]);
+
+  function open() {
+    setActiveIndex(selectedIndex === -1 ? 0 : selectedIndex);
+    setIsOpen(true);
+  }
+
+  function close(returnFocus = true) {
     setIsOpen(false);
+    if (returnFocus) {
+      buttonRef.current?.focus();
+    }
+  }
+
+  function choose(option: Option) {
+    close();
     onSelect(option.value);
+  }
+
+  function handleButtonKeyDown(event: React.KeyboardEvent) {
+    if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(event.key)) {
+      event.preventDefault();
+      open();
+    }
+  }
+
+  function handleListKeyDown(event: React.KeyboardEvent) {
+    switch (event.key) {
+      case 'ArrowDown':
+        event.preventDefault();
+        setActiveIndex(index => Math.min(index + 1, options.length - 1));
+        break;
+      case 'ArrowUp':
+        event.preventDefault();
+        setActiveIndex(index => Math.max(index - 1, 0));
+        break;
+      case 'Home':
+        event.preventDefault();
+        setActiveIndex(0);
+        break;
+      case 'End':
+        event.preventDefault();
+        setActiveIndex(options.length - 1);
+        break;
+      case 'Enter':
+      case ' ':
+        event.preventDefault();
+        if (options[activeIndex]) choose(options[activeIndex]);
+        break;
+      case 'Escape':
+        event.preventDefault();
+        close();
+        break;
+      case 'Tab':
+        close(false);
+        break;
+    }
   }
 
   const style = {
@@ -53,33 +122,55 @@ export default function Dropdown({
 
   return (
     <div className={`dropdown w-full mb-8 ${classOverrides}`}>
-      <div ref={dropdownRef} className="relative w-full cursor-pointer" style={style}>
-        <div
-          className="flex justify-between items-center border-b-1 border-slate-200 py-2"
-          onClick={() => setIsOpen(!isOpen)}
-          aria-label="dropdown"
+      <div ref={dropdownRef} className="relative w-full" style={style}>
+        <button
+          ref={buttonRef}
+          type="button"
+          role="combobox"
+          aria-haspopup="listbox"
+          aria-expanded={isOpen}
+          aria-controls={listId}
+          aria-label={ariaLabel}
+          onClick={() => (isOpen ? close(false) : open())}
+          onKeyDown={handleButtonKeyDown}
+          className="flex justify-between items-center w-full border-b-1 border-slate-200 py-2 cursor-pointer text-left"
         >
-          <span className="text-light">{selectedOption?.label || <span>{placeholder}</span>}</span>
-          <div className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>{<Icon name="chevron-down" color="#ffffff" />}</div>
-        </div>
+          <span className="text-light">{selectedOption?.label || placeholder}</span>
+          <span className={`transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+            <Icon name="chevron-down" color="#ffffff" />
+          </span>
+        </button>
 
-        <div
-          className={`absolute left-0 right-0 !p-0 z-2 border-t-0 transition-all duration-300 ease-in-out bg-slate-200 ${
-            isOpen ? 'max-h-48 overflow-y-auto opacity-100' : 'max-h-0 overflow-y-hidden opacity-0'
-          }`}
-        >
-          {options.map(option => (
-            <div
-              key={option.value}
-              className={`p-[.7rem] cursor-pointer hover:bg-medium hover:text-white ${
-                value === option.value ? 'bg-medium text-white selected' : ''
-              }`}
-              onClick={() => handleOptionClick(option)}
-            >
-              {option.label}
-            </div>
-          ))}
-        </div>
+        {/* Rendered only while open: a collapsed list stays focusable and is
+            still announced by screen readers. */}
+        {isOpen && (
+          <ul
+            id={listId}
+            ref={listRef}
+            role="listbox"
+            tabIndex={-1}
+            aria-label={ariaLabel}
+            aria-activedescendant={options[activeIndex] ? `${id}-option-${activeIndex}` : undefined}
+            onKeyDown={handleListKeyDown}
+            className="absolute left-0 right-0 !p-0 z-2 max-h-48 overflow-y-auto border-t-0 bg-slate-200 outline-none"
+          >
+            {options.map((option, index) => (
+              <li
+                key={option.value}
+                id={`${id}-option-${index}`}
+                role="option"
+                aria-selected={value === option.value}
+                className={`p-[.7rem] cursor-pointer hover:bg-medium hover:text-white ${
+                  value === option.value ? 'bg-medium text-white selected' : ''
+                } ${index === activeIndex ? 'bg-medium/80 text-white' : ''}`}
+                onClick={() => choose(option)}
+                onMouseEnter={() => setActiveIndex(index)}
+              >
+                {option.label}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

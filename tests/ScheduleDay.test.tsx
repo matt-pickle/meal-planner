@@ -63,13 +63,13 @@ describe('ScheduleDay Component', () => {
   });
 
   test('renders a dropdown for each meal', () => {
-    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    const dropdowns = screen.getAllByRole('combobox');
     expect(dropdowns.length).toBe(3);
   });
 
   test('reports the new meal when an option is selected', async () => {
     const lunchSection = screen.getByText(/LUNCH:/).parentElement as HTMLElement;
-    const dropdown = within(lunchSection).getByRole('generic', { name: 'dropdown' });
+    const dropdown = within(lunchSection).getByRole('combobox');
 
     await userEvent.click(dropdown);
     await userEvent.click(within(lunchSection).getByText(/Hamburger/));
@@ -100,7 +100,7 @@ describe('ScheduleDay Component', () => {
     // label is always in the DOM, just visually collapsed.
     const lunches = screen.getAllByText(/LUNCH:/);
     const lunchSection = lunches[lunches.length - 1].parentElement as HTMLElement;
-    const selected = within(lunchSection).getByRole('generic', { name: 'dropdown' });
+    const selected = within(lunchSection).getByRole('combobox');
     expect(selected).toHaveTextContent('🥪 Club sandwich');
   });
 });

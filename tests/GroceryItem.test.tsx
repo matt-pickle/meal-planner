@@ -17,6 +17,8 @@ describe('GroceryItem Component', () => {
       ],
     };
     render(<GroceryList userData={mockUserData} user={mockUser} />);
+    // Bought items are hidden until the section is expanded
+    await userEvent.click(screen.getByRole('button', { name: 'toggle accordion' }));
   });
 
   test('renders all elements', async () => {

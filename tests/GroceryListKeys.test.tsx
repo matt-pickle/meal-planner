@@ -46,6 +46,9 @@ describe('GroceryList item keys', () => {
       within(rowOf('Bananas')).getByRole('checkbox', { name: 'mark as bought' })
     );
 
+    // the bought section is collapsed by default
+    await userEvent.click(screen.getByRole('button', { name: 'toggle accordion' }));
+
     const boughtCheckboxes = screen
       .getAllByRole('checkbox', { name: 'mark as bought' })
       .filter(checkbox => (checkbox as HTMLInputElement).checked);

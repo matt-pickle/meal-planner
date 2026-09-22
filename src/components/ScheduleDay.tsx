@@ -45,6 +45,7 @@ export default function ScheduleDay({
           <div key={slot.name}>
             <span className="text-light font-semibold">{slot.name.toUpperCase()}:</span>
             <Dropdown
+              ariaLabel={slot.name}
               options={mealOptions}
               value={slot.meal}
               placeholder="Select a meal..."
