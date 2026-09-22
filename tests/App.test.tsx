@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import App from '../src/App';
 import { MemoryRouter } from 'react-router';
 import { onAuthStateChanged } from 'firebase/auth';
-import { getUserData } from '../firebase/firebase';
+import { getUserData, updateUserData } from '../firebase/firebase';
 
 vi.mock('firebase/auth', () => {
   return {
@@ -94,6 +94,36 @@ describe ('App Component', () => {
         screen.queryByRole('heading', { name: 'Grocery List', level: 1 })
       ).not.toBeInTheDocument();
     });
+
+    // Regression: past days were never pruned, so they accumulated in the
+    // document forever and were carried on every read and write.
+    test('drops past schedule days when the schedule is written', async () => {
+      function midnightPlus(days: number) {
+        const date = new Date();
+        date.setHours(0, 0, 0, 0);
+        date.setDate(date.getDate() + days);
+        return date.getTime();
+      }
+      vi.mocked(getUserData).mockImplementationOnce(async () => ({
+        meals: [],
+        groceryList: [],
+        schedule: [
+          { date: midnightPlus(-30), breakfast: 'old', lunch: '', dinner: '' },
+          { date: midnightPlus(-1), breakfast: 'old', lunch: '', dinner: '' },
+          { date: midnightPlus(0), breakfast: 'keep', lunch: '', dinner: '' },
+        ],
+      }));
+
+      renderWithRouter(<App />, '/schedule');
+
+      // the page fills in the missing days of the window, which triggers a write
+      await waitFor(() => expect(updateUserData).toHaveBeenCalled());
+      const written = vi.mocked(updateUserData).mock.calls.at(-1)![1].schedule!;
+      expect(written.filter(day => day.date < midnightPlus(0))).toEqual([]);
+      expect(written).toHaveLength(14);
+      expect(written.find(day => day.date === midnightPlus(0))?.breakfast).toBe('keep');
+    });
+
 
     test('renders navigation links', async () => {
       renderWithRouter(<App />, '/');

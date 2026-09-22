@@ -13,6 +13,7 @@ import Navigation from './components/Navigation';
 import ErrorBanner from './components/ErrorBanner';
 import Loading from './components/Loading';
 import { onError } from './utils/errors';
+import { withoutPastDays } from './utils/utils';
 import { type UserData, type MealType } from './utils/types';
 
 export default function App() {
@@ -52,9 +53,10 @@ export default function App() {
   // Same contract as setMeals: the schedule is updated and persisted here, so
   // pages never mutate userData themselves.
   function setSchedule(schedule: UserData['schedule']) {
-    setUserData(current => (current ? { ...current, schedule } : current));
+    const upcoming = withoutPastDays(schedule);
+    setUserData(current => (current ? { ...current, schedule: upcoming } : current));
     if (user) {
-      updateUserData(user.uid, { schedule });
+      updateUserData(user.uid, { schedule: upcoming });
     }
   }
 
