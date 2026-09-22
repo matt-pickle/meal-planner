@@ -111,7 +111,7 @@ meal-planner/
 │   │
 │   └── utils/
 │       ├── types.tsx          UserData, MealType, Ingredient, GroceryItemType, MealSlot
-│       └── utils.tsx          icon() name-to-react-icon helper, className() slugifier
+│       └── utils.tsx          icon() helper, meal-name and schedule-pruning helpers
 │
 └── tests/
     ├── setup.ts               Testing Library cleanup and jest-dom matchers

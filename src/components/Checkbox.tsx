@@ -1,34 +1,26 @@
-import { useState } from 'react';
 import { icon } from '../utils/utils';
 
 type Props = {
   id: string;
+  checked: boolean;
   onChange: (checked: boolean) => void;
   size?: string;
   color?: string;
   ariaLabel?: string;
-  initialChecked?: boolean;
-  checked?: boolean;
 };
 
 export default function Checkbox({
   id,
+  checked,
   ariaLabel,
   onChange,
   size = '12px',
   color,
-  initialChecked = false,
-  checked: controlledChecked,
 }: Props) {
-  // Uncontrolled unless the parent owns the value by passing `checked`
-  const [internalChecked, setInternalChecked] = useState(initialChecked);
-  const checked = controlledChecked ?? internalChecked;
   const iconSize = `${parseFloat(size) * 0.9}px`;
 
   function handleClick() {
-    const newChecked = !checked;
-    setInternalChecked(newChecked);
-    onChange(newChecked);
+    onChange(!checked);
   }
 
   const containerStyles = { width: size, height: size };

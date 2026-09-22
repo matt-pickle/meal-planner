@@ -33,10 +33,6 @@ export function icon(name: string, color?: string, size?: string): React.JSX.Ele
   );
 }
 
-export function className(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-}
-
 // Two meals with the same name are indistinguishable in the schedule dropdown,
 // so a name may only be used once. `exceptId` is the meal being edited.
 export function isDuplicateMealName(
