@@ -48,6 +48,10 @@ npm run dev     # start the Express + Vite dev server with HMR at http://localho
 npm run build   # build the client bundle and the SSR bundle into dist/
 npm run start   # serve the production build (NODE_ENV=production)
 npm test        # run the Vitest suite in watch mode with a coverage report
+npm run test:ci # run the suite once and exit (for CI)
+npm run lint    # ESLint, including the react-hooks rules
+npm run typecheck  # tsc --noEmit
+npm run format  # Prettier
 ```
 
 `npm run build` runs two Vite builds: the client bundle into `dist/client` and the SSR entry into `dist/server`. `npm run start` requires that build to exist.

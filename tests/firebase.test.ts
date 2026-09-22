@@ -7,16 +7,16 @@ const signOut = vi.fn();
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({})),
   GoogleAuthProvider: vi.fn(() => ({ setCustomParameters: vi.fn() })),
-  signInWithPopup: (...a: any[]) => signInWithPopup(...a),
-  signOut: (...a: any[]) => signOut(...a),
+  signInWithPopup: (...args: unknown[]) => signInWithPopup(...args),
+  signOut: (...args: unknown[]) => signOut(...args),
 }));
 const getDoc = vi.fn();
 const setDoc = vi.fn();
 vi.mock('firebase/firestore', () => ({
   initializeFirestore: vi.fn(() => ({})),
   doc: vi.fn(() => ({})),
-  getDoc: (...a: any[]) => getDoc(...a),
-  setDoc: (...a: any[]) => setDoc(...a),
+  getDoc: (...args: unknown[]) => getDoc(...args),
+  setDoc: (...args: unknown[]) => setDoc(...args),
 }));
 
 import { getUserData, updateUserData, logIn, logOut } from '../firebase/firebase';

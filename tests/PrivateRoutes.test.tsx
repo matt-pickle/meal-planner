@@ -10,14 +10,14 @@ function renderWithRouter(component: React.ReactNode) {
 describe('PrivateRoutes Component', () => {
   test('does not redirect when user is authenticated', () => {
     const mockUser = { uid: '123', email: 'test@test.com' };
-    // @ts-ignore
+    // @ts-expect-error -- a partial stand-in for the Firebase User
     renderWithRouter(<PrivateRoutes user={mockUser} />);
     expect(window.location.pathname).not.toEqual('/login');
   });
 
   test('redirects to /login when user is not authenticated', () => {
     const mockUser = null;
-    // @ts-ignore
+    // @ts-expect-error -- a partial stand-in for the Firebase User
     renderWithRouter(<PrivateRoutes user={mockUser} />);
     expect(window.location.pathname).toEqual('/login');
   });

@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import { type User } from 'firebase/auth';
 import { render } from '@testing-library/react';
 import { UserDataProvider } from '../src/state/UserDataContext';
 import { type UserData } from '../src/utils/types';
 
-export const testUser: any = { uid: '123', email: 'test@example.com' };
+export const testUser = { uid: '123', email: 'test@example.com' } as unknown as User;
 
 // Plays App's part: owns the one copy of the data and hands the pages a store,
 // so a page under test re-renders from its own writes as it does in the app.

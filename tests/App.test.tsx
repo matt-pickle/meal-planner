@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../src/App';
 import { MemoryRouter, useLocation } from 'react-router';
-import { onAuthStateChanged } from 'firebase/auth';
+import { onAuthStateChanged, type User } from 'firebase/auth';
 import { getUserData, updateUserData } from '../firebase/firebase';
 
 vi.mock('firebase/auth', () => {
@@ -56,12 +56,11 @@ afterEach(() => {
 describe ('App Component', () => {
   describe('when user is logged in', () => {
     beforeEach(() => {
-      //@ts-ignore
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback: any) => {
-        const mockUser = { uid: '321', email: 'test@test.com' };
-        callback(mockUser);
+      vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
+        const mockUser = { uid: '321', email: 'test@test.com' } as unknown as User;
+        (callback as (user: User | null) => void)(mockUser);
         return vi.fn();
-      });
+      }) as unknown as typeof onAuthStateChanged);
     });
 
     test('redirects "/" to Schedule page', async () => {
@@ -228,11 +227,10 @@ describe ('App Component', () => {
 
   describe('when user is not logged in', () => {
     beforeEach(() => {
-      //@ts-ignore
-      vi.mocked(onAuthStateChanged).mockImplementation((auth, callback: any) => {
-        callback(null);
+      vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
+        (callback as (user: User | null) => void)(null);
         return vi.fn();
-      });
+      }) as unknown as typeof onAuthStateChanged);
     });
 
     test('redirects "/" to Login page', async () => {

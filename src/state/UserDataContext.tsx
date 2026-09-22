@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef } from 'react';
+import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { type User } from 'firebase/auth';
 import { updateUserData } from '../../firebase/firebase';
 import { withoutPastDays } from '../utils/utils';
@@ -17,6 +17,9 @@ type UserDataStore = {
 
 const UserDataContext = createContext<UserDataStore | null>(null);
 
+// The hook belongs with the context it reads; fast refresh only complains that
+// this file exports something other than a component.
+// eslint-disable-next-line react-refresh/only-export-components
 export function useUserData(): UserDataStore {
   const store = useContext(UserDataContext);
   if (!store) {
@@ -43,27 +46,36 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
     };
   }, []);
 
-  function setMeals(meals: Array<MealType>) {
-    setUserData(current => (current ? { ...current, meals } : current));
-    updateUserData(user.uid, { meals });
-  }
+  const setMeals = useCallback(
+    (meals: Array<MealType>) => {
+      setUserData(current => (current ? { ...current, meals } : current));
+      updateUserData(user.uid, { meals });
+    },
+    [user.uid, setUserData]
+  );
 
-  function setSchedule(schedule: UserData['schedule']) {
-    // Past days are dropped on every write so they cannot accumulate
-    const upcoming = withoutPastDays(schedule);
-    setUserData(current => (current ? { ...current, schedule: upcoming } : current));
-    updateUserData(user.uid, { schedule: upcoming });
-  }
+  const setSchedule = useCallback(
+    (schedule: UserData['schedule']) => {
+      // Past days are dropped on every write so they cannot accumulate
+      const upcoming = withoutPastDays(schedule);
+      setUserData(current => (current ? { ...current, schedule: upcoming } : current));
+      updateUserData(user.uid, { schedule: upcoming });
+    },
+    [user.uid, setUserData]
+  );
 
-  function setGroceryList(groceryList: Array<GroceryItemType>) {
-    setUserData(current => (current ? { ...current, groceryList } : current));
+  const setGroceryList = useCallback(
+    (groceryList: Array<GroceryItemType>) => {
+      setUserData(current => (current ? { ...current, groceryList } : current));
 
-    // Typing edits the list on every keystroke, so the write is debounced
-    if (grocerySaveTimer.current) clearTimeout(grocerySaveTimer.current);
-    grocerySaveTimer.current = setTimeout(() => {
-      updateUserData(user.uid, { groceryList });
-    }, GROCERY_SAVE_DELAY);
-  }
+      // Typing edits the list on every keystroke, so the write is debounced
+      if (grocerySaveTimer.current) clearTimeout(grocerySaveTimer.current);
+      grocerySaveTimer.current = setTimeout(() => {
+        updateUserData(user.uid, { groceryList });
+      }, GROCERY_SAVE_DELAY);
+    },
+    [user.uid, setUserData]
+  );
 
   return (
     <UserDataContext.Provider

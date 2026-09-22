@@ -16,7 +16,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
     );
   }
 
-  let inputRows = ingredients.map((ingredient, index) => (
+  const inputRows = ingredients.map((ingredient, index) => (
     <div key={index} className="flex gap-2 mb-2">
       <input
         aria-label="ingredient name"

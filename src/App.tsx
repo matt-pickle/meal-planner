@@ -23,7 +23,9 @@ export default function App() {
   // The auth listener is subscribed once, so it would close over the path the
   // app started on. A ref keeps it looking at where the user actually is.
   const pathRef = useRef(location.pathname);
-  pathRef.current = location.pathname;
+  useEffect(() => {
+    pathRef.current = location.pathname;
+  }, [location.pathname]);
 
   // Firestore reads and writes report failures here rather than failing silently
   useEffect(() => onError(setErrorMessage), []);
@@ -46,7 +48,7 @@ export default function App() {
       }
     });
     return unsubscribe;
-  }, []);
+  }, [navigate]);
 
 
 

@@ -13,14 +13,14 @@ vi.mock('../firebase/firebase', () => {
 describe('Settings Page', () => {
   test('displays the display name and email when the user has both', () => {
     const mockUser = { uid: '123', email: 'test@test.com', displayName: 'Test User' };
-    // @ts-ignore
+    // @ts-expect-error -- a partial stand-in for the Firebase User
     render(<Settings user={mockUser} />);
     expect(screen.getByText('Logged in as Test User (test@test.com)')).toBeVisible();
   });
 
   test('falls back to the email when the user has no display name', () => {
     const mockUser = { uid: '123', email: 'test@test.com', displayName: null };
-    // @ts-ignore
+    // @ts-expect-error -- a partial stand-in for the Firebase User
     render(<Settings user={mockUser} />);
     expect(screen.getByText('Logged in as test@test.com')).toBeVisible();
   });
@@ -32,7 +32,7 @@ describe('Settings Page', () => {
 
   test('logs out on button click', async () => {
     const mockUser = { uid: '123', email: 'test@test.com', displayName: 'Test User' };
-    // @ts-ignore
+    // @ts-expect-error -- a partial stand-in for the Firebase User
     render(<Settings user={mockUser} />);
 
     await userEvent.click(screen.getByRole('button', { name: 'log out' }));
