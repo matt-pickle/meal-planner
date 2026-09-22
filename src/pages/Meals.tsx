@@ -7,13 +7,14 @@ import Icon from '../components/Icon';
 import { type UserData, type MealType } from '../utils/types';
 
 type Props = {
-  userData: UserData | undefined;
+  // Guaranteed: App renders this route only once userData is loaded
+  userData: UserData;
   setMeals: (meals: Array<MealType>) => void;
 };
 
 export default function Meals({ userData, setMeals }: Props) {
   // Read straight from userData: App owns the list and persists every change
-  const meals = userData?.meals || [];
+  const meals = userData.meals;
   const [createMealModalIsOpen, setCreateMealModalIsOpen] = useState(false);
   const [editMealModalIsOpen, setEditMealModalIsOpen] = useState(false);
   const [mealToEdit, setMealToEdit] = useState<MealType | null>(null);

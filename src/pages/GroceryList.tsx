@@ -9,12 +9,13 @@ import GroceryItem from '../components/GroceryItem';
 import AddFromMealsModal from '../components/AddFromMealsModal';
 
 type Props = {
-  user: User | null;
-  userData: UserData | undefined;
+  // Both are guaranteed: App renders this route only once they are loaded
+  user: User;
+  userData: UserData;
 };
 
 export default function GroceryList({ user, userData }: Props) {
-  const [groceryItems, setGroceryItems] = useState<Array<GroceryItemType>>(userData?.groceryList || []);
+  const [groceryItems, setGroceryItems] = useState<Array<GroceryItemType>>(userData.groceryList);
   const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
 
@@ -30,9 +31,7 @@ export default function GroceryList({ user, userData }: Props) {
     }
 
     const timer = setTimeout(() => {
-      if (user) {
-        updateUserData(user.uid, { groceryList: groceryItems });
-      }
+      updateUserData(user.uid, { groceryList: groceryItems });
     }, 500);
 
     return () => clearTimeout(timer);
@@ -55,10 +54,10 @@ export default function GroceryList({ user, userData }: Props) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const upcomingDays = userData?.schedule.filter(day => day.date >= today.getTime());
+    const upcomingDays = userData.schedule.filter(day => day.date >= today.getTime());
     const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
     const upcomingMealIds: Array<string> = [];
-    upcomingDays?.forEach(day => {
+    upcomingDays.forEach(day => {
       slots.forEach(slot => {
         if (day[slot]) {
           upcomingMealIds.push(day[slot]);
@@ -66,7 +65,7 @@ export default function GroceryList({ user, userData }: Props) {
       });
     });
     const upcomingMeals = upcomingMealIds.map(mealId => {
-      return userData?.meals.find(meal => meal.id === mealId);
+      return userData.meals.find(meal => meal.id === mealId);
     });
 
     const ingredientsToAdd: Array<GroceryItemType> = [];
@@ -119,9 +118,7 @@ export default function GroceryList({ user, userData }: Props) {
     });
 
     setGroceryItems(updatedGroceryList);
-    if (user) {
-      updateUserData(user.uid, { groceryList: updatedGroceryList });
-    }
+    updateUserData(user.uid, { groceryList: updatedGroceryList });
   }
 
   const itemsToBuy = groceryItems

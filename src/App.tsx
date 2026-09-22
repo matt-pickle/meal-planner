@@ -87,7 +87,11 @@ export default function App() {
             <Route
               path="/grocery-list"
               element={
-                userData ? <GroceryList userData={userData} user={user!} /> : <Loading />
+                user && userData ? (
+                  <GroceryList userData={userData} user={user} />
+                ) : (
+                  <Loading />
+                )
               }
             />
             <Route path="/settings" element={<Settings user={user} />} />
