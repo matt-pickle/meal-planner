@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { act, fireEvent, screen } from '@testing-library/react';
+import { act, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
 import { renderWithUserData } from './userDataHarness';
@@ -290,5 +290,54 @@ describe('GroceryList ingredient matching', () => {
       .getAllByRole('spinbutton', { name: 'quantity' })
       .map(input => (input as HTMLInputElement).value);
     expect(quantities).toEqual(['6', '100']);
+  });
+
+  // Regression: a bought item matched like any other, so the new quantity was
+  // added to a row under Bought Items and nothing appeared under Items to Buy.
+  test('moves a matching bought item back to Items to Buy with the new quantity', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'cereal',
+          name: 'Cereal',
+          emoji: '🥣',
+          ingredients: [{ name: 'Milk', quantity: 2, units: 'gallons' }],
+        },
+      ],
+      schedule: [{ date: midnightPlus(1), breakfast: 'cereal', lunch: '', dinner: '' }],
+      groceryList: [{ id: 'milk', name: 'Milk', quantity: 1, units: 'gallons', status: 'bought' }],
+    });
+
+    await addFromMeals();
+
+    // Bought Items is collapsed, so only rows under Items to Buy are accessible
+    expect(screen.getByRole('textbox', { name: 'item name' })).toHaveValue('Milk');
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(2);
+    expect(screen.getByRole('checkbox')).not.toBeChecked();
+    expect(screen.getAllByRole('textbox', { name: 'item name', hidden: true })).toHaveLength(1);
+  });
+
+  test('adds to a matching item still to buy rather than a bought duplicate', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'cereal',
+          name: 'Cereal',
+          emoji: '🥣',
+          ingredients: [{ name: 'Milk', quantity: 2, units: 'gallons' }],
+        },
+      ],
+      schedule: [{ date: midnightPlus(1), breakfast: 'cereal', lunch: '', dinner: '' }],
+      groceryList: [
+        { id: 'old', name: 'Milk', quantity: 1, units: 'gallons', status: 'bought' },
+        { id: 'new', name: 'Milk', quantity: 3, units: 'gallons', status: 'to buy' },
+      ],
+    });
+
+    await addFromMeals();
+
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(5);
+    const bought = within(screen.getByTestId('accordion-content'));
+    expect(bought.getByRole('spinbutton', { name: 'quantity', hidden: true })).toHaveValue(1);
   });
 });

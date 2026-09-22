@@ -85,11 +85,17 @@ export default function GroceryList() {
     const updatedGroceryList = [...groceryItems];
 
     // Where each name + units already sits on the list, so the merge below is
-    // one lookup per ingredient. First occurrence wins, as a scan would.
+    // one lookup per ingredient. The first item still to buy wins; a bought
+    // item is only used when no such item exists.
     const indexByKey = new Map<string, number>();
     updatedGroceryList.forEach((item, index) => {
       const key = itemKey(item.name, item.units);
-      if (!indexByKey.has(key)) indexByKey.set(key, index);
+      const current = indexByKey.get(key);
+      const replacesBought =
+        current !== undefined &&
+        updatedGroceryList[current].status === 'bought' &&
+        item.status === 'to buy';
+      if (current === undefined || replacesBought) indexByKey.set(key, index);
     });
 
     ingredientsToAdd.forEach(ingredient => {
@@ -103,10 +109,15 @@ export default function GroceryList() {
         // Replace rather than edit in place: the existing item is the object
         // held in state, and in-place edits skip the re-render
         const existingItem = updatedGroceryList[existingIndex];
-        updatedGroceryList[existingIndex] = {
-          ...existingItem,
-          quantity: (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0),
-        };
+        updatedGroceryList[existingIndex] =
+          existingItem.status === 'bought'
+            ? // What was bought is used up; this is a fresh need, so it goes back
+              // under Items to Buy with only the new quantity
+              { ...existingItem, quantity: ingredient.quantity, status: 'to buy' }
+            : {
+                ...existingItem,
+                quantity: (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0),
+              };
       }
     });
 
