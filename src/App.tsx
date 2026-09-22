@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, getUserData, updateUserData } from '../firebase/firebase';
+import { auth, getUserData } from '../firebase/firebase';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
 import Login from './pages/Login';
@@ -10,10 +10,8 @@ import GroceryList from './pages/GroceryList';
 import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
 import ErrorBanner from './components/ErrorBanner';
-import Loading from './components/Loading';
 import { onError } from './utils/errors';
-import { withoutPastDays } from './utils/utils';
-import { type UserData, type MealType } from './utils/types';
+import { type UserData } from './utils/types';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
@@ -50,24 +48,7 @@ export default function App() {
     return unsubscribe;
   }, []);
 
-  // The one place meals are changed: update the in-memory user data and persist
-  // it together, so no component rebuilds the list from a stale copy.
-  function setMeals(meals: Array<MealType>) {
-    setUserData(current => (current ? { ...current, meals } : current));
-    if (user) {
-      updateUserData(user.uid, { meals });
-    }
-  }
 
-  // Same contract as setMeals: the schedule is updated and persisted here, so
-  // pages never mutate userData themselves.
-  function setSchedule(schedule: UserData['schedule']) {
-    const upcoming = withoutPastDays(schedule);
-    setUserData(current => (current ? { ...current, schedule: upcoming } : current));
-    if (user) {
-      updateUserData(user.uid, { schedule: upcoming });
-    }
-  }
 
   return (
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
@@ -75,25 +56,10 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/schedule" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route element={<PrivateRoutes user={user} />}>
-            <Route
-              path="/schedule"
-              element={userData ? <Schedule userData={userData} setSchedule={setSchedule} /> : <Loading />}
-            />
-            <Route
-              path="/meals"
-              element={userData ? <Meals userData={userData} setMeals={setMeals} /> : <Loading />}
-            />
-            <Route
-              path="/grocery-list"
-              element={
-                user && userData ? (
-                  <GroceryList userData={userData} user={user} />
-                ) : (
-                  <Loading />
-                )
-              }
-            />
+          <Route element={<PrivateRoutes user={user} userData={userData} setUserData={setUserData} />}>
+            <Route path="/schedule" element={<Schedule />} />
+            <Route path="/meals" element={<Meals />} />
+            <Route path="/grocery-list" element={<GroceryList />} />
             <Route path="/settings" element={<Settings user={user} />} />
           </Route>
         </Routes>

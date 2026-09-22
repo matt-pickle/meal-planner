@@ -1,10 +1,9 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
+import { renderWithUserData } from './userDataHarness';
 import { type UserData } from '../src/utils/types';
-
-const mockUser: any = { uid: '123', email: 'test@example.com' };
 
 const mockMeals: UserData['meals'] = [
   {
@@ -31,7 +30,7 @@ const mockMeals: UserData['meals'] = [
 ];
 
 async function openModal(userData: UserData) {
-  render(<GroceryList userData={userData} user={mockUser} />);
+  renderWithUserData(<GroceryList />, userData);
   await userEvent.click(
     screen.getByRole('button', { name: 'add ingredients from upcoming meals' })
   );

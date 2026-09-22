@@ -1,23 +1,11 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { useState } from 'react';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Meals from '../src/pages/Meals';
+import { renderWithUserData } from './userDataHarness';
 import { type UserData } from '../src/utils/types';
 
 describe('CreateMealModal Component', () => {
-
-  // Meals no longer owns the list: App does. This harness plays App's part so
-  // the page re-renders with the updated meals, as it does in the real app.
-  function MealsHarness({ initialUserData }: { initialUserData: UserData }) {
-    const [userData, setUserData] = useState<UserData>(initialUserData);
-    return (
-      <Meals
-        userData={userData}
-        setMeals={meals => setUserData(current => ({ ...current, meals }))}
-      />
-    );
-  }
 
   beforeEach(async () => {
     const mockUserData: UserData = {
@@ -30,7 +18,7 @@ describe('CreateMealModal Component', () => {
       groceryList: [],
     };
 
-    render(<MealsHarness initialUserData={mockUserData} />);
+    renderWithUserData(<Meals />, mockUserData);
     const createButton = screen.getByRole('button', { name: 'add new meal' });
     await userEvent.click(createButton);
   });

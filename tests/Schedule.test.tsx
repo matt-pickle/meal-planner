@@ -1,30 +1,23 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useState } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../src/utils/types';
 import Schedule from '../src/pages/Schedule';
+import { updateUserData } from '../firebase/firebase';
+import { renderWithUserData } from './userDataHarness';
 
-// Schedule no longer mutates userData or writes to Firestore: App owns the
-// schedule and persists it. This harness plays App's part and records what the
-// page asked to persist.
-const persisted: Array<UserData['schedule']> = [];
-
-function ScheduleHarness({ initialUserData }: { initialUserData: UserData }) {
-  const [userData, setUserData] = useState<UserData>(initialUserData);
-  return (
-    <Schedule
-      userData={userData}
-      setSchedule={schedule => {
-        persisted.push(schedule);
-        setUserData(current => ({ ...current, schedule }));
-      }}
-    />
-  );
+// Schedule neither mutates userData nor writes to Firestore: the store does.
+// These read what the store actually persisted.
+function persistedSchedules(): Array<UserData['schedule']> {
+  return vi
+    .mocked(updateUserData)
+    .mock.calls.map(call => call[1].schedule)
+    .filter((schedule): schedule is UserData['schedule'] => schedule !== undefined);
 }
 
 function lastPersisted() {
-  return persisted[persisted.length - 1];
+  const schedules = persistedSchedules();
+  return schedules[schedules.length - 1];
 }
 
 describe('Schedule Page', () => {
@@ -65,8 +58,8 @@ describe('Schedule Page', () => {
   };
 
   beforeEach(() => {
-    persisted.length = 0;
-    render(<ScheduleHarness initialUserData={mockUserData} />);
+    vi.mocked(updateUserData).mockClear();
+    renderWithUserData(<Schedule />, mockUserData);
   });
 
   test('renders correct number of days', async () => {
@@ -127,7 +120,7 @@ describe('Schedule Page with a gap in the stored schedule', () => {
   }
 
   beforeEach(() => {
-    persisted.length = 0;
+    vi.mocked(updateUserData).mockClear();
   });
 
   const gappedUserData: UserData = {
@@ -141,7 +134,7 @@ describe('Schedule Page with a gap in the stored schedule', () => {
   };
 
   test('renders exactly 14 distinct days', () => {
-    render(<ScheduleHarness initialUserData={gappedUserData} />);
+    renderWithUserData(<Schedule />, gappedUserData);
 
     const dayHeadings = screen.getAllByRole('heading', { level: 2 });
     const dates = dayHeadings.map(heading => heading.textContent);
@@ -150,7 +143,7 @@ describe('Schedule Page with a gap in the stored schedule', () => {
   });
 
   test('keeps the stored days in place rather than duplicating them', () => {
-    render(<ScheduleHarness initialUserData={gappedUserData} />);
+    renderWithUserData(<Schedule />, gappedUserData);
 
     const dropdowns = screen.getAllByRole('combobox');
     // day index 3, breakfast slot -> the stored 'cereal' assignment
@@ -170,7 +163,7 @@ describe('Schedule Page across a daylight-saving transition', () => {
   const emptyUserData: UserData = { meals: [], groceryList: [], schedule: [] };
 
   beforeEach(() => {
-    persisted.length = 0;
+    vi.mocked(updateUserData).mockClear();
     vi.useFakeTimers();
     // US clocks fall back on 2026-11-01, inside the next 14 days
     vi.setSystemTime(new Date(2026, 9, 30, 9, 0, 0));
@@ -181,7 +174,7 @@ describe('Schedule Page across a daylight-saving transition', () => {
   });
 
   test('renders 14 consecutive calendar days', () => {
-    render(<ScheduleHarness initialUserData={emptyUserData} />);
+    renderWithUserData(<Schedule />, emptyUserData);
 
     const dates = screen
       .getAllByRole('heading', { level: 2 })
@@ -194,7 +187,7 @@ describe('Schedule Page across a daylight-saving transition', () => {
   });
 
   test('generates midnight-aligned timestamps on both sides of the change', () => {
-    render(<ScheduleHarness initialUserData={emptyUserData} />);
+    renderWithUserData(<Schedule />, emptyUserData);
 
     lastPersisted().forEach(day => {
       const date = new Date(day.date);
@@ -208,7 +201,7 @@ describe('Schedule Page across a daylight-saving transition', () => {
 // persisted unless the user happened to assign a meal.
 describe('Schedule Page side effects', () => {
   beforeEach(() => {
-    persisted.length = 0;
+    vi.mocked(updateUserData).mockClear();
   });
 
   test('does not mutate the schedule it was given while rendering', () => {
@@ -218,13 +211,13 @@ describe('Schedule Page side effects', () => {
       schedule: Object.freeze([]) as unknown as UserData['schedule'],
     };
 
-    expect(() => render(<ScheduleHarness initialUserData={frozen} />)).not.toThrow();
+    expect(() => renderWithUserData(<Schedule />, frozen)).not.toThrow();
   });
 
   test('persists the days it creates', () => {
-    render(<ScheduleHarness initialUserData={{ meals: [], groceryList: [], schedule: [] }} />);
+    renderWithUserData(<Schedule />, { meals: [], groceryList: [], schedule: [] });
 
-    expect(persisted).toHaveLength(1);
+    expect(persistedSchedules()).toHaveLength(1);
     expect(lastPersisted()).toHaveLength(14);
     expect(lastPersisted().every(day => day.breakfast === '')).toBe(true);
   });
@@ -234,11 +227,7 @@ describe('Schedule Page side effects', () => {
     today.setHours(0, 0, 0, 0);
     const existing = { date: today.getTime(), breakfast: 'x', lunch: '', dinner: '' };
 
-    render(
-      <ScheduleHarness
-        initialUserData={{ meals: [], groceryList: [], schedule: [existing] }}
-      />
-    );
+    renderWithUserData(<Schedule />, { meals: [], groceryList: [], schedule: [existing] });
 
     expect(lastPersisted()).toHaveLength(14);
     expect(lastPersisted().filter(day => day.date === existing.date)).toEqual([existing]);

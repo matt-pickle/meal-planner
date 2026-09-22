@@ -1,14 +1,14 @@
 import { describe, test, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
+import { renderWithUserData } from './userDataHarness';
 import { type UserData } from '../src/utils/types';
 
 // Regression: the two lists were keyed by the index *within the filtered list*.
 // Checking an item off moves it between them and reshuffles every later key, so
 // React reused the wrong DOM nodes for the items that shifted up.
 describe('GroceryList item keys', () => {
-  const mockUser: any = { uid: '123', email: 'test@example.com' };
 
   function userData(): UserData {
     return {
@@ -27,7 +27,7 @@ describe('GroceryList item keys', () => {
   }
 
   test('keeps each item on its own DOM node when one is checked off', async () => {
-    render(<GroceryList user={mockUser} userData={userData()} />);
+    renderWithUserData(<GroceryList />, userData());
     const carrotsInput = screen.getByDisplayValue('Carrots');
 
     await userEvent.click(
@@ -40,7 +40,7 @@ describe('GroceryList item keys', () => {
   });
 
   test('moves only the checked item to the bought list', async () => {
-    render(<GroceryList user={mockUser} userData={userData()} />);
+    renderWithUserData(<GroceryList />, userData());
 
     await userEvent.click(
       within(rowOf('Bananas')).getByRole('checkbox', { name: 'mark as bought' })

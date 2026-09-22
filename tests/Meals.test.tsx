@@ -1,9 +1,9 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { useState } from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../src/utils/types';
 import Meals from '../src/pages/Meals';
+import { renderWithUserData } from './userDataHarness';
 
 
 describe('Meals Page', () => {
@@ -110,20 +110,8 @@ describe('Meals Page', () => {
     schedule: [],
   };
 
-  // Meals no longer owns the list: App does. This harness plays App's part so
-  // the page re-renders with the updated meals, as it does in the real app.
-  function MealsHarness({ initialUserData }: { initialUserData: UserData }) {
-    const [userData, setUserData] = useState<UserData>(initialUserData);
-    return (
-      <Meals
-        userData={userData}
-        setMeals={meals => setUserData(current => ({ ...current, meals }))}
-      />
-    );
-  }
-
   beforeEach(() => {
-    render(<MealsHarness initialUserData={mockUserData} />);
+    renderWithUserData(<Meals />, mockUserData);
   });
 
   test('renders meals from userData', () => {

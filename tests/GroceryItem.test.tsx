@@ -2,12 +2,12 @@ import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
+import { renderWithUserData } from './userDataHarness';
 import GroceryItem from '../src/components/GroceryItem';
 import { type UserData } from '../src/utils/types';
 
 describe('GroceryItem Component', () => {
   beforeEach(async () => {
-    const mockUser: any = { uid: '123', email: 'test@example.com' };
     const mockUserData: UserData = {
       meals: [],
       schedule: [],
@@ -16,7 +16,7 @@ describe('GroceryItem Component', () => {
         { id: 'apples', name: 'Apples', quantity: 6, units: 'apples', status: 'bought' },
       ],
     };
-    render(<GroceryList userData={mockUserData} user={mockUser} />);
+    renderWithUserData(<GroceryList />, mockUserData);
     // Bought items are hidden until the section is expanded
     await userEvent.click(screen.getByRole('button', { name: 'toggle accordion' }));
   });

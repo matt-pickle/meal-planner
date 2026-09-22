@@ -1,13 +1,13 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
+import { renderWithUserData } from './userDataHarness';
 import { updateUserData } from '../firebase/firebase';
 import { type UserData } from '../src/utils/types';
 
 describe('GroceryList Component', () => {
   beforeEach(async () => {
-    const mockUser: any = { uid: '123', email: 'test@example.com' };
     const mockUserData: UserData = {
       meals: [
         {
@@ -37,7 +37,7 @@ describe('GroceryList Component', () => {
       ],
     };
 
-    render(<GroceryList userData={mockUserData} user={mockUser} />);
+    renderWithUserData(<GroceryList />, mockUserData);
     // Bought items are hidden until the section is expanded
     await userEvent.click(screen.getByRole('button', { name: 'toggle accordion' }));
   });
@@ -93,7 +93,6 @@ describe('GroceryList Component', () => {
 // Regression: the 500 ms autosave also fired on mount. If the page mounted
 // before userData arrived, it wrote an empty list over the user's saved one.
 describe('GroceryList autosave', () => {
-  const mockUser: any = { uid: '123', email: 'test@example.com' };
   const savedList: UserData = {
     meals: [],
     schedule: [],
@@ -110,7 +109,7 @@ describe('GroceryList autosave', () => {
 
   test('does not write anything on mount', () => {
     vi.useFakeTimers();
-    render(<GroceryList user={mockUser} userData={savedList} />);
+    renderWithUserData(<GroceryList />, savedList);
 
     vi.advanceTimersByTime(2000);
 
@@ -119,7 +118,7 @@ describe('GroceryList autosave', () => {
 
   test('still writes after the user changes something', async () => {
     const user = userEvent.setup();
-    render(<GroceryList user={mockUser} userData={savedList} />);
+    renderWithUserData(<GroceryList />, savedList);
 
     await user.click(screen.getByRole('button', { name: 'add item' }));
 
@@ -131,7 +130,6 @@ describe('GroceryList autosave', () => {
 // Issue 20: quantities were merged with a truthiness test, which treats 0 as
 // missing. These pin the summing behaviour for both merge paths.
 describe('GroceryList quantity merging', () => {
-  const mockUser: any = { uid: '123', email: 'test@example.com' };
 
   function midnightPlus(days: number) {
     const date = new Date();
@@ -161,7 +159,7 @@ describe('GroceryList quantity merging', () => {
   };
 
   test('adds to an existing quantity of 0 rather than replacing it', async () => {
-    render(<GroceryList user={mockUser} userData={userData} />);
+    renderWithUserData(<GroceryList />, userData);
 
     await userEvent.click(
       screen.getByRole('button', { name: 'add ingredients from upcoming meals' })

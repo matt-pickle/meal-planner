@@ -4,16 +4,12 @@ import Button from '../components/Button';
 import MealFormModal from '../components/MealFormModal';
 import DeleteMealModal from '../components/DeleteMealModal';
 import Icon from '../components/Icon';
-import { type UserData, type MealType } from '../utils/types';
+import { useUserData } from '../state/UserDataContext';
+import { type MealType } from '../utils/types';
 
-type Props = {
-  // Guaranteed: App renders this route only once userData is loaded
-  userData: UserData;
-  setMeals: (meals: Array<MealType>) => void;
-};
-
-export default function Meals({ userData, setMeals }: Props) {
-  // Read straight from userData: App owns the list and persists every change
+export default function Meals() {
+  // One copy of the data, owned by the store
+  const { userData, setMeals } = useUserData();
   const meals = userData.meals;
   const [createMealModalIsOpen, setCreateMealModalIsOpen] = useState(false);
   const [editMealModalIsOpen, setEditMealModalIsOpen] = useState(false);

@@ -1,41 +1,18 @@
-import { useState, useEffect, useRef } from 'react';
-import { updateUserData } from '../../firebase/firebase';
-import { type User } from 'firebase/auth';
-import { type UserData, type GroceryItemType, type MealSlot } from '../utils/types';
+import { useState } from 'react';
+import { useUserData } from '../state/UserDataContext';
+import { type GroceryItemType, type MealSlot } from '../utils/types';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 import Accordion from '../components/Accordion';
 import GroceryItem from '../components/GroceryItem';
 import AddFromMealsModal from '../components/AddFromMealsModal';
 
-type Props = {
-  // Both are guaranteed: App renders this route only once they are loaded
-  user: User;
-  userData: UserData;
-};
-
-export default function GroceryList({ user, userData }: Props) {
-  const [groceryItems, setGroceryItems] = useState<Array<GroceryItemType>>(userData.groceryList);
+export default function GroceryList() {
+  // The list itself lives in the store, which debounces the write for us
+  const { userData, setGroceryList } = useUserData();
+  const groceryItems = userData.groceryList;
   const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
-
-  // The effect below runs on mount too. Writing then would persist the seeded
-  // state before the user has touched anything, so skip that first run.
-  const isFirstRun = useRef(true);
-
-  // Debounced database updates when groceryItems change
-  useEffect(() => {
-    if (isFirstRun.current) {
-      isFirstRun.current = false;
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      updateUserData(user.uid, { groceryList: groceryItems });
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [groceryItems, user]);
 
   function addGroceryItem() {
     const newItem: GroceryItemType = {
@@ -46,7 +23,7 @@ export default function GroceryList({ user, userData }: Props) {
       status: 'to buy',
     };
     const updatedItems = [...groceryItems, newItem];
-    setGroceryItems(updatedItems);
+    setGroceryList(updatedItems);
   }
 
   // Totals up the ingredients for every meal scheduled from today onward
@@ -117,8 +94,7 @@ export default function GroceryList({ user, userData }: Props) {
       }
     });
 
-    setGroceryItems(updatedGroceryList);
-    updateUserData(user.uid, { groceryList: updatedGroceryList });
+    setGroceryList(updatedGroceryList);
   }
 
   const itemsToBuy = groceryItems
@@ -129,7 +105,7 @@ export default function GroceryList({ user, userData }: Props) {
           key={item.id}
           item={item}
           groceryItems={groceryItems}
-          setGroceryItems={setGroceryItems}
+          setGroceryItems={setGroceryList}
         />
       );
     });
@@ -142,7 +118,7 @@ export default function GroceryList({ user, userData }: Props) {
           key={item.id}
           item={item}
           groceryItems={groceryItems}
-          setGroceryItems={setGroceryItems}
+          setGroceryItems={setGroceryList}
         />
       );
     });

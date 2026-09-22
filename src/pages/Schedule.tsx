@@ -1,14 +1,11 @@
 import { useEffect } from 'react';
 import ScheduleDay from '../components/ScheduleDay';
-import { type MealSlot, type UserData } from '../utils/types';
+import { useUserData } from '../state/UserDataContext';
+import { type MealSlot } from '../utils/types';
 import Icon from '../components/Icon'
 
-type Props = {
-  userData: UserData;
-  setSchedule: (schedule: UserData['schedule']) => void;
-}
-
-export default function Schedule({ userData, setSchedule }: Props) {
+export default function Schedule() {
+  const { userData, setSchedule } = useUserData();
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
