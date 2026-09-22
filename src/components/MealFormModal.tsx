@@ -1,14 +1,15 @@
-import { lazy, Suspense, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { type Theme } from 'emoji-picker-react';
 import IngredientsInput from './IngredientsInput';
 import Button from './Button';
 import Modal from './Modal';
+import { loadEmojiPicker } from './emojiPicker';
 import { isDuplicateMealName } from '../utils/utils';
 import { type EmojiObject, type MealType, type Ingredient } from '../utils/types';
 
-// One of the largest dependencies in the app, and most visitors never open it,
-// so it is fetched on demand rather than shipped in the main bundle.
-const EmojiPicker = lazy(() => import('emoji-picker-react'));
+// One of the largest dependencies in the app, and most visitors never open a
+// meal form, so it stays out of the main bundle.
+const EmojiPicker = lazy(loadEmojiPicker);
 const DARK = 'dark' as Theme;
 
 type Props = {
@@ -42,6 +43,12 @@ export default function MealFormModal({
   const isDuplicate = trimmedName !== '' && isDuplicateMealName(name, meals, initialMeal?.id);
   // Save stays disabled until the name is both present and unique
   const canSave = trimmedName !== '' && !isDuplicate;
+
+  // Fetch the picker as soon as the form opens rather than waiting for the
+  // button, so it is already there when the user asks for it.
+  useEffect(() => {
+    loadEmojiPicker();
+  }, []);
 
   function pickEmoji(emojiObject: EmojiObject) {
     setEmoji(emojiObject.emoji);

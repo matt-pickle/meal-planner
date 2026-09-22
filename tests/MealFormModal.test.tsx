@@ -6,6 +6,12 @@ import { renderWithUserData } from './userDataHarness';
 import MealFormModal from '../src/components/MealFormModal';
 import { type UserData, type MealType } from '../src/utils/types';
 
+// Stand in for the picker chunk: the real one fetches emoji data over the
+// network, which jsdom has none of.
+vi.mock('../src/components/emojiPicker', () => ({
+  loadEmojiPicker: vi.fn(() => Promise.resolve({ default: () => <div>emoji picker</div> })),
+}));
+
 describe('MealFormModal editing an existing meal', () => {
   beforeEach(async () => {
     const mockUserData: UserData = {
@@ -201,13 +207,24 @@ describe('MealFormModal cancelling', () => {
 });
 
 // Issue 37: emoji-picker-react shipped in the main bundle for every visitor.
-// It is now behind React.lazy, so it is fetched only when the picker is opened
-// — the build puts it in its own chunk.
+// It now lives in its own chunk, fetched as soon as a meal form opens so the
+// picker is ready before the user asks for it.
 //
-// Only its absence is asserted here: once mounted, the picker fetches its emoji
-// set from a CDN, and with no network in jsdom it tears its own UI down again,
-// so anything about its rendered DOM is unreliable.
+// Only its absence from the DOM is asserted here: once mounted, the picker
+// fetches its emoji set from a CDN, and with no network in jsdom it tears its
+// own UI down again, so anything about its rendered DOM is unreliable.
 describe('MealFormModal emoji picker', () => {
+  test('starts fetching the picker when the form opens, before any click', async () => {
+    const { loadEmojiPicker } = await import('../src/components/emojiPicker');
+    const load = vi.mocked(loadEmojiPicker);
+    load.mockClear();
+
+    render(<MealFormModal title="Create New Meal" meals={[]} onSave={vi.fn()} onClose={vi.fn()} />);
+
+    expect(load).toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'choose emoji' })).toBeVisible();
+  });
+
   test('does not render the picker until it is opened', () => {
     render(<MealFormModal title="Create New Meal" meals={[]} onSave={vi.fn()} onClose={vi.fn()} />);
 
