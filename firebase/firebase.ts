@@ -1,6 +1,6 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { initializeFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { initializeFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { type UserData, type MealSlot } from '../src/utils/types';
 import { notifyError } from '../src/utils/errors';
 const env = import.meta.env;
@@ -126,7 +126,14 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
 }
 
 export async function updateUserData(userId: string, userData: Partial<UserData>) {
-  await setDoc(doc(db, 'users', userId), userData, { merge: true }).catch(() =>
+  // updateDoc writes only the named field paths and leaves the rest of the
+  // document untouched. Unlike setDoc({ merge: true }) it fails rather than
+  // recreating a document that is no longer there.
+  //
+  // Field paths address map keys, not array positions, so `schedule` and
+  // `groceryList` are still sent whole: a single day or item cannot be
+  // addressed while they are arrays.
+  await updateDoc(doc(db, 'users', userId), userData).catch(() =>
     notifyError(
       "Couldn't save your changes. Check your connection — recent edits may be lost if you reload.",
     ),

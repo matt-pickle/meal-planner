@@ -235,3 +235,31 @@ describe('Schedule Page side effects', () => {
     expect(lastPersisted().filter(day => day.date === existing.date)).toEqual([existing]);
   });
 });
+
+// Issue 39: assigning a meal used to send schedule, meals and groceryList
+// together, rewriting the whole document for a one-slot change.
+describe('Schedule Page write payload', () => {
+  function midnightPlus(days: number) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + days);
+    return date.getTime();
+  }
+
+  test('writes only the schedule field', async () => {
+    vi.mocked(updateUserData).mockClear();
+    renderWithUserData(<Schedule />, {
+      meals: [{ id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] }],
+      groceryList: [{ id: 'x', name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
+      schedule: [{ date: midnightPlus(0), breakfast: '', lunch: '', dinner: '' }],
+    });
+
+    const dropdown = screen.getAllByRole('combobox')[0];
+    await userEvent.click(dropdown);
+    await userEvent.click(within(dropdown.parentElement!).getByRole('option', { name: /Cereal/ }));
+
+    for (const call of vi.mocked(updateUserData).mock.calls) {
+      expect(Object.keys(call[1])).toEqual(['schedule']);
+    }
+  });
+});

@@ -12,11 +12,13 @@ vi.mock('firebase/auth', () => ({
 }));
 const getDoc = vi.fn();
 const setDoc = vi.fn();
+const updateDoc = vi.fn();
 vi.mock('firebase/firestore', () => ({
   initializeFirestore: vi.fn(() => ({})),
   doc: vi.fn(() => ({})),
   getDoc: (...args: unknown[]) => getDoc(...args),
   setDoc: (...args: unknown[]) => setDoc(...args),
+  updateDoc: (...args: unknown[]) => updateDoc(...args),
 }));
 
 import { getUserData, updateUserData, logIn, logOut } from '../firebase/firebase';
@@ -26,12 +28,24 @@ describe('updateUserData', () => {
   beforeEach(() => {
     getDoc.mockReset();
     setDoc.mockReset();
+    updateDoc.mockReset();
+  });
+
+  test('writes only the field it was given', async () => {
+    updateDoc.mockResolvedValue(undefined);
+
+    await updateUserData('123', { groceryList: [] });
+
+    // setDoc would rewrite the whole document; updateDoc touches named fields
+    expect(setDoc).not.toHaveBeenCalled();
+    expect(updateDoc).toHaveBeenCalledTimes(1);
+    expect(updateDoc.mock.calls[0][1]).toEqual({ groceryList: [] });
   });
 
   test('reports a rejected write instead of failing silently', async () => {
     const listener = vi.fn();
     const unsub = onError(listener);
-    setDoc.mockRejectedValue(new Error('offline'));
+    updateDoc.mockRejectedValue(new Error('offline'));
     await updateUserData('123', { groceryList: [] });
     expect(listener).toHaveBeenCalledOnce();
     expect(listener.mock.calls[0][0]).toMatch(/Couldn't save/);
