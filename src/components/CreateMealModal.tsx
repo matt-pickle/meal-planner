@@ -2,21 +2,16 @@ import { useState } from 'react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import IngredientsInput from './IngredientsInput';
 import Button from './Button';
-import { updateUserData } from '../../firebase/firebase';
-import { type User } from 'firebase/auth';
-import { type UserData } from '../utils/types';
 import { type EmojiObject, type MealType, type Ingredient } from '../utils/types';
 
 type Props = {
-  user: User | null;
-  userData: UserData | undefined;
+  meals: Array<MealType>;
   setCreateMealModalIsOpen: (isOpen: boolean) => void;
   setMeals: (meals: Array<MealType>) => void;
 };
 
 export default function CreateMealModal({
-  user,
-  userData,
+  meals,
   setCreateMealModalIsOpen,
   setMeals,
 }: Props) {
@@ -31,17 +26,12 @@ export default function CreateMealModal({
   }
 
   function saveMeal() {
-    if (user && userData) {
-      const newMeal: MealType = {
-        name: name,
-        emoji: emoji || '',
-        ingredients: ingredients,
-      };
-      updateUserData(user.uid, {
-        meals: [...userData.meals, newMeal],
-      });
-      setMeals([...userData.meals, newMeal]);
-    }
+    const newMeal: MealType = {
+      name: name,
+      emoji: emoji || '',
+      ingredients: ingredients,
+    };
+    setMeals([...meals, newMeal]);
     setCreateMealModalIsOpen(false);
   }
 

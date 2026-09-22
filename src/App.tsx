@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
-import { auth, getUserData } from '../firebase/firebase';
+import { auth, getUserData, updateUserData } from '../firebase/firebase';
 import { Routes, Route, useNavigate } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
 import Home from './pages/Home';
@@ -12,7 +12,7 @@ import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
 import ErrorBanner from './components/ErrorBanner';
 import { onError } from './utils/errors';
-import { type UserData } from './utils/types';
+import { type UserData, type MealType } from './utils/types';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
@@ -39,6 +39,15 @@ export default function App() {
     return unsubscribe;
   }, []);
 
+  // The one place meals are changed: update the in-memory user data and persist
+  // it together, so no component rebuilds the list from a stale copy.
+  function setMeals(meals: Array<MealType>) {
+    setUserData(current => (current ? { ...current, meals } : current));
+    if (user) {
+      updateUserData(user.uid, { meals });
+    }
+  }
+
   return (
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
@@ -47,7 +56,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route element={<PrivateRoutes user={user} />}>
             <Route path="/schedule" element={<Schedule userData={userData!} user={user!}/>} />
-            <Route path="/meals" element={<Meals userData={userData!} user={user!}/>} />
+            <Route path="/meals" element={<Meals userData={userData!} setMeals={setMeals} />} />
             <Route path="/grocery-list" element={<GroceryList userData={userData!} user={user!}/>} />
             <Route path="/settings" element={<Settings user={user} />} />
           </Route>

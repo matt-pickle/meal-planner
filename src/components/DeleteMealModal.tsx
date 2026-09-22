@@ -1,30 +1,23 @@
 import Button from './Button';
-import { updateUserData } from '../../firebase/firebase';
-import { type User } from 'firebase/auth';
-import { type UserData } from '../utils/types';
 import { type MealType } from '../utils/types';
 
 type Props = {
   meal: MealType | null;
-  user: User | null;
-  userData: UserData | undefined;
+  meals: Array<MealType>;
   setDeleteMealModalIsOpen: (isOpen: boolean) => void;
   setMeals: (meals: Array<MealType>) => void;
 };
 
 export default function DeleteMealModal({
   meal,
-  user,
-  userData,
+  meals,
   setDeleteMealModalIsOpen,
   setMeals,
 }: Props) {
 
   function deleteMeal() {
-    if (user && userData && meal) {
-      const updatedMeals = userData.meals.filter(m => m !== meal);
-      updateUserData(user.uid, { meals: updatedMeals });
-      setMeals(updatedMeals);
+    if (meal) {
+      setMeals(meals.filter(m => m !== meal));
     }
     setDeleteMealModalIsOpen(false);
   }

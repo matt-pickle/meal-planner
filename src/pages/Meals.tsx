@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { type User } from 'firebase/auth';
 import Meal from '../components/Meal';
 import Button from '../components/Button';
 import CreateMealModal from '../components/CreateMealModal';
@@ -9,12 +8,13 @@ import { icon } from '../utils/utils';
 import { type UserData, type MealType } from '../utils/types';
 
 type Props = {
-  user: User | null;
   userData: UserData | undefined;
+  setMeals: (meals: Array<MealType>) => void;
 };
 
-export default function Meals({ user, userData }: Props) {
-  const [meals, setMeals] = useState<Array<MealType>>(userData?.meals || []);
+export default function Meals({ userData, setMeals }: Props) {
+  // Read straight from userData: App owns the list and persists every change
+  const meals = userData?.meals || [];
   const [createMealModalIsOpen, setCreateMealModalIsOpen] = useState(false);
   const [editMealModalIsOpen, setEditMealModalIsOpen] = useState(false);
   const [mealToEdit, setMealToEdit] = useState<MealType | null>(null);
@@ -53,8 +53,7 @@ export default function Meals({ user, userData }: Props) {
       </div>
       {createMealModalIsOpen && (
         <CreateMealModal
-          user={user}
-          userData={userData}
+          meals={meals}
           setCreateMealModalIsOpen={setCreateMealModalIsOpen}
           setMeals={setMeals}
         />
@@ -62,8 +61,7 @@ export default function Meals({ user, userData }: Props) {
       {editMealModalIsOpen && (
         <EditMealModal
           meal={mealToEdit}
-          user={user}
-          userData={userData}
+          meals={meals}
           setEditMealModalIsOpen={setEditMealModalIsOpen}
           setMeals={setMeals}
         />
@@ -71,8 +69,7 @@ export default function Meals({ user, userData }: Props) {
       {deleteMealModalIsOpen && (
         <DeleteMealModal
           meal={mealToDelete}
-          user={user}
-          userData={userData}
+          meals={meals}
           setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
           setMeals={setMeals}
         />

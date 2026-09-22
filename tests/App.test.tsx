@@ -16,6 +16,7 @@ vi.mock('../firebase/firebase', () => {
   return {
     auth: { currentUser: mockUser },
     getUserData: vi.fn(),
+    updateUserData: vi.fn(),
     logOut: vi.fn(),
   };
 });

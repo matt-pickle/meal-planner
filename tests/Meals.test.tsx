@@ -1,12 +1,12 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { useState } from 'react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { type UserData } from '../firebase/firebase.ts'
+import { type UserData } from '../src/utils/types';
 import Meals from '../src/pages/Meals';
 
 
 describe('Meals Page', () => {
-  const mockUser: any = { uid: '123', email: 'test@example.com' };
 
   const mockUserData: UserData = {
     meals: [
@@ -16,13 +16,13 @@ describe('Meals Page', () => {
         ingredients: [
           {
             name: 'Oats',
-            emoji: '🌾',
             quantity: 1,
+            units: 'cups',
           },
           {
             name: 'Milk',
-            emoji: '🥛',
             quantity: 1,
+            units: 'cups',
           },
         ],
       },
@@ -32,13 +32,13 @@ describe('Meals Page', () => {
         ingredients: [
           {
             name: 'Bacon',
-            emoji: '🥓',
             quantity: 2,
+            units: 'slices',
           },
           {
             name: 'Eggs',
-            emoji: '🥚',
             quantity: 2,
+            units: 'eggs',
           },
         ],
       },
@@ -48,18 +48,18 @@ describe('Meals Page', () => {
         ingredients: [
           {
             name: 'Turkey',
-            emoji: '🦃',
             quantity: 1,
+            units: 'slices',
           },
           {
             name: 'Bread',
-            emoji: '🍞',
             quantity: 2,
+            units: 'slices',
           },
           {
             name: 'Lettuce',
-            emoji: '🥬',
             quantity: 1,
+            units: 'leaves',
           },
         ],
       },
@@ -69,13 +69,13 @@ describe('Meals Page', () => {
         ingredients: [
           {
             name: 'Pasta',
-            emoji: '🍝',
             quantity: 1,
+            units: 'boxes',
           },
           {
             name: 'Tomato sauce',
-            emoji: '🍅',
             quantity: 1,
+            units: 'jars',
           },
         ],
       },
@@ -85,18 +85,18 @@ describe('Meals Page', () => {
         ingredients: [
           {
             name: 'Beef patty',
-            emoji: '🍖',
             quantity: 1,
+            units: 'patties',
           },
           {
             name: 'Bun',
-            emoji: '🍞',
             quantity: 1,
+            units: 'buns',
           },
           {
             name: 'Lettuce',
-            emoji: '🥬',
             quantity: 1,
+            units: 'leaves',
           },
         ],
       },
@@ -105,8 +105,20 @@ describe('Meals Page', () => {
     schedule: [],
   };
 
+  // Meals no longer owns the list: App does. This harness plays App's part so
+  // the page re-renders with the updated meals, as it does in the real app.
+  function MealsHarness({ initialUserData }: { initialUserData: UserData }) {
+    const [userData, setUserData] = useState<UserData>(initialUserData);
+    return (
+      <Meals
+        userData={userData}
+        setMeals={meals => setUserData(current => ({ ...current, meals }))}
+      />
+    );
+  }
+
   beforeEach(() => {
-    render(<Meals userData={mockUserData} user={mockUser} />);
+    render(<MealsHarness initialUserData={mockUserData} />);
   });
 
   test('renders meals from userData', () => {
@@ -127,6 +139,34 @@ describe('Meals Page', () => {
     const deleteButtons = screen.getAllByRole('button', { name: 'delete' });
     await userEvent.click(deleteButtons[0]);
     expect(screen.getByText(/Delete Meal/)).toBeVisible();
+  });
+
+  // Regression: creating a meal then editing or deleting another used to rebuild
+  // the list from a stale userData.meals, silently dropping the new meal.
+  async function createMeal(name: string) {
+    await userEvent.click(screen.getByRole('button', { name: 'add new meal' }));
+    await userEvent.type(screen.getByLabelText(/Meal Name/), name);
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+  }
+
+  test('a newly created meal survives deleting a different meal', async () => {
+    await createMeal('Pancakes');
+    expect(screen.getByText(/Pancakes/)).toBeVisible();
+
+    const cerealCard = screen.getByText(/Cereal/).closest('div')!;
+    await userEvent.click(within(cerealCard).getByRole('button', { name: 'delete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'delete meal' }));
+
+    expect(screen.queryByText(/Cereal/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Pancakes/)).toBeVisible();
+  });
+
+  test('two meals created in a row both survive', async () => {
+    await createMeal('Pancakes');
+    await createMeal('Waffles');
+
+    expect(screen.getByText(/Pancakes/)).toBeVisible();
+    expect(screen.getByText(/Waffles/)).toBeVisible();
   });
 
   test('opens new meal modal on add button click', async () => {
