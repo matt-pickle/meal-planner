@@ -6,7 +6,10 @@ const signInWithPopup = vi.fn();
 const signOut = vi.fn();
 vi.mock('firebase/auth', () => ({
   getAuth: vi.fn(() => ({})),
-  GoogleAuthProvider: vi.fn(() => ({ setCustomParameters: vi.fn() })),
+  // A regular function, not an arrow: logIn calls it with `new`
+  GoogleAuthProvider: vi.fn(function () {
+    return { setCustomParameters: vi.fn() };
+  }),
   signInWithPopup: (...args: unknown[]) => signInWithPopup(...args),
   signOut: (...args: unknown[]) => signOut(...args),
 }));

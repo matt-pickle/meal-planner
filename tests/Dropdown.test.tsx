@@ -1,4 +1,4 @@
-import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, type MockInstance } from 'vitest';
 import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -214,7 +214,7 @@ describe('Dropdown outside-click listener', () => {
     { label: 'Option 2', value: '2' },
   ];
 
-  function mousedownListeners(spy: ReturnType<typeof vi.spyOn>) {
+  function mousedownListeners(spy: MockInstance) {
     return spy.mock.calls.filter(call => call[0] === 'mousedown');
   }
 
