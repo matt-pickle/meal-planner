@@ -66,6 +66,17 @@ function withMealIds(userData: UserData): UserData {
   };
 }
 
+// Grocery items stored before they carried ids get one on load, so React keys
+// and item lookups never fall back to a position in a filtered list.
+function withGroceryItemIds(userData: UserData): UserData {
+  return {
+    ...userData,
+    groceryList: (userData.groceryList ?? []).map(item =>
+      item.id ? item : { ...item, id: crypto.randomUUID() }
+    ),
+  };
+}
+
 // Schedule slots used to hold meal names. Map any legacy name onto the id of
 // the meal it names, and clear names that no longer match a meal (those were
 // already dangling: the day rendered blank).
@@ -102,7 +113,7 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      return withScheduleMealIds(withMealIds(docSnap.data() as UserData));
+      return withGroceryItemIds(withScheduleMealIds(withMealIds(docSnap.data() as UserData)));
     } else {
       // Use the defaults we just wrote rather than re-reading the document:
       // re-reading recursed without bound whenever the write kept failing.

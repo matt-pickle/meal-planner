@@ -39,7 +39,13 @@ export default function GroceryList({ user, userData }: Props) {
   }, [groceryItems, user]);
 
   function addGroceryItem() {
-    const newItem: GroceryItemType = { name: '', quantity: undefined, units: '', status: 'to buy' };
+    const newItem: GroceryItemType = {
+      id: crypto.randomUUID(),
+      name: '',
+      quantity: undefined,
+      units: '',
+      status: 'to buy',
+    };
     const updatedItems = [...groceryItems, newItem];
     setGroceryItems(updatedItems);
   }
@@ -75,6 +81,7 @@ export default function GroceryList({ user, userData }: Props) {
           existingItem.quantity = (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0);
         } else {
           ingredientsToAdd.push({
+            id: crypto.randomUUID(),
             name: ingredient.name,
             quantity: ingredient.quantity,
             units: ingredient.units,
@@ -119,10 +126,10 @@ export default function GroceryList({ user, userData }: Props) {
 
   const itemsToBuy = groceryItems
     .filter(item => item.status === 'to buy')
-    .map((item, index) => {
+    .map(item => {
       return (
         <GroceryItem
-          key={index}
+          key={item.id}
           item={item}
           groceryItems={groceryItems}
           setGroceryItems={setGroceryItems}
@@ -132,10 +139,10 @@ export default function GroceryList({ user, userData }: Props) {
 
   const boughtItems = groceryItems
     .filter(item => item.status === 'bought')
-    .map((item, index) => {
+    .map(item => {
       return (
         <GroceryItem
-          key={index}
+          key={item.id}
           item={item}
           groceryItems={groceryItems}
           setGroceryItems={setGroceryItems}

@@ -14,6 +14,9 @@ export type MealType = {
 };
 
 export type GroceryItemType = {
+  // Stable identity: items move between the two lists as they are checked off,
+  // so their position is not a usable key
+  id: string;
   name: string;
   quantity: number | undefined;
   units: string;

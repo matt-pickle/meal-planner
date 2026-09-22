@@ -15,7 +15,7 @@ import { type GroceryItemType } from '../src/utils/types';
 describe('GroceryItem quantity input is always controlled', () => {
   function Harness() {
     const [items, setItems] = useState<Array<GroceryItemType>>([
-      { name: 'Cheese', quantity: undefined, units: 'lbs', status: 'to buy' },
+      { id: 'cheese', name: 'Cheese', quantity: undefined, units: 'lbs', status: 'to buy' },
     ]);
     return <GroceryItem item={items[0]} groceryItems={items} setGroceryItems={setItems} />;
   }

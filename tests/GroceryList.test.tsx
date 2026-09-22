@@ -32,8 +32,8 @@ describe('GroceryList Component', () => {
       ],
       schedule: [{ date: Date.now() + 86400000, breakfast: '', lunch: 'spaghetti', dinner: 'hamburger' }],
       groceryList: [
-        { name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' },
-        { name: 'Apples', quantity: 6, units: 'apples', status: 'bought' },
+        { id: 'cheese', name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' },
+        { id: 'apples', name: 'Apples', quantity: 6, units: 'apples', status: 'bought' },
       ],
     };
 
@@ -95,7 +95,7 @@ describe('GroceryList autosave', () => {
   const savedList: UserData = {
     meals: [],
     schedule: [],
-    groceryList: [{ name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
+    groceryList: [{ id: 'cheese', name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
   };
 
   beforeEach(() => {
@@ -155,7 +155,7 @@ describe('GroceryList quantity merging', () => {
     ],
     schedule: [{ date: midnightPlus(1), breakfast: 'soup', lunch: 'stew', dinner: '' }],
     // an item already on the list with a quantity of 0
-    groceryList: [{ name: 'Salt', quantity: 0, units: 'tsp', status: 'to buy' }],
+    groceryList: [{ id: 'salt', name: 'Salt', quantity: 0, units: 'tsp', status: 'to buy' }],
   };
 
   test('adds to an existing quantity of 0 rather than replacing it', async () => {

@@ -11,7 +11,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
   // Replace the item rather than editing it in place: these objects are the
   // ones held in the page's state, and editing them skips the re-render.
   function updateItem(changes: Partial<GroceryItemType>) {
-    setGroceryItems(groceryItems.map(i => (i === item ? { ...i, ...changes } : i)));
+    setGroceryItems(groceryItems.map(i => (i.id === item.id ? { ...i, ...changes } : i)));
   }
 
   function toggleStatus(checked: boolean) {
@@ -23,7 +23,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
       <div className="flex flex-wrap items-center gap-2">
         <div className="pr-2">
           <Checkbox
-            id={`checkbox-${groceryItems.indexOf(item)}`}
+            id={`checkbox-${item.id}`}
             ariaLabel={`mark as bought`}
             onChange={toggleStatus}
             size="20px"
@@ -41,7 +41,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
         />
         <button
           onClick={() => {
-            const newItems = groceryItems.filter(i => i !== item);
+            const newItems = groceryItems.filter(i => i.id !== item.id);
             setGroceryItems(newItems);
           }}
           className="w-4 text-red-500 text-center cursor-pointer sm:order-last"

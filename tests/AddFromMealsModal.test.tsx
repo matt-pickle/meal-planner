@@ -47,7 +47,7 @@ describe('AddFromMealsModal Component', () => {
         { date: Date.now() + 86400000, breakfast: '', lunch: 'spaghetti', dinner: 'tacos' },
         { date: Date.now() + 172800000, breakfast: '', lunch: 'spaghetti', dinner: '' },
       ],
-      groceryList: [{ name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
+      groceryList: [{ id: 'cheese', name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
     });
   });
 
