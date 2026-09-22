@@ -40,7 +40,7 @@ The app talks to Firebase, so you need a Firebase project before it will run:
 
    Only `VITE_`-prefixed variables are exposed to the client by Vite. These values ship in the browser bundle — that is expected for Firebase web apps, which rely on auth and Firestore rules rather than config secrecy.
 
-The server also reads two optional environment variables: `PORT` (default `5173`) and `BASE` (default `/`).
+The server also reads three optional environment variables: `PORT` (default `5173`), `BASE` (default `/`), and `HOST`. In development `HOST` defaults to `localhost`, so the dev server can't be reached from other machines; set `HOST=0.0.0.0` to test from a phone on the same network. In production it defaults to every interface.
 
 ## Usage
 

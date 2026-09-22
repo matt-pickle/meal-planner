@@ -1,11 +1,15 @@
 import fs from 'node:fs/promises';
 import express from 'express';
 import helmet from 'helmet';
+import { createServer } from 'node:http';
 import { Transform } from 'node:stream';
 
 // Constants
 const isProduction = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 5173;
+// The dev server exposes unbundled source, so it only answers this machine
+// unless HOST says otherwise. Production keeps listening on every interface.
+const host = process.env.HOST || (isProduction ? undefined : 'localhost');
 const base = process.env.BASE || '/';
 const ABORT_DELAY = 10000;
 
@@ -14,6 +18,7 @@ const templateHtml = isProduction ? await fs.readFile('./dist/client/index.html'
 
 // Create http server
 const app = express();
+const server = createServer(app);
 
 // Security headers, before any route so they cover SSR HTML and static assets alike
 app.use(
@@ -49,9 +54,11 @@ app.use(
 /** @type {import('vite').ViteDevServer | undefined} */
 let vite;
 if (!isProduction) {
-  const { createServer } = await import('vite');
-  vite = await createServer({
-    server: { middlewareMode: true },
+  const { createServer: createViteServer } = await import('vite');
+  vite = await createViteServer({
+    // HMR shares this server instead of opening its own on port 24678, which
+    // would listen on every interface regardless of HOST.
+    server: { middlewareMode: true, hmr: { server } },
     appType: 'custom',
     base,
   });
@@ -141,10 +148,10 @@ app.use((err, _req, res, _next) => {
 });
 
 // Start http server
-app.listen(port, () => {
+server.listen(port, host, () => {
   if (isProduction) {
     console.log(`Server running at port ${port}`);
   } else {
-    console.log(`Server running in development mode at http://localhost:${port}`);
+    console.log(`Server running in development mode at http://${host}:${port}`);
   }
 });
