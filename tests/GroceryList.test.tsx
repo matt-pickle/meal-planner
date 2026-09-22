@@ -125,3 +125,48 @@ describe('GroceryList autosave', () => {
     expect(vi.mocked(updateUserData).mock.calls[0][1].groceryList).toHaveLength(2);
   });
 });
+
+// Issue 20: quantities were merged with a truthiness test, which treats 0 as
+// missing. These pin the summing behaviour for both merge paths.
+describe('GroceryList quantity merging', () => {
+  const mockUser: any = { uid: '123', email: 'test@example.com' };
+
+  function midnightPlus(days: number) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + days);
+    return date.getTime();
+  }
+
+  const userData: UserData = {
+    meals: [
+      {
+        id: 'soup',
+        name: 'Soup',
+        emoji: '🍲',
+        ingredients: [{ name: 'Salt', quantity: 0, units: 'tsp' }],
+      },
+      {
+        id: 'stew',
+        name: 'Stew',
+        emoji: '🥘',
+        ingredients: [{ name: 'Salt', quantity: 3, units: 'tsp' }],
+      },
+    ],
+    schedule: [{ date: midnightPlus(1), breakfast: 'soup', lunch: 'stew', dinner: '' }],
+    // an item already on the list with a quantity of 0
+    groceryList: [{ name: 'Salt', quantity: 0, units: 'tsp', status: 'to buy' }],
+  };
+
+  test('adds to an existing quantity of 0 rather than replacing it', async () => {
+    render(<GroceryList user={mockUser} userData={userData} />);
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'add ingredients from upcoming meals' })
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'confirm add ingredients' }));
+
+    const quantity = screen.getByRole('spinbutton', { name: 'quantity' });
+    expect(quantity).toHaveValue(3);
+  });
+});

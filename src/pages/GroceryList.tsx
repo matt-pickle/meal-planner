@@ -71,9 +71,8 @@ export default function GroceryList({ user, userData }: Props) {
           item => item.name === ingredient.name && item.units === ingredient.units
         );
         if (existingItem) {
-          existingItem.quantity
-            ? (existingItem.quantity += ingredient.quantity)
-            : (existingItem.quantity = ingredient.quantity);
+          // Sum explicitly: a truthiness test treats a quantity of 0 as missing
+          existingItem.quantity = (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0);
         } else {
           ingredientsToAdd.push({
             name: ingredient.name,
