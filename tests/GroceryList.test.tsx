@@ -300,6 +300,55 @@ describe('GroceryList ingredient matching', () => {
     expect(quantities).toEqual(['2', '1']);
   });
 
+  // Issue 7: matching was exact, so "Eggs" and "eggs " became separate rows
+  test('matches ingredients regardless of case and surrounding spaces', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'omelette',
+          name: 'Omelette',
+          emoji: '🍳',
+          ingredients: [{ name: 'Eggs', quantity: 3, units: 'eggs' }],
+        },
+        {
+          id: 'cake',
+          name: 'Cake',
+          emoji: '🍰',
+          ingredients: [{ name: 'eggs ', quantity: 2, units: ' Eggs' }],
+        },
+      ],
+      schedule: [{ date: midnightPlus(1), breakfast: 'omelette', lunch: 'cake', dinner: '' }],
+      groceryList: [],
+    });
+
+    await addFromMeals();
+
+    // one row, spelled as it first appeared
+    expect(screen.getByRole('textbox', { name: 'item name' })).toHaveValue('Eggs');
+    expect(screen.getByRole('textbox', { name: 'units' })).toHaveValue('eggs');
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(5);
+  });
+
+  test('merges into a list item that differs only in case and spaces', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'omelette',
+          name: 'Omelette',
+          emoji: '🍳',
+          ingredients: [{ name: ' eggs', quantity: 3, units: 'EGGS' }],
+        },
+      ],
+      schedule: [{ date: midnightPlus(1), breakfast: 'omelette', lunch: '', dinner: '' }],
+      groceryList: [{ id: 'eggs', name: 'Eggs', quantity: 1, units: 'eggs', status: 'to buy' }],
+    });
+
+    await addFromMeals();
+
+    expect(screen.getByRole('textbox', { name: 'item name' })).toHaveValue('Eggs');
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(4);
+  });
+
   test('totals the same ingredient across several scheduled meals', async () => {
     renderWithUserData(<GroceryList />, {
       meals: [

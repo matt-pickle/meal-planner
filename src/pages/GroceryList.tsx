@@ -7,10 +7,11 @@ import Accordion from '../components/Accordion';
 import GroceryItem from '../components/GroceryItem';
 import AddFromMealsModal from '../components/AddFromMealsModal';
 
-// Grocery items are matched on name + units. The separator cannot appear in
+// Grocery items are matched on name + units, ignoring case and surrounding
+// spaces, so "Eggs" and "eggs " share a row. The separator cannot appear in
 // either, so "Salt|tsp" as a name can't collide with Salt in tsp.
 function itemKey(name: string, units: string) {
-  return `${name}\u0000${units}`;
+  return `${name.trim().toLowerCase()}\u0000${units.trim().toLowerCase()}`;
 }
 
 // A missing quantity counts as 0 only beside a real one; two missing ones stay
