@@ -1,42 +1,78 @@
-import { describe, test, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { type User } from 'firebase/auth';
 import Settings from '../src/pages/Settings';
-import { logOut } from '../firebase/firebase';
+import { logOut, updateUserData } from '../firebase/firebase';
+import { useUserData } from '../src/state/UserDataContext';
+import { renderWithUserData } from './userDataHarness';
+import { type UserData } from '../src/utils/types';
 
-vi.mock('../firebase/firebase', () => {
-  return {
-    logOut: vi.fn(),
-  };
-});
+const emptyData: UserData = { meals: [], schedule: [], groceryList: [] };
+
+function renderSettings(user: Partial<User> | null) {
+  return renderWithUserData(<Settings user={user as User | null} />, emptyData);
+}
 
 describe('Settings Page', () => {
+  beforeEach(() => {
+    vi.mocked(logOut).mockClear();
+    vi.mocked(updateUserData).mockClear();
+  });
+
   test('displays the display name and email when the user has both', () => {
-    const mockUser = { uid: '123', email: 'test@test.com', displayName: 'Test User' };
-    // @ts-expect-error -- a partial stand-in for the Firebase User
-    render(<Settings user={mockUser} />);
+    renderSettings({ uid: '123', email: 'test@test.com', displayName: 'Test User' });
     expect(screen.getByText('Logged in as Test User (test@test.com)')).toBeVisible();
   });
 
   test('falls back to the email when the user has no display name', () => {
-    const mockUser = { uid: '123', email: 'test@test.com', displayName: null };
-    // @ts-expect-error -- a partial stand-in for the Firebase User
-    render(<Settings user={mockUser} />);
+    renderSettings({ uid: '123', email: 'test@test.com', displayName: null });
     expect(screen.getByText('Logged in as test@test.com')).toBeVisible();
   });
 
   test('omits the line when there is no user', () => {
-    render(<Settings user={null} />);
+    renderSettings(null);
     expect(screen.queryByText(/Logged in as/)).not.toBeInTheDocument();
   });
 
   test('logs out on button click', async () => {
-    const mockUser = { uid: '123', email: 'test@test.com', displayName: 'Test User' };
-    // @ts-expect-error -- a partial stand-in for the Firebase User
-    render(<Settings user={mockUser} />);
+    renderSettings({ uid: '123', email: 'test@test.com', displayName: 'Test User' });
 
     await userEvent.click(screen.getByRole('button', { name: 'log out' }));
 
     expect(logOut).toHaveBeenCalled();
+  });
+
+  // Issue 9: once signed out, Firestore rejects the write, so a pending grocery
+  // edit has to be written before signing out, not after.
+  test('writes a pending grocery edit before signing out', async () => {
+    function EditThenSettings() {
+      const { userData, setGroceryList } = useUserData();
+      return (
+        <>
+          <button
+            onClick={() =>
+              setGroceryList([
+                ...userData.groceryList,
+                { id: 'milk', name: 'Milk', quantity: 1, units: 'cups', status: 'to buy' },
+              ])
+            }
+          >
+            add item
+          </button>
+          <Settings user={null} />
+        </>
+      );
+    }
+    renderWithUserData(<EditThenSettings />, emptyData);
+    await userEvent.click(screen.getByRole('button', { name: 'add item' }));
+    expect(updateUserData).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'log out' }));
+
+    expect(updateUserData).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(updateUserData).mock.invocationCallOrder[0]).toBeLessThan(
+      vi.mocked(logOut).mock.invocationCallOrder[0],
+    );
   });
 });

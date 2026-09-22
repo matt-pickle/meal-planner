@@ -3,13 +3,18 @@ import { logOut } from '../../firebase/firebase';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 import { notifyError } from '../utils/errors';
+import { useUserData } from '../state/UserDataContext';
 
 type Props = {
   user: User | null;
 };
 
 export default function Settings({ user }: Props) {
+  const { flushGroceryList } = useUserData();
+
   async function handleLogOut() {
+    // A pending grocery edit can only be written while this user is signed in
+    await flushGroceryList();
     try {
       await logOut();
     } catch {

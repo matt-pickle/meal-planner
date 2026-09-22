@@ -28,8 +28,8 @@ export default function GroceryList() {
   const groceryItems = userData.groceryList;
 
   // Leaving the page counts as walking away: write a pending edit now rather
-  // than letting it sit out the debounce
-  useEffect(() => flushGroceryList, [flushGroceryList]);
+  // than letting it sit out the debounce. Nothing waits on the write here.
+  useEffect(() => () => void flushGroceryList(), [flushGroceryList]);
   const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
 

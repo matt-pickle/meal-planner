@@ -1,6 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
 import { type User } from 'firebase/auth';
-import { updateUserData } from '../../firebase/firebase';
+import { auth, updateUserData } from '../../firebase/firebase';
 import { withoutPastDays } from '../utils/utils';
 import { type UserData, type MealType, type GroceryItemType } from '../utils/types';
 
@@ -13,8 +13,9 @@ type UserDataStore = {
   setMeals: (meals: Array<MealType>) => void;
   setSchedule: (schedule: UserData['schedule']) => void;
   setGroceryList: (groceryList: Array<GroceryItemType>) => void;
-  // Writes a pending grocery edit now instead of waiting out the debounce
-  flushGroceryList: () => void;
+  // Writes a pending grocery edit now instead of waiting out the debounce;
+  // resolves once the write has finished
+  flushGroceryList: () => Promise<void>;
 };
 
 const UserDataContext = createContext<UserDataStore | null>(null);
@@ -45,7 +46,7 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
   const grocerySaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unsavedGroceryList = useRef<Array<GroceryItemType> | null>(null);
 
-  const flushGroceryList = useCallback(() => {
+  const flushGroceryList = useCallback(async () => {
     if (grocerySaveTimer.current) {
       clearTimeout(grocerySaveTimer.current);
       grocerySaveTimer.current = null;
@@ -53,11 +54,15 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
     const pending = unsavedGroceryList.current;
     if (!pending) return;
     unsavedGroceryList.current = null;
-    updateUserData(user.uid, { groceryList: pending });
+    // Signing out in another tab signs this one out too, and the pages and
+    // store then unmount and flush. Firestore would reject that write, so the
+    // edit is dropped quietly instead of reported as a failure the user can't fix.
+    if (auth.currentUser?.uid !== user.uid) return;
+    await updateUserData(user.uid, { groceryList: pending });
   }, [user.uid]);
 
   // Don't sit on an edit while the user walks away: write it when the tab is
-  // hidden or closed, and when the store itself goes away (sign-out).
+  // hidden or closed, and when the store itself goes away.
   useEffect(() => {
     function handleVisibilityChange() {
       if (document.visibilityState === 'hidden') flushGroceryList();

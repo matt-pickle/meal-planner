@@ -61,7 +61,7 @@ Once running, sign in with Google. A first-time user automatically gets a starte
 
 - **Schedule** shows the next 14 days; pick a meal for each breakfast, lunch, and dinner slot.
 - **Meals** is your meal library — create, edit, and delete meals with an emoji and a list of ingredients (name, quantity, units).
-- **Grocery List** holds check-off items you add by hand, plus **Add From Meals**, which totals up the ingredients of every meal scheduled from today onward and merges them into the list (items with the same name and units, ignoring capitalisation and surrounding spaces, have their quantities combined). Changes are saved to Firestore five seconds after you stop editing, and straight away if you leave the page, hide the tab, or sign out.
+- **Grocery List** holds check-off items you add by hand, plus **Add From Meals**, which totals up the ingredients of every meal scheduled from today onward and merges them into the list (items with the same name and units, ignoring capitalisation and surrounding spaces, have their quantities combined). Changes are saved to Firestore five seconds after you stop editing, and straight away if you leave the page or hide the tab. Signing out in another tab signs this one out too, and an edit here that hasn't been saved yet is discarded.
 
 ## Known limitations
 

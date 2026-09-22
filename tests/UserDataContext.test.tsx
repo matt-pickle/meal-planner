@@ -5,7 +5,7 @@ import userEvent from '@testing-library/user-event';
 import { UserDataProvider, useUserData } from '../src/state/UserDataContext';
 import { updateUserData } from '../firebase/firebase';
 import { type UserData } from '../src/utils/types';
-import { testUser } from './userDataHarness';
+import { signIn, testUser } from './userDataHarness';
 
 function initialData(): UserData {
   return {
@@ -44,6 +44,7 @@ function Consumer() {
 }
 
 function renderStore() {
+  signIn();
   function Harness() {
     const [userData, setUserData] = useState<UserData | undefined>(initialData());
     if (!userData) return null;
@@ -149,6 +150,29 @@ describe('UserDataContext', () => {
     unmount();
 
     expect(updateUserData).toHaveBeenCalledTimes(1);
+  });
+
+  // Issue 9: signing out in another tab signs this one out too, and the store
+  // unmounts after that. Firestore would reject the write, and the user would
+  // see a save failure on the login page.
+  test('drops a pending edit quietly when the user has signed out elsewhere', async () => {
+    const { unmount } = renderStore();
+    await userEvent.click(screen.getByRole('button', { name: 'add item' }));
+
+    signIn(null);
+    unmount();
+
+    expect(updateUserData).not.toHaveBeenCalled();
+  });
+
+  test('drops a pending edit when a different user is now signed in', async () => {
+    const { unmount } = renderStore();
+    await userEvent.click(screen.getByRole('button', { name: 'add item' }));
+
+    signIn({ uid: 'someone-else' } as unknown as typeof testUser);
+    unmount();
+
+    expect(updateUserData).not.toHaveBeenCalled();
   });
 
   test('writes nothing when there is no pending edit', () => {

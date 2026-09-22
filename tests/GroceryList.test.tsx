@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
 import { act, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
-import { renderWithUserData } from './userDataHarness';
+import { renderWithUserData, signIn } from './userDataHarness';
 import { updateUserData } from '../firebase/firebase';
 import { type UserData } from '../src/utils/types';
 
@@ -150,6 +150,19 @@ describe('GroceryList autosave', () => {
 
     expect(updateUserData).toHaveBeenCalledTimes(1);
     expect(vi.mocked(updateUserData).mock.calls[0][1].groceryList).toHaveLength(2);
+  });
+
+  // Issue 9: signing out in another tab signs this one out too, and the page
+  // unmounts after that. Firestore would reject the write, and the user would
+  // see a save failure on the login page.
+  test("doesn't try to write the pending edit once the user is signed out", async () => {
+    const { unmount } = renderWithUserData(<GroceryList />, savedList);
+    await userEvent.click(screen.getByRole('button', { name: 'add item' }));
+
+    signIn(null);
+    unmount();
+
+    expect(updateUserData).not.toHaveBeenCalled();
   });
 });
 
