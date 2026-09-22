@@ -20,12 +20,20 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // The auth listener is subscribed once, so it would close over the path the
-  // app started on. A ref keeps it looking at where the user actually is.
+  // The auth listener is subscribed once, so it would close over the path and
+  // the navigate function it saw on the first render. Refs keep it current
+  // without making the subscription depend on them: re-subscribing re-fires the
+  // listener, which would refetch and overwrite unsaved changes.
   const pathRef = useRef(location.pathname);
+  const navigateRef = useRef(navigate);
   useEffect(() => {
     pathRef.current = location.pathname;
-  }, [location.pathname]);
+    navigateRef.current = navigate;
+  }, [location.pathname, navigate]);
+
+  // Which user's data has been fetched, so a token refresh — which re-fires the
+  // auth listener with the same user — doesn't refetch over local edits.
+  const loadedUid = useRef<string | null>(null);
 
   // Firestore reads and writes report failures here rather than failing silently
   useEffect(() => onError(setErrorMessage), []);
@@ -34,21 +42,25 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, async userObj => {
       if (userObj) {
         setUser(userObj);
-        const data = await getUserData(userObj.uid);
-        setUserData(data);
+        if (loadedUid.current !== userObj.uid) {
+          loadedUid.current = userObj.uid;
+          const data = await getUserData(userObj.uid);
+          setUserData(data);
+        }
         // Only send the user onward from the entry points; a refresh or a deep
         // link into another page should stay where it is
         if (pathRef.current === '/' || pathRef.current === '/login') {
-          navigate('/schedule');
+          navigateRef.current('/schedule');
         }
       } else {
-        navigate('/login');
+        loadedUid.current = null;
+        navigateRef.current('/login');
         setUserData(undefined);
         setUser(null);
       }
     });
     return unsubscribe;
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
