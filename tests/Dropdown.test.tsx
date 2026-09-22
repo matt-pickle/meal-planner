@@ -138,3 +138,69 @@ describe('Dropdown keyboard support', () => {
     );
   });
 });
+
+// Issue 36: a slot could only be swapped, never emptied
+describe('Dropdown clear option', () => {
+  const options = [
+    { label: 'Option 1', value: '1' },
+    { label: 'Option 2', value: '2' },
+  ];
+
+  function ControlledDropdown({ startValue = '' }: { startValue?: string }) {
+    const [value, setValue] = useState(startValue);
+    return (
+      <Dropdown
+        options={options}
+        ariaLabel="meal"
+        placeholder="Select an option"
+        clearLabel="— none —"
+        value={value}
+        onSelect={setValue}
+      />
+    );
+  }
+
+  test('is absent unless a clear label is given', async () => {
+    render(<Dropdown options={options} ariaLabel="meal" onSelect={vi.fn()} />);
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'meal' }));
+
+    expect(screen.getAllByRole('option')).toHaveLength(2);
+  });
+
+  test('offers the clear entry first', async () => {
+    render(<ControlledDropdown />);
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'meal' }));
+
+    expect(screen.getAllByRole('option')[0]).toHaveTextContent('— none —');
+  });
+
+  test('empties a chosen value', async () => {
+    render(<ControlledDropdown startValue="2" />);
+    const trigger = screen.getByRole('combobox', { name: 'meal' });
+    expect(trigger).toHaveTextContent('Option 2');
+
+    await userEvent.click(trigger);
+    await userEvent.click(screen.getByRole('option', { name: '— none —' }));
+
+    expect(trigger).toHaveTextContent('Select an option');
+  });
+
+  test('shows the placeholder rather than the clear label when nothing is chosen', () => {
+    render(<ControlledDropdown />);
+
+    expect(screen.getByRole('combobox', { name: 'meal' })).toHaveTextContent('Select an option');
+  });
+
+  test('marks the clear entry as the selected one while empty', async () => {
+    render(<ControlledDropdown />);
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'meal' }));
+
+    expect(screen.getByRole('option', { name: '— none —' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+  });
+});

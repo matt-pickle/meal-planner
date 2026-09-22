@@ -13,6 +13,8 @@ type Props = {
   value?: string;
   classOverrides?: string;
   ariaLabel?: string;
+  // When set, an extra first option with this label clears the selection
+  clearLabel?: string;
   onSelect: (value: string) => void;
 };
 
@@ -23,6 +25,7 @@ export default function Dropdown({
   value = '',
   classOverrides,
   ariaLabel,
+  clearLabel,
   onSelect,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,9 +37,14 @@ export default function Dropdown({
   const id = useId();
   const listId = `${id}-listbox`;
 
+  // The clear entry is offered in the list but is not a selection of its own:
+  // with nothing chosen the trigger shows the placeholder, not the clear label.
+  const listOptions =
+    clearLabel === undefined ? options : [{ label: clearLabel, value: '' }, ...options];
+
   // Fully controlled: the selection is whatever the parent passes
-  const selectedIndex = options.findIndex(option => option.value === value);
-  const selectedOption = selectedIndex === -1 ? undefined : options[selectedIndex];
+  const selectedIndex = listOptions.findIndex(option => option.value === value);
+  const selectedOption = options.find(option => option.value === value);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -87,7 +95,7 @@ export default function Dropdown({
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        setActiveIndex(index => Math.min(index + 1, options.length - 1));
+        setActiveIndex(index => Math.min(index + 1, listOptions.length - 1));
         break;
       case 'ArrowUp':
         event.preventDefault();
@@ -99,12 +107,12 @@ export default function Dropdown({
         break;
       case 'End':
         event.preventDefault();
-        setActiveIndex(options.length - 1);
+        setActiveIndex(listOptions.length - 1);
         break;
       case 'Enter':
       case ' ':
         event.preventDefault();
-        if (options[activeIndex]) choose(options[activeIndex]);
+        if (listOptions[activeIndex]) choose(listOptions[activeIndex]);
         break;
       case 'Escape':
         event.preventDefault();
@@ -150,11 +158,13 @@ export default function Dropdown({
             role="listbox"
             tabIndex={-1}
             aria-label={ariaLabel}
-            aria-activedescendant={options[activeIndex] ? `${id}-option-${activeIndex}` : undefined}
+            aria-activedescendant={
+              listOptions[activeIndex] ? `${id}-option-${activeIndex}` : undefined
+            }
             onKeyDown={handleListKeyDown}
             className="absolute left-0 right-0 !p-0 z-2 max-h-48 overflow-y-auto border-t-0 bg-slate-200 outline-none"
           >
-            {options.map((option, index) => (
+            {listOptions.map((option, index) => (
               <li
                 key={option.value}
                 id={`${id}-option-${index}`}

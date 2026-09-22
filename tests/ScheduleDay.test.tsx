@@ -105,3 +105,31 @@ describe('ScheduleDay Component', () => {
     expect(selected).toHaveTextContent('🥪 Club sandwich');
   });
 });
+
+// Issue 36: an assigned slot could only be swapped for another meal
+describe('ScheduleDay clearing a slot', () => {
+  const mockMeals: UserData['meals'] = [
+    { id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] },
+    { id: 'hamburger', name: 'Hamburger', emoji: '🍔', ingredients: [] },
+  ];
+
+  test('reports an empty slot when the clear entry is chosen', async () => {
+    const onMealChange = vi.fn();
+    render(
+      <ScheduleDay
+        date={1764299759000}
+        breakfast="cereal"
+        lunch=""
+        dinner=""
+        meals={mockMeals}
+        onMealChange={onMealChange}
+      />,
+    );
+    const breakfastSection = screen.getByText(/BREAKFAST:/).parentElement as HTMLElement;
+
+    await userEvent.click(within(breakfastSection).getByRole('combobox'));
+    await userEvent.click(within(breakfastSection).getByRole('option', { name: '— none —' }));
+
+    expect(onMealChange).toHaveBeenCalledWith(1764299759000, 'breakfast', '');
+  });
+});
