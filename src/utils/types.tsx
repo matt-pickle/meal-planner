@@ -25,6 +25,7 @@ export type UserData = {
   meals: Array<MealType>;
   schedule: Array<{
     date: number;
+    // Slots hold a meal's id, or '' when nothing is assigned
     breakfast: string;
     lunch: string;
     dinner: string;

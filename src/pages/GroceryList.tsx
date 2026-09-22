@@ -42,16 +42,16 @@ export default function GroceryList({ user, userData }: Props) {
 
     const upcomingDays = userData?.schedule.filter(day => day.date >= today.getTime());
     const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
-    const upcomingMealNames: Array<string> = [];
+    const upcomingMealIds: Array<string> = [];
     upcomingDays?.forEach(day => {
       slots.forEach(slot => {
         if (day[slot]) {
-          upcomingMealNames.push(day[slot]);
+          upcomingMealIds.push(day[slot]);
         }
       });
     });
-    const upcomingMeals = upcomingMealNames.map(mealName => {
-      return userData?.meals.find(meal => meal.name === mealName);
+    const upcomingMeals = upcomingMealIds.map(mealId => {
+      return userData?.meals.find(meal => meal.id === mealId);
     });
 
     const ingredientsToAdd: Array<GroceryItemType> = [];

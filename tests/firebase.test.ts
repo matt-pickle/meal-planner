@@ -63,3 +63,49 @@ describe('getUserData', () => {
     expect(result?.schedule).toEqual([]);
   });
 });
+
+describe('legacy document migration', () => {
+  beforeEach(() => { getDoc.mockReset(); setDoc.mockReset(); });
+
+  test('gives meals ids and rewrites name-based schedule slots to them', async () => {
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({
+        meals: [
+          { name: 'Spaghetti', emoji: '🍝', ingredients: [] },
+          { name: 'Tacos', emoji: '🌮', ingredients: [] },
+        ],
+        schedule: [
+          { date: 1, breakfast: 'Spaghetti', lunch: 'Deleted meal', dinner: '' },
+        ],
+        groceryList: [],
+      }),
+    });
+
+    const result = await getUserData('123');
+    const spaghettiId = result!.meals[0].id;
+
+    expect(spaghettiId).toBeTruthy();
+    expect(result!.meals[1].id).toBeTruthy();
+    expect(result!.schedule[0].breakfast).toBe(spaghettiId);
+    // a name that matches no meal was already dangling, so it is cleared
+    expect(result!.schedule[0].lunch).toBe('');
+    expect(result!.schedule[0].dinner).toBe('');
+  });
+
+  test('leaves ids that are already ids alone', async () => {
+    getDoc.mockResolvedValue({
+      exists: () => true,
+      data: () => ({
+        meals: [{ id: 'abc', name: 'Spaghetti', emoji: '🍝', ingredients: [] }],
+        schedule: [{ date: 1, breakfast: 'abc', lunch: '', dinner: '' }],
+        groceryList: [],
+      }),
+    });
+
+    const result = await getUserData('123');
+
+    expect(result!.meals[0].id).toBe('abc');
+    expect(result!.schedule[0].breakfast).toBe('abc');
+  });
+});

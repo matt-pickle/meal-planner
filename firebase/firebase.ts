@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app"
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"
-import { type UserData } from "../src/utils/types.tsx"
+import { type UserData, type MealSlot } from "../src/utils/types.tsx"
 import { notifyError } from "../src/utils/errors.tsx"
 const env = import.meta.env;
 
@@ -63,6 +63,28 @@ function withMealIds(userData: UserData): UserData {
   };
 }
 
+// Schedule slots used to hold meal names. Map any legacy name onto the id of
+// the meal it names, and clear names that no longer match a meal (those were
+// already dangling: the day rendered blank).
+function withScheduleMealIds(userData: UserData): UserData {
+  const mealIds = new Set(userData.meals.map(meal => meal.id));
+  const idsByName = new Map(userData.meals.map(meal => [meal.name, meal.id]));
+  const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
+
+  return {
+    ...userData,
+    schedule: (userData.schedule ?? []).map(day => {
+      const migrated = { ...day };
+      slots.forEach(slot => {
+        const value = day[slot];
+        if (!value || mealIds.has(value)) return;
+        migrated[slot] = idsByName.get(value) ?? '';
+      });
+      return migrated;
+    }),
+  };
+}
+
 // Rejects if the write fails, so getUserData can report the failure instead of
 // looping on a document that was never created.
 export async function createDocument(userId: string): Promise<UserData> {
@@ -77,7 +99,7 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      return withMealIds(docSnap.data() as UserData);
+      return withScheduleMealIds(withMealIds(docSnap.data() as UserData));
     } else {
       // Use the defaults we just wrote rather than re-reading the document:
       // re-reading recursed without bound whenever the write kept failing.

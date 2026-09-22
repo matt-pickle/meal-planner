@@ -124,13 +124,13 @@ Each user has a single Firestore document at `users/{uid}`:
 
 ```ts
 {
-  meals: [{ name, emoji, ingredients: [{ name, quantity, units }] }],
-  schedule: [{ date /* ms timestamp, midnight */, breakfast, lunch, dinner /* meal names */ }],
+  meals: [{ id, name, emoji, ingredients: [{ name, quantity, units }] }],
+  schedule: [{ date /* ms timestamp, midnight */, breakfast, lunch, dinner /* meal ids */ }],
   groceryList: [{ name, quantity, units, status: 'to buy' | 'bought' }]
 }
 ```
 
-Schedule slots reference meals by name rather than by id, so renaming a meal does not update days it is already assigned to.
+Schedule slots reference meals by `id`, so renaming a meal keeps every day it is assigned to. Meal names must be unique — the create and edit forms reject a name another meal already uses. Documents written before meals had ids are migrated on load: each meal gets an id, and name-based slots are rewritten to it.
 
 ## Testing
 

@@ -85,4 +85,20 @@ describe('CreateMealModal Component', () => {
     const pancakes = screen.getByText(/Pancakes/);
     expect(pancakes).toBeVisible();
   });
+
+  // Two meals with the same name are indistinguishable in the schedule dropdown
+  test('refuses to save a meal whose name is already taken', async () => {
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'salad');
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('You already have a meal called "salad"');
+    expect(screen.getByText(/Create New Meal/)).toBeVisible();
+  });
+
+  test('refuses to save a meal with no name', async () => {
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Give the meal a name.');
+    expect(screen.getByText(/Create New Meal/)).toBeVisible();
+  });
 });

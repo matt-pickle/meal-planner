@@ -29,7 +29,7 @@ describe('GroceryList Component', () => {
           ],
         },
       ],
-      schedule: [{ date: Date.now() + 86400000, breakfast: '', lunch: 'Spaghetti', dinner: 'Hamburger' }],
+      schedule: [{ date: Date.now() + 86400000, breakfast: '', lunch: 'spaghetti', dinner: 'hamburger' }],
       groceryList: [
         { name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' },
         { name: 'Apples', quantity: 6, units: 'apples', status: 'bought' },

@@ -43,9 +43,9 @@ describe('AddFromMealsModal Component', () => {
       meals: mockMeals,
       schedule: [
         // yesterday - already eaten, so its ingredients are not wanted
-        { date: Date.now() - 86400000, breakfast: 'Pancakes', lunch: '', dinner: '' },
-        { date: Date.now() + 86400000, breakfast: '', lunch: 'Spaghetti', dinner: 'Tacos' },
-        { date: Date.now() + 172800000, breakfast: '', lunch: 'Spaghetti', dinner: '' },
+        { date: Date.now() - 86400000, breakfast: 'pancakes', lunch: '', dinner: '' },
+        { date: Date.now() + 86400000, breakfast: '', lunch: 'spaghetti', dinner: 'tacos' },
+        { date: Date.now() + 172800000, breakfast: '', lunch: 'spaghetti', dinner: '' },
       ],
       groceryList: [{ name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
     });

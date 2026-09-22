@@ -27,15 +27,15 @@ describe('Schedule Page', () => {
     schedule: [
       {
         date: Date.now(),
-        breakfast: 'Cereal',
-        lunch: 'Turkey sandwich',
-        dinner: 'Spaghetti',
+        breakfast: 'cereal',
+        lunch: 'turkey-sandwich',
+        dinner: 'spaghetti',
       },
       {
         date: Date.now() + 86400000,
-        breakfast: 'Bacon and eggs',
-        lunch: 'Hamburger',
-        dinner: 'Chicken',
+        breakfast: 'bacon-and-eggs',
+        lunch: 'hamburger',
+        dinner: 'chicken',
       },
     ],
   };
@@ -82,7 +82,7 @@ describe('Schedule Page', () => {
     await userEvent.click(within(options).getByText(/Hamburger/));
 
     expect(dropdown).toHaveTextContent('🍔 Hamburger');
-    expect(mockUserData.schedule[0].breakfast).toBe('Hamburger');
+    expect(mockUserData.schedule[0].breakfast).toBe('hamburger');
     expect(updateUserData).toHaveBeenCalledWith('123', {
       schedule: mockUserData.schedule,
       meals: mockUserData.meals,

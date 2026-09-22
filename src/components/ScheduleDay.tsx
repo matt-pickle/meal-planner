@@ -7,7 +7,7 @@ type Props = {
   lunch: string;
   dinner: string;
   meals: UserData['meals'];
-  onMealChange: (date: number, slot: MealSlot, mealName: string) => void;
+  onMealChange: (date: number, slot: MealSlot, mealId: string) => void;
 };
 
 export default function ScheduleDay({
@@ -27,7 +27,7 @@ export default function ScheduleDay({
     .slice(-2)}`;
   const mealOptions = meals.map(meal => ({
     label: `${meal.emoji}\u00A0\u00A0${meal.name}`,
-    value: meal.name,
+    value: meal.id,
   }));
   const slots: Array<{ name: MealSlot; meal: string }> = [
     { name: 'breakfast', meal: breakfast },
@@ -52,7 +52,7 @@ export default function ScheduleDay({
               value={slot.meal}
               placeholder="Select a meal..."
               classOverrides="!mb-0"
-              onSelect={mealName => onMealChange(date, slot.name, mealName)}
+              onSelect={mealId => onMealChange(date, slot.name, mealId)}
             />
           </div>
         ))}

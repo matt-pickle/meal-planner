@@ -18,9 +18,9 @@ describe('ScheduleDay Component', () => {
     render(
       <ScheduleDay
         date={mockDate}
-        breakfast="Cereal"
-        lunch="Turkey sandwich"
-        dinner="Hamburger"
+        breakfast="cereal"
+        lunch="turkey-sandwich"
+        dinner="hamburger"
         meals={mockMeals}
         onMealChange={mockOnMealChange}
       />
@@ -61,7 +61,32 @@ describe('ScheduleDay Component', () => {
     await userEvent.click(within(lunchSection).getByText(/Hamburger/));
 
     expect(mockOnMealChange).toHaveBeenCalledTimes(1);
-    expect(mockOnMealChange).toHaveBeenCalledWith(mockDate, 'lunch', 'Hamburger');
+    expect(mockOnMealChange).toHaveBeenCalledWith(mockDate, 'lunch', 'hamburger');
     expect(dropdown).toHaveTextContent('🍔 Hamburger');
+  });
+
+  // Regression: slots used to store the meal's name, so renaming a meal
+  // orphaned every day it was assigned to and the card rendered blank.
+  test('still shows the meal after it has been renamed', () => {
+    const renamed: UserData['meals'] = [
+      { id: 'turkey-sandwich', name: 'Club sandwich', emoji: '🥪', ingredients: [] },
+    ];
+    render(
+      <ScheduleDay
+        date={mockDate}
+        breakfast=""
+        lunch="turkey-sandwich"
+        dinner=""
+        meals={renamed}
+        onMealChange={mockOnMealChange}
+      />
+    );
+
+    // Assert on the dropdown's selected display, not the section: every option
+    // label is always in the DOM, just visually collapsed.
+    const lunches = screen.getAllByText(/LUNCH:/);
+    const lunchSection = lunches[lunches.length - 1].parentElement as HTMLElement;
+    const selected = within(lunchSection).getByRole('generic', { name: 'dropdown' });
+    expect(selected).toHaveTextContent('🥪 Club sandwich');
   });
 });

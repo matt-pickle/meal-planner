@@ -2,6 +2,7 @@ import { useState } from 'react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import IngredientsInput from './IngredientsInput';
 import Button from './Button';
+import { isDuplicateMealName } from '../utils/utils';
 import { type EmojiObject, type MealType, type Ingredient } from '../utils/types';
 
 type Props = {
@@ -19,6 +20,7 @@ export default function CreateMealModal({
   const [emoji, setEmoji] = useState<string | null>(null);
   const [emojiPickerIsOpen, setEmojiPickerIsOpen] = useState(false);
   const [ingredients, setIngredients] = useState<Array<Ingredient>>([]);
+  const [nameError, setNameError] = useState('');
 
   function pickEmoji(emojiObject: EmojiObject) {
     setEmoji(emojiObject.emoji);
@@ -26,6 +28,14 @@ export default function CreateMealModal({
   }
 
   function saveMeal() {
+    if (!name.trim()) {
+      setNameError('Give the meal a name.');
+      return;
+    }
+    if (isDuplicateMealName(name, meals)) {
+      setNameError(`You already have a meal called "${name.trim()}".`);
+      return;
+    }
     const newMeal: MealType = {
       id: crypto.randomUUID(),
       name: name,
@@ -51,8 +61,16 @@ export default function CreateMealModal({
             placeholder="Spaghetti"
             className="w-full bg-medium text-white rounded-md px-3 py-2 mb-4 placeholder:text-light/50 focus:outline-2 focus:outline-title"
             value={name}
-            onChange={e => setName(e.target.value)}
+            onChange={e => {
+              setName(e.target.value);
+              setNameError('');
+            }}
           />
+          {nameError && (
+            <p role="alert" className="text-red-400 -mt-3 mb-4">
+              {nameError}
+            </p>
+          )}
           <label className="block text-light font-semibold mb-1">Emoji</label>
           <div className="relative mb-4">
             <button

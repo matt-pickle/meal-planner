@@ -13,11 +13,11 @@ export default function Schedule({ user, userData }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  function assignMeal(date: number, slot: MealSlot, mealName: string) {
+  function assignMeal(date: number, slot: MealSlot, mealId: string) {
     const schedule = userData.schedule;
     const dayIndex = schedule.findIndex(day => day.date === date);
     if (dayIndex === -1) return;
-    schedule[dayIndex][slot] = mealName;
+    schedule[dayIndex][slot] = mealId;
     updateUserData(user.uid, {
       schedule: schedule,
       meals: userData.meals,
