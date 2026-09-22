@@ -24,9 +24,9 @@ export default function Meals({ userData, setMeals }: Props) {
   const sortedMeals = [...meals].sort((a, b) => a.name.localeCompare(b.name));
 
   const mealList: Array<React.JSX.Element> =
-    sortedMeals.map((meal, index) => (
+    sortedMeals.map(meal => (
       <Meal
-        key={index}
+        key={meal.id}
         meal={meal}
         setEditMealModalIsOpen={setEditMealModalIsOpen}
         setMealToEdit={setMealToEdit}

@@ -30,11 +30,12 @@ export default function EditMealModal({
   function saveMeal() {
     if (meal) {
       const newMeal: MealType = {
+        id: meal.id,
         name,
         emoji: emoji || '',
         ingredients,
       };
-      setMeals(meals.map(m => (m === meal ? newMeal : m)));
+      setMeals(meals.map(m => (m.id === meal.id ? newMeal : m)));
     }
     setEditMealModalIsOpen(false);
   }

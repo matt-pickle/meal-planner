@@ -35,6 +35,7 @@ function defaultUserData(): UserData {
   return {
     meals: [
       {
+        id: crypto.randomUUID(),
         name: "Hamburgers",
         emoji: "🍔",
         ingredients: [
@@ -48,6 +49,17 @@ function defaultUserData(): UserData {
     ],
     schedule: [],
     groceryList: []
+  };
+}
+
+// Meals stored before they carried ids get one on load, so matching never falls
+// back to object identity. The id is persisted with the next write of the list.
+function withMealIds(userData: UserData): UserData {
+  return {
+    ...userData,
+    meals: (userData.meals ?? []).map(meal =>
+      meal.id ? meal : { ...meal, id: crypto.randomUUID() }
+    ),
   };
 }
 
@@ -65,7 +77,7 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      return docSnap.data() as UserData;
+      return withMealIds(docSnap.data() as UserData);
     } else {
       // Use the defaults we just wrote rather than re-reading the document:
       // re-reading recursed without bound whenever the write kept failing.

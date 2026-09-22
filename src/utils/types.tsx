@@ -5,6 +5,8 @@ export type Ingredient = {
 };
 
 export type MealType = {
+  // Stable identity: names change and object references don't survive a refetch
+  id: string;
   name: string;
   emoji: string;
   ingredients: Array<Ingredient>;

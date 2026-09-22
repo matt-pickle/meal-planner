@@ -1,9 +1,10 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Meals from '../src/pages/Meals';
-import { type UserData } from '../src/utils/types';
+import DeleteMealModal from '../src/components/DeleteMealModal';
+import { type UserData, type MealType } from '../src/utils/types';
 
 describe('DeleteMealModal Component', () => {
   // Meals no longer owns the list: App does. This harness plays App's part so
@@ -22,6 +23,7 @@ describe('DeleteMealModal Component', () => {
     const mockUserData: UserData = {
       meals: [
         {
+          id: 'spaghetti',
           name: 'Spaghetti',
           emoji: '🍝',
           ingredients: [],
@@ -65,5 +67,27 @@ describe('DeleteMealModal Component', () => {
     expect(modalTitle).not.toBeVisible();
     const deletedMeal = screen.queryByText(/Spaghetti/);
     expect(deletedMeal).not.toBeInTheDocument();
+  });
+});
+
+describe('DeleteMealModal meal matching', () => {
+  // Regression: `m !== meal` silently deleted nothing once the array held
+  // equal-but-distinct objects.
+  test('deletes the right meal when the object reference has changed', async () => {
+    const meal: MealType = { id: 'spaghetti', name: 'Spaghetti', emoji: '🍝', ingredients: [] };
+    const other: MealType = { id: 'tacos', name: 'Tacos', emoji: '🌮', ingredients: [] };
+    const setMeals = vi.fn();
+
+    render(
+      <DeleteMealModal
+        meal={meal}
+        meals={[{ ...meal }, other]}
+        setDeleteMealModalIsOpen={vi.fn()}
+        setMeals={setMeals}
+      />
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'delete meal' }));
+
+    expect(setMeals).toHaveBeenCalledWith([other]);
   });
 });

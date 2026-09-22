@@ -16,12 +16,12 @@ describe('Schedule Page', () => {
 
   const mockUserData: UserData = {
     meals: [
-      { name: 'Cereal', emoji: '🥣', ingredients: [] },
-      { name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
-      { name: 'Spaghetti', emoji: '🍝', ingredients: [] },
-      { name: 'Bacon and eggs', emoji: '🥓', ingredients: [] },
-      { name: 'Hamburger', emoji: '🍔', ingredients: [] },
-      { name: 'Chicken', emoji: '🍗', ingredients: [] },
+      { id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] },
+      { id: 'turkey-sandwich', name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
+      { id: 'spaghetti', name: 'Spaghetti', emoji: '🍝', ingredients: [] },
+      { id: 'bacon-and-eggs', name: 'Bacon and eggs', emoji: '🥓', ingredients: [] },
+      { id: 'hamburger', name: 'Hamburger', emoji: '🍔', ingredients: [] },
+      { id: 'chicken', name: 'Chicken', emoji: '🍗', ingredients: [] },
     ],
     groceryList: [],
     schedule: [

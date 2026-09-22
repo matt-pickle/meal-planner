@@ -11,6 +11,7 @@ describe('Meals Page', () => {
   const mockUserData: UserData = {
     meals: [
       {
+        id: 'cereal',
         name: 'Cereal',
         emoji: '🥣',
         ingredients: [
@@ -27,6 +28,7 @@ describe('Meals Page', () => {
         ],
       },
       {
+        id: 'bacon-and-eggs',
         name: 'Bacon and eggs',
         emoji: '🥓🍳',
         ingredients: [
@@ -43,6 +45,7 @@ describe('Meals Page', () => {
         ],
       },
       {
+        id: 'turkey-sandwich',
         name: 'Turkey sandwich',
         emoji: '🥪',
         ingredients: [
@@ -64,6 +67,7 @@ describe('Meals Page', () => {
         ],
       },
       {
+        id: 'spaghetti',
         name: 'Spaghetti',
         emoji: '🍝',
         ingredients: [
@@ -80,6 +84,7 @@ describe('Meals Page', () => {
         ],
       },
       {
+        id: 'hamburger',
         name: 'Hamburger',
         emoji: '🍔',
         ingredients: [

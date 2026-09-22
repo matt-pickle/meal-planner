@@ -6,9 +6,9 @@ import ScheduleDay from '../src/components/ScheduleDay';
 
 describe('ScheduleDay Component', () => {
   const mockMeals: UserData['meals'] = [
-    { name: 'Cereal', emoji: '🥣', ingredients: [] },
-    { name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
-    { name: 'Hamburger', emoji: '🍔', ingredients: [] },
+    { id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] },
+    { id: 'turkey-sandwich', name: 'Turkey sandwich', emoji: '🥪', ingredients: [] },
+    { id: 'hamburger', name: 'Hamburger', emoji: '🍔', ingredients: [] },
   ];
   const mockDate = 1764299759000;
   const mockOnMealChange = vi.fn();

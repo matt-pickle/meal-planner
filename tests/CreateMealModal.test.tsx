@@ -22,9 +22,9 @@ describe('CreateMealModal Component', () => {
   beforeEach(async () => {
     const mockUserData: UserData = {
       meals: [
-        { name: 'Eggs', emoji: '🥚', ingredients: [] },
-        { name: 'Salad', emoji: '🥗', ingredients: [] },
-        { name: 'Hot dogs', emoji: '🌭', ingredients: [] },
+        { id: 'eggs', name: 'Eggs', emoji: '🥚', ingredients: [] },
+        { id: 'salad', name: 'Salad', emoji: '🥗', ingredients: [] },
+        { id: 'hot-dogs', name: 'Hot dogs', emoji: '🌭', ingredients: [] },
       ],
       schedule: [{ date: Date.now(), breakfast: '', lunch: '', dinner: '' }],
       groceryList: [],

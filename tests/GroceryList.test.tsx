@@ -10,6 +10,7 @@ describe('GroceryList Component', () => {
     const mockUserData: UserData = {
       meals: [
         {
+          id: 'spaghetti',
           name: 'Spaghetti',
           emoji: '🍝',
           ingredients: [
@@ -19,6 +20,7 @@ describe('GroceryList Component', () => {
           ],
         },
         {
+          id: 'hamburger',
           name: 'Hamburger',
           emoji: '🍔',
           ingredients: [

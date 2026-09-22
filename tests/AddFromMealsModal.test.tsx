@@ -8,6 +8,7 @@ const mockUser: any = { uid: '123', email: 'test@example.com' };
 
 const mockMeals: UserData['meals'] = [
   {
+    id: 'spaghetti',
     name: 'Spaghetti',
     emoji: '🍝',
     ingredients: [
@@ -16,11 +17,13 @@ const mockMeals: UserData['meals'] = [
     ],
   },
   {
+    id: 'tacos',
     name: 'Tacos',
     emoji: '🌮',
     ingredients: [{ name: 'Ground Beef', quantity: 1, units: 'lbs' }],
   },
   {
+    id: 'pancakes',
     name: 'Pancakes',
     emoji: '🥞',
     ingredients: [{ name: 'Syrup', quantity: 1, units: 'bottles' }],

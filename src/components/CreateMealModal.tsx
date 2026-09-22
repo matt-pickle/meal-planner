@@ -27,6 +27,7 @@ export default function CreateMealModal({
 
   function saveMeal() {
     const newMeal: MealType = {
+      id: crypto.randomUUID(),
       name: name,
       emoji: emoji || '',
       ingredients: ingredients,

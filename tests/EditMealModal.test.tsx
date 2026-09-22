@@ -1,9 +1,10 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Meals from '../src/pages/Meals';
-import { type UserData } from '../src/utils/types';
+import EditMealModal from '../src/components/EditMealModal';
+import { type UserData, type MealType } from '../src/utils/types';
 
 describe('EditMealModal Component', () => {
   // Meals no longer owns the list: App does. This harness plays App's part so
@@ -22,6 +23,7 @@ describe('EditMealModal Component', () => {
     const mockUserData: UserData = {
       meals: [
         {
+          id: 'spaghetti',
           name: 'Spaghetti',
           emoji: '🍝',
           ingredients: [
@@ -124,5 +126,34 @@ describe('EditMealModal Component', () => {
     expect(cups).toBeVisible();
     expect(two).toBeVisible();
     expect(eggUnits).toBeVisible();
+  });
+});
+
+describe('EditMealModal meal matching', () => {
+  // Regression: the modal used to find its meal with `m === meal`, which stops
+  // matching as soon as the array holds equal-but-distinct objects (a refetch,
+  // or any immutable update).
+  test('edits the right meal when the object reference has changed', async () => {
+    const meal: MealType = { id: 'spaghetti', name: 'Spaghetti', emoji: '🍝', ingredients: [] };
+    const other: MealType = { id: 'tacos', name: 'Tacos', emoji: '🌮', ingredients: [] };
+    const meals = [{ ...meal }, other];
+    const setMeals = vi.fn();
+
+    render(
+      <EditMealModal
+        meal={meal}
+        meals={meals}
+        setEditMealModalIsOpen={vi.fn()}
+        setMeals={setMeals}
+      />
+    );
+    await userEvent.clear(screen.getByLabelText(/Meal Name/));
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Linguine');
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+
+    expect(setMeals).toHaveBeenCalledWith([
+      { id: 'spaghetti', name: 'Linguine', emoji: '🍝', ingredients: [] },
+      other,
+    ]);
   });
 });

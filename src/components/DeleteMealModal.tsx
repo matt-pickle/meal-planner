@@ -17,7 +17,7 @@ export default function DeleteMealModal({
 
   function deleteMeal() {
     if (meal) {
-      setMeals(meals.filter(m => m !== meal));
+      setMeals(meals.filter(m => m.id !== meal.id));
     }
     setDeleteMealModalIsOpen(false);
   }
