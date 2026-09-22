@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useUserData } from '../state/UserDataContext';
 import { type GroceryItemType, type MealSlot } from '../utils/types';
 import Button from '../components/Button';
@@ -9,8 +9,12 @@ import AddFromMealsModal from '../components/AddFromMealsModal';
 
 export default function GroceryList() {
   // The list itself lives in the store, which debounces the write for us
-  const { userData, setGroceryList } = useUserData();
+  const { userData, setGroceryList, flushGroceryList } = useUserData();
   const groceryItems = userData.groceryList;
+
+  // Leaving the page counts as walking away: write a pending edit now rather
+  // than letting it sit out the debounce
+  useEffect(() => flushGroceryList, [flushGroceryList]);
   const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
 

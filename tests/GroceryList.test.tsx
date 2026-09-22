@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { screen } from '@testing-library/react';
+import { act, fireEvent, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
 import { renderWithUserData } from './userDataHarness';
@@ -117,18 +117,38 @@ describe('GroceryList autosave', () => {
     vi.useFakeTimers();
     renderWithUserData(<GroceryList />, savedList);
 
-    vi.advanceTimersByTime(2000);
+    act(() => {
+      vi.advanceTimersByTime(10000);
+    });
 
     expect(updateUserData).not.toHaveBeenCalled();
   });
 
-  test('still writes after the user changes something', async () => {
-    const user = userEvent.setup();
+  test('still writes once the user pauses', () => {
+    vi.useFakeTimers();
     renderWithUserData(<GroceryList />, savedList);
 
-    await user.click(screen.getByRole('button', { name: 'add item' }));
+    fireEvent.click(screen.getByRole('button', { name: 'add item' }));
+    expect(updateUserData).not.toHaveBeenCalled();
 
-    await vi.waitFor(() => expect(updateUserData).toHaveBeenCalledTimes(1));
+    act(() => {
+      vi.advanceTimersByTime(5000);
+    });
+
+    expect(updateUserData).toHaveBeenCalledTimes(1);
+    expect(vi.mocked(updateUserData).mock.calls[0][1].groceryList).toHaveLength(2);
+  });
+
+  // The debounce must not cost the user an edit when they move on
+  test('writes the pending edit when the user navigates away from the page', async () => {
+    const { unmount } = renderWithUserData(<GroceryList />, savedList);
+
+    await userEvent.click(screen.getByRole('button', { name: 'add item' }));
+    expect(updateUserData).not.toHaveBeenCalled();
+
+    unmount();
+
+    expect(updateUserData).toHaveBeenCalledTimes(1);
     expect(vi.mocked(updateUserData).mock.calls[0][1].groceryList).toHaveLength(2);
   });
 });

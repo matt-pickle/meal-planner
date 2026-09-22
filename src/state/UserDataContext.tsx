@@ -13,6 +13,8 @@ type UserDataStore = {
   setMeals: (meals: Array<MealType>) => void;
   setSchedule: (schedule: UserData['schedule']) => void;
   setGroceryList: (groceryList: Array<GroceryItemType>) => void;
+  // Writes a pending grocery edit now instead of waiting out the debounce
+  flushGroceryList: () => void;
 };
 
 const UserDataContext = createContext<UserDataStore | null>(null);
@@ -28,7 +30,9 @@ export function useUserData(): UserDataStore {
   return store;
 }
 
-const GROCERY_SAVE_DELAY = 500;
+// Long enough that typing a list costs one write rather than a dozen. Anything
+// still pending is flushed when the user leaves, so the delay never loses work.
+const GROCERY_SAVE_DELAY = 5000;
 
 type Props = {
   user: User;
@@ -39,12 +43,35 @@ type Props = {
 
 export function UserDataProvider({ user, userData, setUserData, children }: Props) {
   const grocerySaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unsavedGroceryList = useRef<Array<GroceryItemType> | null>(null);
 
+  const flushGroceryList = useCallback(() => {
+    if (grocerySaveTimer.current) {
+      clearTimeout(grocerySaveTimer.current);
+      grocerySaveTimer.current = null;
+    }
+    const pending = unsavedGroceryList.current;
+    if (!pending) return;
+    unsavedGroceryList.current = null;
+    updateUserData(user.uid, { groceryList: pending });
+  }, [user.uid]);
+
+  // Don't sit on an edit while the user walks away: write it when the tab is
+  // hidden or closed, and when the store itself goes away (sign-out).
   useEffect(() => {
+    function handleVisibilityChange() {
+      if (document.visibilityState === 'hidden') flushGroceryList();
+    }
+
+    window.addEventListener('pagehide', flushGroceryList);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
-      if (grocerySaveTimer.current) clearTimeout(grocerySaveTimer.current);
+      window.removeEventListener('pagehide', flushGroceryList);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      flushGroceryList();
     };
-  }, []);
+  }, [flushGroceryList]);
 
   const setMeals = useCallback(
     (meals: Array<MealType>) => {
@@ -68,17 +95,19 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
     (groceryList: Array<GroceryItemType>) => {
       setUserData(current => (current ? { ...current, groceryList } : current));
 
-      // Typing edits the list on every keystroke, so the write is debounced
+      // Typing edits the list on every keystroke, so the write is debounced:
+      // the edit is held here and written once the user pauses.
+      unsavedGroceryList.current = groceryList;
       if (grocerySaveTimer.current) clearTimeout(grocerySaveTimer.current);
-      grocerySaveTimer.current = setTimeout(() => {
-        updateUserData(user.uid, { groceryList });
-      }, GROCERY_SAVE_DELAY);
+      grocerySaveTimer.current = setTimeout(flushGroceryList, GROCERY_SAVE_DELAY);
     },
-    [user.uid, setUserData],
+    [setUserData, flushGroceryList],
   );
 
   return (
-    <UserDataContext.Provider value={{ user, userData, setMeals, setSchedule, setGroceryList }}>
+    <UserDataContext.Provider
+      value={{ user, userData, setMeals, setSchedule, setGroceryList, flushGroceryList }}
+    >
       {children}
     </UserDataContext.Provider>
   );
