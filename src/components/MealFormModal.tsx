@@ -7,27 +7,32 @@ import { isDuplicateMealName } from '../utils/utils';
 import { type EmojiObject, type MealType, type Ingredient } from '../utils/types';
 
 type Props = {
-  meal: MealType | null;
+  title: string;
   meals: Array<MealType>;
-  setEditMealModalIsOpen: (isOpen: boolean) => void;
-  setMeals: (meals: Array<MealType>) => void;
+  // The meal being edited; absent when creating one
+  initialMeal?: MealType;
+  onSave: (meal: MealType) => void;
+  onClose: () => void;
+  classOverrides?: string;
 };
 
-export default function EditMealModal({
-  meal,
+export default function MealFormModal({
+  title,
   meals,
-  setEditMealModalIsOpen,
-  setMeals,
+  initialMeal,
+  onSave,
+  onClose,
+  classOverrides,
 }: Props) {
-  const [name, setName] = useState(meal?.name || '');
-  const [emoji, setEmoji] = useState<string | null>(meal?.emoji || null);
+  const [name, setName] = useState(initialMeal?.name || '');
+  const [emoji, setEmoji] = useState<string | null>(initialMeal?.emoji || null);
   const [emojiPickerIsOpen, setEmojiPickerIsOpen] = useState(false);
-  const [nameError, setNameError] = useState('');
   // Copy the ingredients: editing the stored objects would apply the changes
   // before the user saves, and leave them applied after Cancel.
   const [ingredients, setIngredients] = useState<Array<Ingredient>>(
-    meal?.ingredients.map(ingredient => ({ ...ingredient })) || []
+    initialMeal?.ingredients.map(ingredient => ({ ...ingredient })) || []
   );
+  const [nameError, setNameError] = useState('');
 
   function pickEmoji(emojiObject: EmojiObject) {
     setEmoji(emojiObject.emoji);
@@ -35,28 +40,25 @@ export default function EditMealModal({
   }
 
   function saveMeal() {
-    if (meal) {
-      if (!name.trim()) {
-        setNameError('Give the meal a name.');
-        return;
-      }
-      if (isDuplicateMealName(name, meals, meal.id)) {
-        setNameError(`You already have a meal called "${name.trim()}".`);
-        return;
-      }
-      const newMeal: MealType = {
-        id: meal.id,
-        name,
-        emoji: emoji || '',
-        ingredients,
-      };
-      setMeals(meals.map(m => (m.id === meal.id ? newMeal : m)));
+    if (!name.trim()) {
+      setNameError('Give the meal a name.');
+      return;
     }
-    setEditMealModalIsOpen(false);
+    if (isDuplicateMealName(name, meals, initialMeal?.id)) {
+      setNameError(`You already have a meal called "${name.trim()}".`);
+      return;
+    }
+    onSave({
+      id: initialMeal?.id ?? crypto.randomUUID(),
+      name: name,
+      emoji: emoji || '',
+      ingredients: ingredients,
+    });
+    onClose();
   }
 
   return (
-    <Modal title="Edit Meal" onClose={() => setEditMealModalIsOpen(false)} classOverrides="edit-meal-modal max-w-xl">
+    <Modal title={title} onClose={onClose} classOverrides={classOverrides}>
       <label htmlFor="meal-name" className="block text-light font-semibold mb-1">
         Meal Name
       </label>
@@ -102,7 +104,7 @@ export default function EditMealModal({
       <div className="flex items-center justify-center gap-4 mt-6">
         <Button
           text="Cancel"
-          onClick={() => setEditMealModalIsOpen(false)}
+          onClick={onClose}
           ariaLabel="cancel"
           classOverrides="bg-red-600 hover:bg-red-800"
         />

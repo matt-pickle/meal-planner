@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import Meal from '../components/Meal';
 import Button from '../components/Button';
-import CreateMealModal from '../components/CreateMealModal';
-import EditMealModal from '../components/EditMealModal';
+import MealFormModal from '../components/MealFormModal';
 import DeleteMealModal from '../components/DeleteMealModal';
 import Icon from '../components/Icon';
 import { type UserData, type MealType } from '../utils/types';
@@ -52,18 +51,22 @@ export default function Meals({ userData, setMeals }: Props) {
         {mealList}
       </div>
       {createMealModalIsOpen && (
-        <CreateMealModal
+        <MealFormModal
+          title="Create New Meal"
+          classOverrides="create-meal-modal max-w-xl"
           meals={meals}
-          setCreateMealModalIsOpen={setCreateMealModalIsOpen}
-          setMeals={setMeals}
+          onSave={meal => setMeals([...meals, meal])}
+          onClose={() => setCreateMealModalIsOpen(false)}
         />
       )}
-      {editMealModalIsOpen && (
-        <EditMealModal
-          meal={mealToEdit}
+      {editMealModalIsOpen && mealToEdit && (
+        <MealFormModal
+          title="Edit Meal"
+          classOverrides="edit-meal-modal max-w-xl"
           meals={meals}
-          setEditMealModalIsOpen={setEditMealModalIsOpen}
-          setMeals={setMeals}
+          initialMeal={mealToEdit}
+          onSave={updated => setMeals(meals.map(meal => (meal.id === updated.id ? updated : meal)))}
+          onClose={() => setEditMealModalIsOpen(false)}
         />
       )}
       {deleteMealModalIsOpen && (

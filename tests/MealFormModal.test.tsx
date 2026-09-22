@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Meals from '../src/pages/Meals';
-import EditMealModal from '../src/components/EditMealModal';
+import MealFormModal from '../src/components/MealFormModal';
 import { type UserData, type MealType } from '../src/utils/types';
 
-describe('EditMealModal Component', () => {
+describe('MealFormModal editing an existing meal', () => {
   // Meals no longer owns the list: App does. This harness plays App's part so
   // the page re-renders with the updated meals, as it does in the real app.
   function MealsHarness({ initialUserData }: { initialUserData: UserData }) {
@@ -129,7 +129,7 @@ describe('EditMealModal Component', () => {
   });
 });
 
-describe('EditMealModal meal matching', () => {
+describe('MealFormModal meal matching', () => {
   // Regression: the modal used to find its meal with `m === meal`, which stops
   // matching as soon as the array holds equal-but-distinct objects (a refetch,
   // or any immutable update).
@@ -140,11 +140,12 @@ describe('EditMealModal meal matching', () => {
     const setMeals = vi.fn();
 
     render(
-      <EditMealModal
-        meal={meal}
+      <MealFormModal
+        title="Edit Meal"
+        initialMeal={meal}
         meals={meals}
-        setEditMealModalIsOpen={vi.fn()}
-        setMeals={setMeals}
+        onClose={vi.fn()}
+        onSave={meal => setMeals(meals.map(m => (m.id === meal.id ? meal : m)))}
       />
     );
     await userEvent.clear(screen.getByLabelText(/Meal Name/));
@@ -161,7 +162,7 @@ describe('EditMealModal meal matching', () => {
 // Regression: IngredientsInput edited ingredient objects in place, and the
 // modal seeded its state from meal.ingredients — the very objects held in
 // userData. Typing applied the change immediately, and Cancel left it applied.
-describe('EditMealModal cancelling', () => {
+describe('MealFormModal cancelling', () => {
   const storedMeal: MealType = {
     id: 'spaghetti',
     name: 'Spaghetti',
@@ -172,11 +173,12 @@ describe('EditMealModal cancelling', () => {
   test('leaves the stored meal untouched while the user types', async () => {
     const setMeals = vi.fn();
     render(
-      <EditMealModal
-        meal={storedMeal}
+      <MealFormModal
+        title="Edit Meal"
+        initialMeal={storedMeal}
         meals={[storedMeal]}
-        setEditMealModalIsOpen={vi.fn()}
-        setMeals={setMeals}
+        onClose={vi.fn()}
+        onSave={meal => setMeals([storedMeal].map(m => (m.id === meal.id ? meal : m)))}
       />
     );
 
@@ -191,11 +193,12 @@ describe('EditMealModal cancelling', () => {
     const setMeals = vi.fn();
     const setOpen = vi.fn();
     render(
-      <EditMealModal
-        meal={storedMeal}
+      <MealFormModal
+        title="Edit Meal"
+        initialMeal={storedMeal}
         meals={[storedMeal]}
-        setEditMealModalIsOpen={setOpen}
-        setMeals={setMeals}
+        onClose={setOpen}
+        onSave={meal => setMeals([storedMeal].map(m => (m.id === meal.id ? meal : m)))}
       />
     );
 
@@ -203,7 +206,7 @@ describe('EditMealModal cancelling', () => {
     await userEvent.type(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), '9');
     await userEvent.click(screen.getByRole('button', { name: 'cancel' }));
 
-    expect(setOpen).toHaveBeenCalledWith(false);
+    expect(setOpen).toHaveBeenCalledTimes(1);
     expect(setMeals).not.toHaveBeenCalled();
     expect(storedMeal.ingredients[0].quantity).toBe(1);
   });

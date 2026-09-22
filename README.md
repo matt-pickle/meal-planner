@@ -98,8 +98,9 @@ meal-planner/
 │   │   ├── PrivateRoutes.tsx  Route guard that redirects signed-out users to /login
 │   │   ├── ScheduleDay.tsx    One day: three meal dropdowns
 │   │   ├── Meal.tsx           Meal card with its edit/delete menu
-│   │   ├── CreateMealModal.tsx  New meal form (name, emoji picker, ingredients)
-│   │   ├── EditMealModal.tsx    Same form, prefilled from an existing meal
+│   │   ├── Modal.tsx            Dialog shell: focus trap, Escape, backdrop click, scroll lock
+│   │   ├── MealFormModal.tsx    Meal form (name, emoji picker, ingredients) for create and edit
+│   │   ├── Icon.tsx             Named icons, typed by IconName
 │   │   ├── DeleteMealModal.tsx  Delete confirmation
 │   │   ├── AddFromMealsModal.tsx  Preview and confirm ingredients pulled from the schedule
 │   │   ├── IngredientsInput.tsx   Repeating name/quantity/units row editor
