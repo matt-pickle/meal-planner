@@ -88,6 +88,7 @@ meal-planner/
 │   ├── entry-client.tsx       Hydrates the SSR markup inside BrowserRouter
 │   ├── entry-server.tsx       Exports render() used by server.js, wraps App in StaticRouter
 │   ├── App.tsx                Auth listener, user data fetch, and route table
+│   │                          (pages are lazy-loaded, one chunk each)
 │   ├── state/
 │   │   └── UserDataContext.tsx  The single copy of the user's data and the
 │   │                            mutators that update state and persist it

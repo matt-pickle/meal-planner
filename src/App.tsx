@@ -1,17 +1,21 @@
-import { useState, useEffect, useRef } from 'react';
+import { lazy, Suspense, useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, getUserData } from '../firebase/firebase';
 import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
-import Login from './pages/Login';
-import Schedule from './pages/Schedule';
-import Meals from './pages/Meals';
-import GroceryList from './pages/GroceryList';
-import Settings from './pages/Settings';
 import Navigation from './components/Navigation';
 import ErrorBanner from './components/ErrorBanner';
+import Loading from './components/Loading';
 import { onError } from './utils/errors';
 import { type UserData } from './utils/types';
+
+// A page and the modals it owns travel together in their own chunk, so a
+// visitor downloads only the page they land on.
+const Login = lazy(() => import('./pages/Login'));
+const Schedule = lazy(() => import('./pages/Schedule'));
+const Meals = lazy(() => import('./pages/Meals'));
+const GroceryList = lazy(() => import('./pages/GroceryList'));
+const Settings = lazy(() => import('./pages/Settings'));
 
 export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
@@ -53,18 +57,20 @@ export default function App() {
   return (
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
-        <Routes>
-          <Route path="/" element={<Navigate to="/schedule" replace />} />
-          <Route path="/login" element={<Login />} />
-          <Route
-            element={<PrivateRoutes user={user} userData={userData} setUserData={setUserData} />}
-          >
-            <Route path="/schedule" element={<Schedule />} />
-            <Route path="/meals" element={<Meals />} />
-            <Route path="/grocery-list" element={<GroceryList />} />
-            <Route path="/settings" element={<Settings user={user} />} />
-          </Route>
-        </Routes>
+        <Suspense fallback={<Loading />}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/schedule" replace />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              element={<PrivateRoutes user={user} userData={userData} setUserData={setUserData} />}
+            >
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/meals" element={<Meals />} />
+              <Route path="/grocery-list" element={<GroceryList />} />
+              <Route path="/settings" element={<Settings user={user} />} />
+            </Route>
+          </Routes>
+        </Suspense>
       </div>
       <Navigation />
       <ErrorBanner message={errorMessage} onDismiss={() => setErrorMessage(null)} />
