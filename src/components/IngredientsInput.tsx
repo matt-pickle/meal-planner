@@ -30,7 +30,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         aria-label="ingredient quantity"
         type="number"
         placeholder="1"
-        value={ingredient.quantity}
+        value={ingredient.quantity ?? ''}
         onChange={(e) => {
           // parseFloat('') is NaN, which used to be stored, rendered and saved
           const quantity = e.target.value === '' ? undefined : Number(e.target.value);

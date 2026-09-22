@@ -54,7 +54,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             aria-label="quantity"
             type="number"
             placeholder="1"
-            value={item.quantity}
+            value={item.quantity ?? ''}
             onChange={e => {
               // parseFloat('') is NaN, which used to be stored, rendered and saved
               const quantity = e.target.value === '' ? undefined : Number(e.target.value);

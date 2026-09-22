@@ -130,3 +130,16 @@ describe('GroceryItem quantity field', () => {
     expect(setGroceryItems).toHaveBeenCalledWith([{ ...item, quantity: undefined }]);
   });
 });
+
+// Regression: new items are created with quantity undefined, so value={undefined}
+// made the input uncontrolled until the user typed — React warns and the switch
+// can drop the first keystroke.
+describe('GroceryItem with no quantity', () => {
+  test('renders an empty controlled quantity input', () => {
+    const item = { name: '', quantity: undefined, units: '', status: 'to buy' as const };
+    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={vi.fn()} />);
+
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(null);
+  });
+
+});
