@@ -1,4 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
+import { useState } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../src/utils/types';
@@ -13,18 +14,31 @@ describe('ScheduleDay Component', () => {
   const mockDate = 1764299759000;
   const mockOnMealChange = vi.fn();
 
-  beforeEach(() => {
-    mockOnMealChange.mockClear();
-    render(
+  // App owns the schedule, so a day card's slots are controlled by its parent
+  function ControlledScheduleDay() {
+    const [slots, setSlots] = useState({
+      breakfast: 'cereal',
+      lunch: 'turkey-sandwich',
+      dinner: 'hamburger',
+    });
+    return (
       <ScheduleDay
         date={mockDate}
-        breakfast="cereal"
-        lunch="turkey-sandwich"
-        dinner="hamburger"
+        breakfast={slots.breakfast}
+        lunch={slots.lunch}
+        dinner={slots.dinner}
         meals={mockMeals}
-        onMealChange={mockOnMealChange}
+        onMealChange={(date, slot, mealId) => {
+          setSlots(current => ({ ...current, [slot]: mealId }));
+          mockOnMealChange(date, slot, mealId);
+        }}
       />
     );
+  }
+
+  beforeEach(() => {
+    mockOnMealChange.mockClear();
+    render(<ControlledScheduleDay />);
   });
 
   test('renders the date with MM/DD/YY format', async () => {

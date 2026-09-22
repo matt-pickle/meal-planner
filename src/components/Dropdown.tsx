@@ -24,9 +24,9 @@ export default function Dropdown({
   onSelect,
 }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(value);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const selectedOption = options.find(option => option.value === selectedValue);
+  // Fully controlled: the selection is whatever the parent passes
+  const selectedOption = options.find(option => option.value === value);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -42,16 +42,10 @@ export default function Dropdown({
     };
   }, []);
 
-  // Follow the selection along when the parent changes it
-  useEffect(() => {
-    setSelectedValue(value);
-  }, [value]);
-
   function handleOptionClick(option: Option) {
-    setSelectedValue(option.value);
     setIsOpen(false);
     onSelect(option.value);
-  };
+  }
 
   const style = {
     maxWidth: width,
@@ -78,7 +72,7 @@ export default function Dropdown({
             <div
               key={option.value}
               className={`p-[.7rem] cursor-pointer hover:bg-medium hover:text-white ${
-                selectedValue === option.value ? 'bg-medium text-white selected' : ''
+                value === option.value ? 'bg-medium text-white selected' : ''
               }`}
               onClick={() => handleOptionClick(option)}
             >

@@ -1,4 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
+import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Dropdown from '../src/components/Dropdown';
@@ -12,7 +13,23 @@ describe('Dropdown Component', () => {
       { label: 'Option 2', value: '2' },
       { label: 'Option 3', value: '3' },
     ];
-    render(<Dropdown placeholder="Select an option" options={mockOptions} onSelect={mockOnSelect} />);
+    // Dropdown is fully controlled: the parent owns the value and updates it
+    // from onSelect, which is what ScheduleDay -> App does in the app.
+    function ControlledDropdown() {
+      const [value, setValue] = useState('');
+      return (
+        <Dropdown
+          placeholder="Select an option"
+          options={mockOptions}
+          value={value}
+          onSelect={next => {
+            setValue(next);
+            mockOnSelect(next);
+          }}
+        />
+      );
+    }
+    render(<ControlledDropdown />);
   });
 
   test('renders dropdown with correct placeholder', () => {
