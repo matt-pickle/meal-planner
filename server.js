@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import express from 'express';
+import helmet from 'helmet';
 import { Transform } from 'node:stream';
 
 // Constants
@@ -13,6 +14,36 @@ const templateHtml = isProduction ? await fs.readFile('./dist/client/index.html'
 
 // Create http server
 const app = express();
+
+// Security headers, before any route so they cover SSR HTML and static assets alike
+app.use(
+  helmet({
+    // Firebase's signInWithPopup polls popup.closed on the window it opens.
+    // Helmet's default 'same-origin' severs that reference and sign-in hangs.
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
+    // Vite's dev middleware serves inline scripts and an HMR websocket that a
+    // production-grade policy blocks, so the CSP is only enforced in production.
+    // Everything not listed here keeps Helmet's default (default-src 'self').
+    contentSecurityPolicy: isProduction
+      ? {
+          directives: {
+            // Firestore reads/writes and the auth token endpoints
+            'connect-src': ["'self'", 'https://*.googleapis.com'],
+            // The Google sign-in popup and Firebase's auth handler
+            'frame-src': ["'self'", 'https://*.firebaseapp.com', 'https://accounts.google.com'],
+            'script-src': ["'self'", 'https://apis.google.com'],
+            // Google account avatars, plus the emoji set emoji-picker-react loads
+            'img-src': [
+              "'self'",
+              'data:',
+              'https://*.googleusercontent.com',
+              'https://cdn.jsdelivr.net',
+            ],
+          },
+        }
+      : false,
+  })
+);
 
 // Add Vite or respective production middlewares
 /** @type {import('vite').ViteDevServer | undefined} */
@@ -96,6 +127,17 @@ app.use('*all', async (req, res) => {
     // filesystem paths, dependency versions, or internal module structure.
     res.status(500).end(isProduction ? 'Internal Server Error' : e.stack);
   }
+});
+
+// Anything thrown outside the SSR handler's own try/catch ends up here, so an
+// unexpected failure returns a response instead of leaving the request hanging.
+app.use((err, _req, res, _next) => {
+  console.error(err);
+  if (res.headersSent) {
+    res.end();
+    return;
+  }
+  res.status(500).end(isProduction ? 'Internal Server Error' : err.stack);
 });
 
 // Start http server

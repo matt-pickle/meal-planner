@@ -64,7 +64,8 @@ The app is a React 19 SPA rendered on the server by a small Express server. `ser
 
 ```
 meal-planner/
-├── server.js                  Express server: Vite middleware in dev, static + SSR in prod
+├── server.js                  Express server: Helmet security headers, Vite middleware in
+│                              dev, static + SSR in prod, and an error handler
 ├── index.html                 HTML shell with <!--app-html--> placeholder for SSR output
 ├── vite.config.ts             Vite plugins (React SWC, Tailwind) and Vitest config
 ├── firebase.json              Firebase CLI config (points into firebase/)
