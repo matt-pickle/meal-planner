@@ -49,6 +49,15 @@ export default function App() {
     }
   }
 
+  // Same contract as setMeals: the schedule is updated and persisted here, so
+  // pages never mutate userData themselves.
+  function setSchedule(schedule: UserData['schedule']) {
+    setUserData(current => (current ? { ...current, schedule } : current));
+    if (user) {
+      updateUserData(user.uid, { schedule });
+    }
+  }
+
   return (
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
@@ -58,7 +67,7 @@ export default function App() {
           <Route element={<PrivateRoutes user={user} />}>
             <Route
               path="/schedule"
-              element={userData ? <Schedule userData={userData} user={user!} /> : <Loading />}
+              element={userData ? <Schedule userData={userData} setSchedule={setSchedule} /> : <Loading />}
             />
             <Route
               path="/meals"

@@ -1,29 +1,16 @@
-import { type User } from 'firebase/auth';
-import { updateUserData } from '../../firebase/firebase';
+import { useEffect } from 'react';
 import ScheduleDay from '../components/ScheduleDay.tsx';
 import { type MealSlot, type UserData } from '../utils/types';
 import { icon } from '../utils/utils.tsx'
 
 type Props = {
-  user: User;
   userData: UserData;
+  setSchedule: (schedule: UserData['schedule']) => void;
 }
 
-export default function Schedule({ user, userData }: Props) {
+export default function Schedule({ userData, setSchedule }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-
-  function assignMeal(date: number, slot: MealSlot, mealId: string) {
-    const schedule = userData.schedule;
-    const dayIndex = schedule.findIndex(day => day.date === date);
-    if (dayIndex === -1) return;
-    schedule[dayIndex][slot] = mealId;
-    updateUserData(user.uid, {
-      schedule: schedule,
-      meals: userData.meals,
-      groceryList: userData.groceryList,
-    });
-  }
 
   // The next 14 calendar days as midnight timestamps. Built from the dates
   // themselves — deriving them from how many future days happen to be stored
@@ -37,28 +24,42 @@ export default function Schedule({ user, userData }: Props) {
     upcomingDates.push(day.getTime());
   }
 
-  let dayList: Array<React.JSX.Element> = [];
-  if (userData) {
-    const daysByDate = new Map(userData.schedule.map(day => [day.date, day]));
-    dayList = upcomingDates.map(date => {
-      let day = daysByDate.get(date);
-      if (!day) {
-        day = { date: date, breakfast: '', lunch: '', dinner: '' };
-        userData.schedule.push(day);
-      }
-      return (
-        <ScheduleDay
-          key={date}
-          date={date}
-          breakfast={day.breakfast}
-          lunch={day.lunch}
-          dinner={day.dinner}
-          meals={userData.meals}
-          onMealChange={assignMeal}
-        />
-      );
-    });
+  const daysByDate = new Map(userData.schedule.map(day => [day.date, day]));
+
+  function blankDay(date: number) {
+    return { date: date, breakfast: '', lunch: '', dinner: '' };
   }
+
+  // A pure derivation of props: rendering must not create or store anything
+  const days = upcomingDates.map(date => daysByDate.get(date) ?? blankDay(date));
+
+  // Creating the missing days is a side effect, so it happens after render
+  // rather than during it. Persisting them also means every day on screen
+  // exists in the document before the user can assign a meal to it.
+  useEffect(() => {
+    const missingDates = upcomingDates.filter(date => !daysByDate.has(date));
+    if (missingDates.length === 0) return;
+    setSchedule([...userData.schedule, ...missingDates.map(blankDay)]);
+  }, [userData.schedule]);
+
+  function assignMeal(date: number, slot: MealSlot, mealId: string) {
+    const schedule = daysByDate.has(date)
+      ? userData.schedule.map(day => (day.date === date ? { ...day, [slot]: mealId } : day))
+      : [...userData.schedule, { ...blankDay(date), [slot]: mealId }];
+    setSchedule(schedule);
+  }
+
+  const dayList = days.map(day => (
+    <ScheduleDay
+      key={day.date}
+      date={day.date}
+      breakfast={day.breakfast}
+      lunch={day.lunch}
+      dinner={day.dinner}
+      meals={userData.meals}
+      onMealChange={assignMeal}
+    />
+  ));
 
   return (
     <>
