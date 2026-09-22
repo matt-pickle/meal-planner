@@ -5,6 +5,7 @@ import App from '../src/App';
 import { MemoryRouter, useLocation } from 'react-router';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { getUserData, updateUserData } from '../firebase/firebase';
+import { type UserData } from '../src/utils/types';
 
 vi.mock('firebase/auth', () => {
   return {
@@ -324,5 +325,103 @@ describe('App Component', () => {
         expect(screen.getByText('Log In with Google')).toBeVisible();
       });
     });
+  });
+});
+
+// Regression: nothing checked, once getUserData resolved, that the same user
+// was still signed in. A fetch that finished after an account switch put the
+// previous user's data on screen, and the Schedule page's backfill then wrote
+// it into the new user's document.
+describe('App account switching', () => {
+  const alice = { uid: 'alice' } as unknown as User;
+  const bob = { uid: 'bob' } as unknown as User;
+
+  // Each user's fetch stays pending until the test resolves it
+  const fetches = new Map<string, (data: UserData) => void>();
+  let emit: (user: User | null) => void;
+
+  // One meal, planned for today's breakfast, so a saved schedule shows whose
+  // data it came from
+  function dataWithMeal(id: string, name: string): UserData {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return {
+      meals: [{ id, name, emoji: '🍽️', ingredients: [] }],
+      groceryList: [],
+      schedule: [{ date: today.getTime(), breakfast: id, lunch: '', dinner: '' }],
+    };
+  }
+
+  // Resolves a pending fetch and waits a task, so a React update it causes has
+  // rendered before the test looks
+  async function finishFetch(uid: string, data: UserData) {
+    await act(async () => {
+      fetches.get(uid)!(data);
+      await new Promise(resolve => setTimeout(resolve, 0));
+    });
+  }
+
+  function savedBreakfasts() {
+    return vi
+      .mocked(updateUserData)
+      .mock.calls.flatMap(([uid, data]) =>
+        (data.schedule ?? []).map(day => `${uid}:${day.breakfast}`),
+      )
+      .filter(entry => !entry.endsWith(':'));
+  }
+
+  beforeEach(() => {
+    fetches.clear();
+    vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
+      emit = callback as (user: User | null) => void;
+      return vi.fn();
+    }) as unknown as typeof onAuthStateChanged);
+    vi.mocked(getUserData).mockImplementation(
+      uid => new Promise(resolve => fetches.set(uid, resolve)),
+    );
+  });
+
+  afterEach(() => {
+    vi.mocked(getUserData).mockReset();
+  });
+
+  test("ignores the previous user's fetch when it finishes after they sign out", async () => {
+    renderWithRouter(<App />, '/schedule');
+    act(() => {
+      emit(alice);
+    });
+    act(() => {
+      emit(null);
+    });
+    act(() => {
+      emit(bob);
+    });
+
+    await finishFetch('alice', dataWithMeal('alice-cereal', "Alice's Cereal"));
+
+    expect(screen.getByRole('status')).toHaveTextContent(/Loading/);
+    expect(updateUserData).not.toHaveBeenCalled();
+
+    await finishFetch('bob', dataWithMeal('bob-toast', "Bob's Toast"));
+
+    // the schedule backfill saves Bob's own schedule, and nothing of Alice's
+    await waitFor(() => expect(savedBreakfasts()).toContain('bob:bob-toast'));
+    expect(savedBreakfasts()).toEqual(['bob:bob-toast']);
+  });
+
+  test("stops showing the previous user's data as soon as another user signs in", async () => {
+    renderWithRouter(<App />, '/meals');
+    act(() => {
+      emit(alice);
+    });
+    await finishFetch('alice', dataWithMeal('alice-cereal', "Alice's Cereal"));
+    expect(screen.getByText(/Alice's Cereal/)).toBeVisible();
+
+    act(() => {
+      emit(bob);
+    });
+
+    expect(screen.getByRole('status')).toHaveTextContent(/Loading/);
+    expect(screen.queryByText(/Alice's Cereal/)).not.toBeInTheDocument();
   });
 });

@@ -48,8 +48,12 @@ export default function App() {
         setUser(userObj);
         if (loadedUid.current !== userObj.uid) {
           loadedUid.current = userObj.uid;
+          // Drop the previous user's data now; pages must not show or save it
+          // under this user while their own fetch is in flight
+          setUserData(undefined);
           const data = await getUserData(userObj.uid);
-          setUserData(data);
+          // Someone else may have signed in while this fetch was in flight
+          if (loadedUid.current === userObj.uid) setUserData(data);
         }
         // Only send the user onward from the entry points; a refresh or a deep
         // link into another page should stay where it is
