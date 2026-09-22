@@ -8,6 +8,9 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   test: {
     environment: 'jsdom',
+    // Pin the timezone so date-boundary tests are deterministic and actually
+    // exercise daylight-saving transitions.
+    env: { TZ: 'America/New_York' },
     globals: true,
     setupFiles: ['./tests/setup.ts'],
     coverage: {
