@@ -66,7 +66,9 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
   ));
 
   function addIngredient() {
-    setIngredients([...ingredients, { name: '', quantity: 0, units: '' }]);
+    // No quantity rather than 0, as new grocery items do: an untouched 0 reads
+    // as "none needed"
+    setIngredients([...ingredients, { name: '', quantity: undefined, units: '' }]);
   }
 
   return (

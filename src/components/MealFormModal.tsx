@@ -41,8 +41,12 @@ export default function MealFormModal({
 
   const trimmedName = name.trim();
   const isDuplicate = trimmedName !== '' && isDuplicateMealName(name, meals, initialMeal?.id);
-  // Save stays disabled until the name is both present and unique
-  const canSave = trimmedName !== '' && !isDuplicate;
+  // A nameless ingredient would show up as a blank row on the meal card and
+  // the grocery list
+  const hasBlankIngredient = ingredients.some(ingredient => ingredient.name.trim() === '');
+  // Save stays disabled until the name is present and unique, and every
+  // ingredient has a name
+  const canSave = trimmedName !== '' && !isDuplicate && !hasBlankIngredient;
 
   // Fetch the picker as soon as the form opens rather than waiting for the
   // button, so it is already there when the user asks for it.
@@ -59,7 +63,7 @@ export default function MealFormModal({
     if (!canSave) return;
     onSave({
       id: initialMeal?.id ?? crypto.randomUUID(),
-      name: name,
+      name: trimmedName,
       emoji: emoji || '',
       ingredients: ingredients,
     });
@@ -109,6 +113,13 @@ export default function MealFormModal({
       </div>
       <label className="block text-light font-semibold mb-1">Ingredients</label>
       <IngredientsInput ingredients={ingredients} setIngredients={setIngredients} />
+      {/* Not an alert: it appears on every "Add Ingredient" click, before the
+          user has had a chance to type */}
+      {hasBlankIngredient && (
+        <p className="text-light text-sm mt-2">
+          Every ingredient needs a name. Fill it in or remove the row to save.
+        </p>
+      )}
       <div className="flex items-center justify-center gap-4 mt-6">
         <Button
           text="Cancel"

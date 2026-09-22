@@ -232,3 +232,82 @@ describe('MealFormModal emoji picker', () => {
     expect(document.querySelector('.EmojiPickerReact')).toBeNull();
   });
 });
+
+// Issue 8: the form saved the untrimmed meal name and every ingredient row as
+// entered, so an untouched "Add Ingredient" row became a nameless item with a
+// quantity of 0 on the meal card and the grocery list.
+describe('MealFormModal saving', () => {
+  function renderForm(onSave = vi.fn()) {
+    render(<MealFormModal title="Create New Meal" meals={[]} onSave={onSave} onClose={vi.fn()} />);
+    return onSave;
+  }
+
+  const saveButton = () => screen.getByRole('button', { name: 'save meal' });
+
+  test('saves the meal name without surrounding spaces', async () => {
+    const onSave = renderForm();
+
+    await userEvent.type(screen.getByLabelText(/Meal Name/), '  Pancakes  ');
+    await userEvent.click(saveButton());
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ name: 'Pancakes' }));
+  });
+
+  test('disables save while an ingredient has no name', async () => {
+    const onSave = renderForm();
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+
+    await userEvent.click(screen.getByRole('button', { name: 'add ingredient' }));
+
+    expect(saveButton()).toBeDisabled();
+    expect(screen.getByText(/Every ingredient needs a name/)).toBeVisible();
+    await userEvent.click(saveButton());
+    expect(onSave).not.toHaveBeenCalled();
+  });
+
+  test('treats an ingredient name of only spaces as blank', async () => {
+    renderForm();
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+    await userEvent.click(screen.getByRole('button', { name: 'add ingredient' }));
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'ingredient name' }), '   ');
+
+    expect(saveButton()).toBeDisabled();
+  });
+
+  test('re-enables save once the blank ingredient is named', async () => {
+    renderForm();
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+    await userEvent.click(screen.getByRole('button', { name: 'add ingredient' }));
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'ingredient name' }), 'Milk');
+
+    expect(saveButton()).toBeEnabled();
+    expect(screen.queryByText(/Every ingredient needs a name/)).not.toBeInTheDocument();
+  });
+
+  test('re-enables save once the blank ingredient is removed', async () => {
+    renderForm();
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+    await userEvent.click(screen.getByRole('button', { name: 'add ingredient' }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'remove ingredient' }));
+
+    expect(saveButton()).toBeEnabled();
+  });
+
+  test('starts a new ingredient with no quantity rather than 0', async () => {
+    const onSave = renderForm();
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+    await userEvent.click(screen.getByRole('button', { name: 'add ingredient' }));
+
+    expect(screen.getByRole('spinbutton', { name: 'ingredient quantity' })).toHaveValue(null);
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'ingredient name' }), 'Salt');
+    await userEvent.click(saveButton());
+
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ ingredients: [{ name: 'Salt', quantity: undefined, units: '' }] }),
+    );
+  });
+});
