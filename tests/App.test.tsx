@@ -1,8 +1,8 @@
 import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../src/App';
-import { MemoryRouter } from 'react-router';
+import { MemoryRouter, useLocation } from 'react-router';
 import { onAuthStateChanged } from 'firebase/auth';
 import { getUserData, updateUserData } from '../firebase/firebase';
 
@@ -24,6 +24,29 @@ vi.mock('../firebase/firebase', () => {
 
 function renderWithRouter(component: React.ReactNode, initialPath: string) {
   return render(<MemoryRouter initialEntries={[initialPath]}>{component}</MemoryRouter>);
+}
+
+// Renders the current path so a test can assert where the app settled, rather
+// than catching a transient render mid-navigation.
+function LocationProbe() {
+  return <div data-testid="path">{useLocation().pathname}</div>;
+}
+
+function renderWithProbe(initialPath: string) {
+  return render(
+    <MemoryRouter initialEntries={[initialPath]}>
+      <App />
+      <LocationProbe />
+    </MemoryRouter>
+  );
+}
+
+// Lets every queued promise continuation and the renders they cause run
+async function settle() {
+  await act(async () => {
+    await Promise.resolve();
+    await Promise.resolve();
+  });
 }
 
 afterEach(() => {
@@ -122,6 +145,31 @@ describe ('App Component', () => {
       expect(written.filter(day => day.date < midnightPlus(0))).toEqual([]);
       expect(written).toHaveLength(14);
       expect(written.find(day => day.date === midnightPlus(0))?.breakfast).toBe('keep');
+    });
+
+
+    // Regression: every auth-state firing navigated to /schedule, so a refresh
+    // on another page, or a deep link, bounced the user away.
+    test('leaves a deep link where it is', async () => {
+      renderWithProbe('/meals');
+      await settle();
+
+      expect(screen.getByTestId('path')).toHaveTextContent('/meals');
+      expect(screen.getByRole('heading', { name: 'Meals', level: 1 })).toBeVisible();
+    });
+
+    test('still sends a user landing on / to the schedule', async () => {
+      renderWithProbe('/');
+      await settle();
+
+      expect(screen.getByTestId('path')).toHaveTextContent('/schedule');
+    });
+
+    test('still sends a user landing on /login to the schedule', async () => {
+      renderWithProbe('/login');
+      await settle();
+
+      expect(screen.getByTestId('path')).toHaveTextContent('/schedule');
     });
 
 

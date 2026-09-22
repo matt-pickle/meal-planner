@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, getUserData, updateUserData } from '../firebase/firebase';
-import { Routes, Route, useNavigate } from 'react-router';
+import { Routes, Route, useNavigate, useLocation } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
 import Home from './pages/Home';
 import Login from './pages/Login';
@@ -21,6 +21,12 @@ export default function App() {
   const [userData, setUserData] = useState<UserData | undefined>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // The auth listener is subscribed once, so it would close over the path the
+  // app started on. A ref keeps it looking at where the user actually is.
+  const pathRef = useRef(location.pathname);
+  pathRef.current = location.pathname;
 
   // Firestore reads and writes report failures here rather than failing silently
   useEffect(() => onError(setErrorMessage), []);
@@ -31,7 +37,11 @@ export default function App() {
         setUser(userObj);
         const data = await getUserData(userObj.uid);
         setUserData(data);
-        navigate('/schedule');
+        // Only send the user onward from the entry points; a refresh or a deep
+        // link into another page should stay where it is
+        if (pathRef.current === '/' || pathRef.current === '/login') {
+          navigate('/schedule');
+        }
       } else {
         navigate('/login');
         setUserData(undefined);
