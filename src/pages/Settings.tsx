@@ -1,5 +1,5 @@
 import { type User } from 'firebase/auth';
-import { logOut } from '../../firebase/firebase.ts';
+import { logOut } from '../../firebase/firebase';
 import Button from '../components/Button';
 import { icon } from '../utils/utils';
 import { notifyError } from '../utils/errors';

@@ -1,5 +1,5 @@
 import Button from '../components/Button';
-import { logIn } from '../../firebase/firebase.ts';
+import { logIn } from '../../firebase/firebase';
 import { icon } from '../utils/utils';
 import { notifyError } from '../utils/errors';
 

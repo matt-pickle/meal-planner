@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
-import ScheduleDay from '../components/ScheduleDay.tsx';
+import ScheduleDay from '../components/ScheduleDay';
 import { type MealSlot, type UserData } from '../utils/types';
-import { icon } from '../utils/utils.tsx'
+import { icon } from '../utils/utils'
 
 type Props = {
   userData: UserData;

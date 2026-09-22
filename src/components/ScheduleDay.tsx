@@ -1,4 +1,4 @@
-import Dropdown from './Dropdown.tsx';
+import Dropdown from './Dropdown';
 import { type MealSlot, type UserData } from '../utils/types';
 
 type Props = {

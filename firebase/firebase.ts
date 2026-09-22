@@ -1,8 +1,8 @@
 import { initializeApp } from "firebase/app"
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { initializeFirestore, doc, setDoc, getDoc } from "firebase/firestore"
-import { type UserData, type MealSlot } from "../src/utils/types.tsx"
-import { notifyError } from "../src/utils/errors.tsx"
+import { type UserData, type MealSlot } from "../src/utils/types"
+import { notifyError } from "../src/utils/errors"
 const env = import.meta.env;
 
 const firebaseConfig = {

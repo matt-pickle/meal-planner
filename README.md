@@ -110,7 +110,7 @@ meal-planner/
 │   │   └── Dropdown.tsx       Custom select with click-outside handling
 │   │
 │   └── utils/
-│       ├── types.tsx          UserData, MealType, Ingredient, GroceryItemType, MealSlot
+│       ├── types.ts           UserData, MealType, Ingredient, GroceryItemType, MealSlot
 │       └── utils.tsx          icon() helper, meal-name and schedule-pruning helpers
 │
 └── tests/
