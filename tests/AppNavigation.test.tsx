@@ -102,3 +102,67 @@ describe('App navigation', () => {
     expect(screen.getAllByRole('textbox', { name: 'item name' })).toHaveLength(2);
   });
 });
+
+// Regression: Firebase reports no user for the first few hundred ms after a
+// page load. PrivateRoutes treated that as signed out and redirected to
+// /login, and the auth listener then forwarded /login to /schedule — so
+// refreshing on another page, or following a deep link, never landed there.
+describe('App deep links', () => {
+  const mockUser = { uid: '123' } as unknown as User;
+
+  function storedData(): UserData {
+    return { meals: [], groceryList: [], schedule: [] };
+  }
+
+  function signInAfterRestore() {
+    // as Firebase does: the listener fires once the session is restored, a
+    // tick after the first render rather than during it
+    vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
+      setTimeout(() => (callback as (user: User) => void)(mockUser), 0);
+      return vi.fn();
+    }) as unknown as typeof onAuthStateChanged);
+    vi.mocked(getUserData).mockResolvedValue(storedData());
+  }
+
+  test('lands on the page that was asked for', async () => {
+    signInAfterRestore();
+
+    render(
+      <MemoryRouter initialEntries={['/grocery-list']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Grocery List', level: 1 })).toBeVisible();
+  });
+
+  test('shows a loading state rather than the login page while auth is pending', async () => {
+    signInAfterRestore();
+
+    render(
+      <MemoryRouter initialEntries={['/meals']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent(/Loading/);
+    expect(screen.queryByRole('heading', { name: 'Log In' })).not.toBeInTheDocument();
+
+    expect(await screen.findByRole('heading', { name: 'Meals', level: 1 })).toBeVisible();
+  });
+
+  test('still sends a signed-out visitor to the login page', async () => {
+    vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
+      setTimeout(() => (callback as (user: User | null) => void)(null), 0);
+      return vi.fn();
+    }) as unknown as typeof onAuthStateChanged);
+
+    render(
+      <MemoryRouter initialEntries={['/meals']}>
+        <App />
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByRole('heading', { name: 'Log In' })).toBeVisible();
+  });
+});

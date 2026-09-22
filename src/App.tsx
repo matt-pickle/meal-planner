@@ -15,6 +15,9 @@ import { type UserData } from './utils/types';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(auth.currentUser);
+  // Whether Firebase has reported an auth state yet, as opposed to there being
+  // no signed-in user
+  const [authResolved, setAuthResolved] = useState(auth.currentUser !== null);
   const [userData, setUserData] = useState<UserData | undefined>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
@@ -40,6 +43,7 @@ export default function App() {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async userObj => {
+      setAuthResolved(true);
       if (userObj) {
         setUser(userObj);
         if (loadedUid.current !== userObj.uid) {
@@ -69,7 +73,14 @@ export default function App() {
           <Route path="/" element={<Navigate to="/schedule" replace />} />
           <Route path="/login" element={<Login />} />
           <Route
-            element={<PrivateRoutes user={user} userData={userData} setUserData={setUserData} />}
+            element={
+              <PrivateRoutes
+                user={user}
+                authResolved={authResolved}
+                userData={userData}
+                setUserData={setUserData}
+              />
+            }
           >
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/meals" element={<Meals />} />
