@@ -195,3 +195,100 @@ describe('GroceryList quantity merging', () => {
     expect(quantity).toHaveValue(3);
   });
 });
+
+// Issue 40: the merges scanned what had been gathered so far for every
+// ingredient. They are keyed lookups now, which must keep the same matching.
+describe('GroceryList ingredient matching', () => {
+  function midnightPlus(days: number) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + days);
+    return date.getTime();
+  }
+
+  async function addFromMeals() {
+    await userEvent.click(
+      screen.getByRole('button', { name: 'add ingredients from upcoming meals' }),
+    );
+    await userEvent.click(screen.getByRole('button', { name: 'confirm add ingredients' }));
+  }
+
+  test('keeps the same ingredient in different units apart', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'cake',
+          name: 'Cake',
+          emoji: '🍰',
+          ingredients: [
+            { name: 'Milk', quantity: 2, units: 'cups' },
+            { name: 'Milk', quantity: 1, units: 'litres' },
+          ],
+        },
+      ],
+      schedule: [{ date: midnightPlus(1), breakfast: 'cake', lunch: '', dinner: '' }],
+      groceryList: [],
+    });
+
+    await addFromMeals();
+
+    const quantities = screen
+      .getAllByRole('spinbutton', { name: 'quantity' })
+      .map(input => (input as HTMLInputElement).value);
+    expect(quantities).toEqual(['2', '1']);
+  });
+
+  test('totals the same ingredient across several scheduled meals', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'soup',
+          name: 'Soup',
+          emoji: '🍲',
+          ingredients: [{ name: 'Salt', quantity: 1, units: 'tsp' }],
+        },
+        {
+          id: 'stew',
+          name: 'Stew',
+          emoji: '🥘',
+          ingredients: [{ name: 'Salt', quantity: 2, units: 'tsp' }],
+        },
+      ],
+      schedule: [
+        { date: midnightPlus(1), breakfast: 'soup', lunch: 'stew', dinner: 'soup' },
+        { date: midnightPlus(2), breakfast: 'stew', lunch: '', dinner: '' },
+      ],
+      groceryList: [],
+    });
+
+    await addFromMeals();
+
+    // 1 + 2 + 1 + 2
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(6);
+  });
+
+  test('merges into the first matching item when the list has duplicates', async () => {
+    renderWithUserData(<GroceryList />, {
+      meals: [
+        {
+          id: 'soup',
+          name: 'Soup',
+          emoji: '🍲',
+          ingredients: [{ name: 'Salt', quantity: 5, units: 'tsp' }],
+        },
+      ],
+      schedule: [{ date: midnightPlus(1), breakfast: 'soup', lunch: '', dinner: '' }],
+      groceryList: [
+        { id: 'a', name: 'Salt', quantity: 1, units: 'tsp', status: 'to buy' },
+        { id: 'b', name: 'Salt', quantity: 100, units: 'tsp', status: 'to buy' },
+      ],
+    });
+
+    await addFromMeals();
+
+    const quantities = screen
+      .getAllByRole('spinbutton', { name: 'quantity' })
+      .map(input => (input as HTMLInputElement).value);
+    expect(quantities).toEqual(['6', '100']);
+  });
+});

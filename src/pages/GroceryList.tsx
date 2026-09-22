@@ -7,6 +7,12 @@ import Accordion from '../components/Accordion';
 import GroceryItem from '../components/GroceryItem';
 import AddFromMealsModal from '../components/AddFromMealsModal';
 
+// Grocery items are matched on name + units. The separator cannot appear in
+// either, so "Salt|tsp" as a name can't collide with Salt in tsp.
+function itemKey(name: string, units: string) {
+  return `${name}\u0000${units}`;
+}
+
 export default function GroceryList() {
   // The list itself lives in the store, which debounces the write for us
   const { userData, setGroceryList, flushGroceryList } = useUserData();
@@ -37,41 +43,37 @@ export default function GroceryList() {
 
     const upcomingDays = userData.schedule.filter(day => day.date >= today.getTime());
     const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
-    const upcomingMealIds: Array<string> = [];
+    const mealsById = new Map(userData.meals.map(meal => [meal.id, meal]));
+
+    // Totals keyed by name + units, so each ingredient is found in one step
+    // rather than by scanning what has been gathered so far
+    const totals = new Map<string, GroceryItemType>();
+
     upcomingDays.forEach(day => {
       slots.forEach(slot => {
-        if (day[slot]) {
-          upcomingMealIds.push(day[slot]);
-        }
-      });
-    });
-    const upcomingMeals = upcomingMealIds.map(mealId => {
-      return userData.meals.find(meal => meal.id === mealId);
-    });
+        const meal = mealsById.get(day[slot]);
+        if (!meal) return;
 
-    const ingredientsToAdd: Array<GroceryItemType> = [];
-    upcomingMeals.forEach(meal => {
-      if (!meal) return;
-      meal.ingredients.forEach(ingredient => {
-        const existingItem = ingredientsToAdd.find(
-          item => item.name === ingredient.name && item.units === ingredient.units,
-        );
-        if (existingItem) {
-          // Sum explicitly: a truthiness test treats a quantity of 0 as missing
-          existingItem.quantity = (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0);
-        } else {
-          ingredientsToAdd.push({
-            id: crypto.randomUUID(),
-            name: ingredient.name,
-            quantity: ingredient.quantity,
-            units: ingredient.units,
-            status: 'to buy',
-          });
-        }
+        meal.ingredients.forEach(ingredient => {
+          const key = itemKey(ingredient.name, ingredient.units);
+          const existingItem = totals.get(key);
+          if (existingItem) {
+            // Sum explicitly: a truthiness test treats a quantity of 0 as missing
+            existingItem.quantity = (existingItem.quantity ?? 0) + (ingredient.quantity ?? 0);
+          } else {
+            totals.set(key, {
+              id: crypto.randomUUID(),
+              name: ingredient.name,
+              quantity: ingredient.quantity,
+              units: ingredient.units,
+              status: 'to buy',
+            });
+          }
+        });
       });
     });
 
-    return ingredientsToAdd;
+    return [...totals.values()];
   }
 
   function openAddFromMealsModal() {
@@ -81,11 +83,21 @@ export default function GroceryList() {
 
   function addIngredientsFromMeals() {
     const updatedGroceryList = [...groceryItems];
+
+    // Where each name + units already sits on the list, so the merge below is
+    // one lookup per ingredient. First occurrence wins, as a scan would.
+    const indexByKey = new Map<string, number>();
+    updatedGroceryList.forEach((item, index) => {
+      const key = itemKey(item.name, item.units);
+      if (!indexByKey.has(key)) indexByKey.set(key, index);
+    });
+
     ingredientsToAdd.forEach(ingredient => {
-      const existingIndex = updatedGroceryList.findIndex(
-        item => item.name === ingredient.name && item.units === ingredient.units,
-      );
-      if (existingIndex === -1) {
+      const key = itemKey(ingredient.name, ingredient.units);
+      const existingIndex = indexByKey.get(key);
+
+      if (existingIndex === undefined) {
+        indexByKey.set(key, updatedGroceryList.length);
         updatedGroceryList.push({ ...ingredient });
       } else {
         // Replace rather than edit in place: the existing item is the object
