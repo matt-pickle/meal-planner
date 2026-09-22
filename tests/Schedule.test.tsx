@@ -263,3 +263,29 @@ describe('Schedule Page write payload', () => {
     }
   });
 });
+
+// Issue 41: 42 dropdowns each kept a document mousedown listener, so every
+// click anywhere on the schedule ran 42 handlers.
+describe('Schedule Page document listeners', () => {
+  test('adds no outside-click listeners while every dropdown is closed', () => {
+    const addListener = vi.spyOn(document, 'addEventListener');
+
+    renderWithUserData(<Schedule />, { meals: [], groceryList: [], schedule: [] });
+
+    expect(screen.getAllByRole('combobox')).toHaveLength(42);
+    expect(addListener.mock.calls.filter(call => call[0] === 'mousedown')).toHaveLength(0);
+
+    addListener.mockRestore();
+  });
+
+  test('adds one while a dropdown is open', async () => {
+    renderWithUserData(<Schedule />, { meals: [], groceryList: [], schedule: [] });
+    const addListener = vi.spyOn(document, 'addEventListener');
+
+    await userEvent.click(screen.getAllByRole('combobox')[0]);
+
+    expect(addListener.mock.calls.filter(call => call[0] === 'mousedown')).toHaveLength(1);
+
+    addListener.mockRestore();
+  });
+});

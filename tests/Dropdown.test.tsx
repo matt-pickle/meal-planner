@@ -204,3 +204,51 @@ describe('Dropdown clear option', () => {
     );
   });
 });
+
+// Issue 41: each dropdown kept a document mousedown listener for its whole
+// life, open or not. The schedule renders 42 of them, so every click on that
+// page ran 42 handlers.
+describe('Dropdown outside-click listener', () => {
+  const options = [
+    { label: 'Option 1', value: '1' },
+    { label: 'Option 2', value: '2' },
+  ];
+
+  function mousedownListeners(spy: ReturnType<typeof vi.spyOn>) {
+    return spy.mock.calls.filter(call => call[0] === 'mousedown');
+  }
+
+  test('listens on the document only while open', async () => {
+    const addListener = vi.spyOn(document, 'addEventListener');
+    const removeListener = vi.spyOn(document, 'removeEventListener');
+
+    render(<Dropdown options={options} ariaLabel="meal" onSelect={vi.fn()} />);
+    expect(mousedownListeners(addListener)).toHaveLength(0);
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'meal' }));
+    expect(mousedownListeners(addListener)).toHaveLength(1);
+    expect(mousedownListeners(removeListener)).toHaveLength(0);
+
+    await userEvent.keyboard('{Escape}');
+    expect(mousedownListeners(removeListener)).toHaveLength(1);
+
+    addListener.mockRestore();
+    removeListener.mockRestore();
+  });
+
+  test('still closes when a click lands outside it', async () => {
+    render(
+      <div>
+        <p>elsewhere</p>
+        <Dropdown options={options} ariaLabel="meal" onSelect={vi.fn()} />
+      </div>,
+    );
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'meal' }));
+    expect(screen.getByRole('listbox')).toBeVisible();
+
+    await userEvent.click(screen.getByText('elsewhere'));
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+});

@@ -46,8 +46,12 @@ export default function Dropdown({
   const selectedIndex = listOptions.findIndex(option => option.value === value);
   const selectedOption = options.find(option => option.value === value);
 
-  // Close dropdown when clicking outside
+  // Close dropdown when clicking outside. Only listen while open: the schedule
+  // renders 42 of these, and a document listener each meant every click on the
+  // page ran 42 handlers, all but one of them for a closed dropdown.
   useEffect(() => {
+    if (!isOpen) return;
+
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
         setIsOpen(false);
@@ -55,10 +59,8 @@ export default function Dropdown({
     }
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen]);
 
   // Move focus into the list when it opens so arrow keys work straight away
   useEffect(() => {
