@@ -14,6 +14,15 @@ vi.mock('../firebase/firebase', () => {
 describe('Schedule Page', () => {
   const mockUser: any = { uid: '123', email: 'test@example.com' };
 
+  // The app stores schedule days at midnight; the page looks them up by that
+  // exact timestamp.
+  function midnightPlus(days: number) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + days);
+    return date.getTime();
+  }
+
   const mockUserData: UserData = {
     meals: [
       { id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] },
@@ -26,13 +35,13 @@ describe('Schedule Page', () => {
     groceryList: [],
     schedule: [
       {
-        date: Date.now(),
+        date: midnightPlus(0),
         breakfast: 'cereal',
         lunch: 'turkey-sandwich',
         dinner: 'spaghetti',
       },
       {
-        date: Date.now() + 86400000,
+        date: midnightPlus(1),
         breakfast: 'bacon-and-eggs',
         lunch: 'hamburger',
         dinner: 'chicken',
@@ -88,5 +97,50 @@ describe('Schedule Page', () => {
       meals: mockUserData.meals,
       groceryList: mockUserData.groceryList,
     });
+  });
+});
+
+// Regression: the backfill assumed stored future days ran contiguously from
+// today, deriving new dates from how many there were. With a gap it generated
+// timestamps that collided with existing days, so the page rendered duplicate
+// cards and assignMeal's findIndex edited the first of them.
+describe('Schedule Page with a gap in the stored schedule', () => {
+  const mockUser: any = { uid: '123', email: 'test@example.com' };
+
+  function midnightPlus(days: number) {
+    const date = new Date();
+    date.setHours(0, 0, 0, 0);
+    date.setDate(date.getDate() + days);
+    return date.getTime();
+  }
+
+  const gappedUserData: UserData = {
+    meals: [{ id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] }],
+    groceryList: [],
+    // nothing for today or tomorrow: the user has been away
+    schedule: [
+      { date: midnightPlus(3), breakfast: 'cereal', lunch: '', dinner: '' },
+      { date: midnightPlus(9), breakfast: '', lunch: 'cereal', dinner: '' },
+    ],
+  };
+
+  test('renders exactly 14 distinct days', () => {
+    render(<Schedule userData={gappedUserData} user={mockUser} />);
+
+    const dayHeadings = screen.getAllByRole('heading', { level: 2 });
+    const dates = dayHeadings.map(heading => heading.textContent);
+    expect(dates).toHaveLength(14);
+    expect(new Set(dates).size).toBe(14);
+  });
+
+  test('keeps the stored days in place rather than duplicating them', () => {
+    render(<Schedule userData={gappedUserData} user={mockUser} />);
+
+    const dropdowns = screen.getAllByRole('generic', { name: 'dropdown' });
+    // day index 3, breakfast slot -> the stored 'cereal' assignment
+    expect(dropdowns[3 * 3]).toHaveTextContent('🥣 Cereal');
+    // day index 9, lunch slot
+    expect(dropdowns[9 * 3 + 1]).toHaveTextContent('🥣 Cereal');
+    expect(gappedUserData.schedule.filter(day => day.date === midnightPlus(3))).toHaveLength(1);
   });
 });

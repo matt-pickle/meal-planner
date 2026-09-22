@@ -25,14 +25,31 @@ export default function Schedule({ user, userData }: Props) {
     });
   }
 
+  // The next 14 calendar days as midnight timestamps. Built from the dates
+  // themselves — deriving them from how many future days happen to be stored
+  // produced timestamps that collided with existing entries whenever the
+  // schedule had a gap. setDate() steps calendar days, so this stays correct
+  // across a daylight-saving change where adding 86400000 ms would not.
+  const upcomingDates: Array<number> = [];
+  for (let i = 0; i < 14; i++) {
+    const day = new Date(today);
+    day.setDate(day.getDate() + i);
+    upcomingDates.push(day.getTime());
+  }
+
   let dayList: Array<React.JSX.Element> = [];
   if (userData) {
-    const currentDays = userData.schedule.filter(day => day.date >= today.getTime());
-    dayList = currentDays.map(day => {
+    const daysByDate = new Map(userData.schedule.map(day => [day.date, day]));
+    dayList = upcomingDates.map(date => {
+      let day = daysByDate.get(date);
+      if (!day) {
+        day = { date: date, breakfast: '', lunch: '', dinner: '' };
+        userData.schedule.push(day);
+      }
       return (
         <ScheduleDay
-          key={day.date}
-          date={day.date}
+          key={date}
+          date={date}
           breakfast={day.breakfast}
           lunch={day.lunch}
           dinner={day.dinner}
@@ -41,26 +58,6 @@ export default function Schedule({ user, userData }: Props) {
         />
       );
     });
-    for (let i = 0; i < 14 - currentDays.length; i++) {
-      const futureDate = today.getTime() + (i + currentDays.length) * 86400000;
-      dayList.push(
-        <ScheduleDay
-          key={futureDate}
-          date={futureDate}
-          breakfast=""
-          lunch=""
-          dinner=""
-          meals={userData.meals}
-          onMealChange={assignMeal}
-        />
-      );
-      userData.schedule.push({
-        date: futureDate,
-        breakfast: '',
-        lunch: '',
-        dinner: '',
-      });
-    }
   }
 
   return (
