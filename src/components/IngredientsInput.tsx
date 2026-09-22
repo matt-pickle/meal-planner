@@ -31,12 +31,14 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
       <input
         aria-label="ingredient quantity"
         type="number"
+        min="0"
         placeholder="1"
         value={ingredient.quantity ?? ''}
         onChange={e => {
-          // parseFloat('') is NaN, which used to be stored, rendered and saved
+          // parseFloat('') is NaN, which used to be stored, rendered and saved.
+          // A negative amount of an ingredient is meaningless, so ignore it.
           const quantity = e.target.value === '' ? undefined : Number(e.target.value);
-          if (quantity === undefined || !Number.isNaN(quantity)) {
+          if (quantity === undefined || (!Number.isNaN(quantity) && quantity >= 0)) {
             updateIngredient(index, { quantity: quantity });
           }
         }}

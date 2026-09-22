@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
 import { renderWithUserData } from './userDataHarness';
@@ -152,5 +152,33 @@ describe('GroceryItem with no quantity', () => {
     render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={vi.fn()} />);
 
     expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(null);
+  });
+});
+
+// Issue 35: negative quantities were accepted and saved
+describe('GroceryItem quantity bounds', () => {
+  const item = {
+    id: 'cheese',
+    name: 'Cheese',
+    quantity: 1,
+    units: 'lbs',
+    status: 'to buy' as const,
+  };
+
+  test('marks the field as non-negative for the browser', () => {
+    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={vi.fn()} />);
+
+    expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveAttribute('min', '0');
+  });
+
+  test('ignores a negative quantity', () => {
+    const setGroceryItems = vi.fn();
+    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={setGroceryItems} />);
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'quantity' }), {
+      target: { value: '-3' },
+    });
+
+    expect(setGroceryItems).not.toHaveBeenCalled();
   });
 });

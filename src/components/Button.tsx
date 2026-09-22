@@ -17,7 +17,7 @@ export default function Button({
 }: Props) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer ${classOverrides}`}
+      className={`inline-flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${classOverrides}`}
       onClick={onClick}
       aria-label={ariaLabel}
       disabled={disabled}

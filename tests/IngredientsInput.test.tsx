@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { describe, test, expect, beforeEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import IngredientsInput from '../src/components/IngredientsInput';
 import { type Ingredient } from '../src/utils/types';
@@ -84,5 +84,55 @@ describe('IngredientsInput quantity field', () => {
     await userEvent.type(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), '3');
 
     expect(setIngredients).toHaveBeenCalledWith([{ name: 'Butter', quantity: 3, units: 'tbsp' }]);
+  });
+});
+
+// Issue 35: negative quantities were accepted and saved
+describe('IngredientsInput quantity bounds', () => {
+  test('marks the field as non-negative for the browser', () => {
+    render(
+      <IngredientsInput
+        ingredients={[{ name: 'Butter', quantity: 2, units: 'tbsp' }]}
+        setIngredients={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByRole('spinbutton', { name: 'ingredient quantity' })).toHaveAttribute(
+      'min',
+      '0',
+    );
+  });
+
+  test('ignores a negative quantity', () => {
+    const setIngredients = vi.fn();
+    render(
+      <IngredientsInput
+        ingredients={[{ name: 'Butter', quantity: 2, units: 'tbsp' }]}
+        setIngredients={setIngredients}
+      />,
+    );
+
+    // typed or pasted straight into the field
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), {
+      target: { value: '-5' },
+    });
+
+    expect(setIngredients).not.toHaveBeenCalled();
+  });
+
+  test('still accepts zero', () => {
+    const setIngredients = vi.fn();
+    render(
+      <IngredientsInput
+        ingredients={[{ name: 'Butter', quantity: undefined, units: 'tbsp' }]}
+        setIngredients={setIngredients}
+      />,
+    );
+
+    fireEvent.change(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), {
+      target: { value: '0' },
+    });
+
+    expect(setIngredients).toHaveBeenCalledWith([{ name: 'Butter', quantity: 0, units: 'tbsp' }]);
   });
 });

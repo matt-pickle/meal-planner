@@ -65,16 +65,40 @@ describe('CreateMealModal Component', () => {
   // Two meals with the same name are indistinguishable in the schedule dropdown
   test('refuses to save a meal whose name is already taken', async () => {
     await userEvent.type(screen.getByLabelText(/Meal Name/), 'salad');
-    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
 
+    // the clash is called out as the user types, not after a failed save
     expect(screen.getByRole('alert')).toHaveTextContent('You already have a meal called "salad"');
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
     expect(screen.getByText(/Create New Meal/)).toBeVisible();
   });
 
   test('refuses to save a meal with no name', async () => {
-    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Give the meal a name.');
+    await userEvent.type(screen.getByLabelText(/Meal Name/), '   ');
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
     expect(screen.getByText(/Create New Meal/)).toBeVisible();
+  });
+
+  test('enables save once the name is present and unique', async () => {
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeEnabled();
+  });
+
+  test('re-enables save when a clashing name is corrected', async () => {
+    const nameInput = screen.getByLabelText(/Meal Name/);
+    await userEvent.type(nameInput, 'Salad');
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.type(nameInput, ' rolls');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeEnabled();
   });
 });

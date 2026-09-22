@@ -32,7 +32,11 @@ export default function MealFormModal({
   const [ingredients, setIngredients] = useState<Array<Ingredient>>(
     initialMeal?.ingredients.map(ingredient => ({ ...ingredient })) || [],
   );
-  const [nameError, setNameError] = useState('');
+
+  const trimmedName = name.trim();
+  const isDuplicate = trimmedName !== '' && isDuplicateMealName(name, meals, initialMeal?.id);
+  // Save stays disabled until the name is both present and unique
+  const canSave = trimmedName !== '' && !isDuplicate;
 
   function pickEmoji(emojiObject: EmojiObject) {
     setEmoji(emojiObject.emoji);
@@ -40,14 +44,7 @@ export default function MealFormModal({
   }
 
   function saveMeal() {
-    if (!name.trim()) {
-      setNameError('Give the meal a name.');
-      return;
-    }
-    if (isDuplicateMealName(name, meals, initialMeal?.id)) {
-      setNameError(`You already have a meal called "${name.trim()}".`);
-      return;
-    }
+    if (!canSave) return;
     onSave({
       id: initialMeal?.id ?? crypto.randomUUID(),
       name: name,
@@ -69,14 +66,11 @@ export default function MealFormModal({
         placeholder="Spaghetti"
         className="w-full bg-medium text-white rounded-md px-3 py-2 mb-4 placeholder:text-light/50 focus:outline-2 focus:outline-title"
         value={name}
-        onChange={e => {
-          setName(e.target.value);
-          setNameError('');
-        }}
+        onChange={e => setName(e.target.value)}
       />
-      {nameError && (
+      {isDuplicate && (
         <p role="alert" className="text-red-400 -mt-3 mb-4">
-          {nameError}
+          You already have a meal called &quot;{trimmedName}&quot;.
         </p>
       )}
       <label className="block text-light font-semibold mb-1">Emoji</label>
@@ -108,7 +102,7 @@ export default function MealFormModal({
           ariaLabel="cancel"
           classOverrides="bg-red-600 hover:bg-red-800"
         />
-        <Button text="Save" onClick={saveMeal} ariaLabel="save meal" />
+        <Button text="Save" onClick={saveMeal} ariaLabel="save meal" disabled={!canSave} />
       </div>
     </Modal>
   );

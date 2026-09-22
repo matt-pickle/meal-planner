@@ -53,12 +53,14 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
           <input
             aria-label="quantity"
             type="number"
+            min="0"
             placeholder="1"
             value={item.quantity ?? ''}
             onChange={e => {
-              // parseFloat('') is NaN, which used to be stored, rendered and saved
+              // parseFloat('') is NaN, which used to be stored, rendered and saved.
+              // A negative quantity to buy is meaningless, so ignore it.
               const quantity = e.target.value === '' ? undefined : Number(e.target.value);
-              if (quantity === undefined || !Number.isNaN(quantity)) {
+              if (quantity === undefined || (!Number.isNaN(quantity) && quantity >= 0)) {
                 updateItem({ quantity: quantity });
               }
             }}
