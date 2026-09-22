@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import ScheduleDay from '../components/ScheduleDay';
 import { useUserData } from '../state/UserDataContext';
 import { type MealSlot } from '../utils/types';
-import Icon from '../components/Icon'
+import Icon from '../components/Icon';
 
 export default function Schedule() {
   const { userData, setSchedule } = useUserData();

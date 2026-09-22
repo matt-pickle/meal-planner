@@ -3,12 +3,10 @@
 export function isDuplicateMealName(
   name: string,
   meals: Array<{ id: string; name: string }>,
-  exceptId?: string
+  exceptId?: string,
 ): boolean {
   const candidate = name.trim().toLowerCase();
-  return meals.some(
-    meal => meal.id !== exceptId && meal.name.trim().toLowerCase() === candidate
-  );
+  return meals.some(meal => meal.id !== exceptId && meal.name.trim().toLowerCase() === candidate);
 }
 
 // Past days are never displayed, but they used to accumulate in the document

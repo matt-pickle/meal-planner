@@ -21,7 +21,6 @@ function lastPersisted() {
 }
 
 describe('Schedule Page', () => {
-
   // The app stores schedule days at midnight; the page looks them up by that
   // exact timestamp.
   function midnightPlus(days: number) {
@@ -63,15 +62,7 @@ describe('Schedule Page', () => {
   });
 
   test('renders correct number of days', async () => {
-    const dayNames = [
-      'SUNDAY',
-      'MONDAY',
-      'TUESDAY',
-      'WEDNESDAY',
-      'THURSDAY',
-      'FRIDAY',
-      'SATURDAY',
-    ];
+    const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
     const daysRendered = screen.getAllByText(new RegExp(dayNames.join('|')));
     expect(daysRendered.length).toBe(14);
   });
@@ -111,7 +102,6 @@ describe('Schedule Page', () => {
 // timestamps that collided with existing days, so the page rendered duplicate
 // cards and assignMeal's findIndex edited the first of them.
 describe('Schedule Page with a gap in the stored schedule', () => {
-
   function midnightPlus(days: number) {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
@@ -181,8 +171,20 @@ describe('Schedule Page across a daylight-saving transition', () => {
       .map(heading => heading.textContent?.replace(/^[A-Z]+ /, ''));
 
     expect(dates).toEqual([
-      '10/30/26', '10/31/26', '11/1/26', '11/2/26', '11/3/26', '11/4/26', '11/5/26',
-      '11/6/26', '11/7/26', '11/8/26', '11/9/26', '11/10/26', '11/11/26', '11/12/26',
+      '10/30/26',
+      '10/31/26',
+      '11/1/26',
+      '11/2/26',
+      '11/3/26',
+      '11/4/26',
+      '11/5/26',
+      '11/6/26',
+      '11/7/26',
+      '11/8/26',
+      '11/9/26',
+      '11/10/26',
+      '11/11/26',
+      '11/12/26',
     ]);
   });
 

@@ -1,8 +1,8 @@
-import { initializeApp } from "firebase/app"
+import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { initializeFirestore, doc, setDoc, getDoc } from "firebase/firestore"
-import { type UserData, type MealSlot } from "../src/utils/types"
-import { notifyError } from "../src/utils/errors"
+import { initializeFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+import { type UserData, type MealSlot } from '../src/utils/types';
+import { notifyError } from '../src/utils/errors';
 const env = import.meta.env;
 
 const firebaseConfig = {
@@ -14,11 +14,11 @@ const firebaseConfig = {
   appId: env.VITE_APP_ID,
 };
 
-const firebaseApp = initializeApp(firebaseConfig)
+const firebaseApp = initializeApp(firebaseConfig);
 // An empty quantity field leaves the value undefined, which Firestore rejects
 // outright unless it is told to skip such fields.
-const db = initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true })
-export const auth = getAuth(firebaseApp)
+const db = initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true });
+export const auth = getAuth(firebaseApp);
 
 export async function logIn() {
   const provider = new GoogleAuthProvider();
@@ -39,19 +39,19 @@ function defaultUserData(): UserData {
     meals: [
       {
         id: crypto.randomUUID(),
-        name: "Hamburgers",
-        emoji: "🍔",
+        name: 'Hamburgers',
+        emoji: '🍔',
         ingredients: [
-          { name: "Hamburger buns", quantity: 2, units: "buns" },
-          { name: "Ground beef", quantity: 1, units: "lbs" },
-          { name: "Sliced cheese", quantity: 1, units: "slices" },
-          { name: "Lettuce", quantity: 10, units: "leaves" },
-          { name: "French Fries", quantity: 2, units: "cups" }
-        ]
-      }
+          { name: 'Hamburger buns', quantity: 2, units: 'buns' },
+          { name: 'Ground beef', quantity: 1, units: 'lbs' },
+          { name: 'Sliced cheese', quantity: 1, units: 'slices' },
+          { name: 'Lettuce', quantity: 10, units: 'leaves' },
+          { name: 'French Fries', quantity: 2, units: 'cups' },
+        ],
+      },
     ],
     schedule: [],
-    groceryList: []
+    groceryList: [],
   };
 }
 
@@ -61,7 +61,7 @@ function withMealIds(userData: UserData): UserData {
   return {
     ...userData,
     meals: (userData.meals ?? []).map(meal =>
-      meal.id ? meal : { ...meal, id: crypto.randomUUID() }
+      meal.id ? meal : { ...meal, id: crypto.randomUUID() },
     ),
   };
 }
@@ -72,7 +72,7 @@ function withGroceryItemIds(userData: UserData): UserData {
   return {
     ...userData,
     groceryList: (userData.groceryList ?? []).map(item =>
-      item.id ? item : { ...item, id: crypto.randomUUID() }
+      item.id ? item : { ...item, id: crypto.randomUUID() },
     ),
   };
 }
@@ -103,7 +103,7 @@ function withScheduleMealIds(userData: UserData): UserData {
 // looping on a document that was never created.
 export async function createDocument(userId: string): Promise<UserData> {
   const userData = defaultUserData();
-  await setDoc(doc(db, "users", userId), userData);
+  await setDoc(doc(db, 'users', userId), userData);
   return userData;
 }
 
@@ -126,6 +126,9 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
 }
 
 export async function updateUserData(userId: string, userData: Partial<UserData>) {
-  await setDoc(doc(db, "users", userId), userData, { merge: true })
-    .catch(() => notifyError("Couldn't save your changes. Check your connection — recent edits may be lost if you reload."))
+  await setDoc(doc(db, 'users', userId), userData, { merge: true }).catch(() =>
+    notifyError(
+      "Couldn't save your changes. Check your connection — recent edits may be lost if you reload.",
+    ),
+  );
 }

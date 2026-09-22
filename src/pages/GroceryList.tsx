@@ -50,7 +50,7 @@ export default function GroceryList() {
       if (!meal) return;
       meal.ingredients.forEach(ingredient => {
         const existingItem = ingredientsToAdd.find(
-          item => item.name === ingredient.name && item.units === ingredient.units
+          item => item.name === ingredient.name && item.units === ingredient.units,
         );
         if (existingItem) {
           // Sum explicitly: a truthiness test treats a quantity of 0 as missing
@@ -79,7 +79,7 @@ export default function GroceryList() {
     const updatedGroceryList = [...groceryItems];
     ingredientsToAdd.forEach(ingredient => {
       const existingIndex = updatedGroceryList.findIndex(
-        item => item.name === ingredient.name && item.units === ingredient.units
+        item => item.name === ingredient.name && item.units === ingredient.units,
       );
       if (existingIndex === -1) {
         updatedGroceryList.push({ ...ingredient });

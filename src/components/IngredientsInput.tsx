@@ -12,7 +12,9 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
   // survives Cancel.
   function updateIngredient(index: number, changes: Partial<Ingredient>) {
     setIngredients(
-      ingredients.map((ingredient, i) => (i === index ? { ...ingredient, ...changes } : ingredient))
+      ingredients.map((ingredient, i) =>
+        i === index ? { ...ingredient, ...changes } : ingredient,
+      ),
     );
   }
 
@@ -23,7 +25,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="text"
         placeholder="Butter"
         value={ingredient.name}
-        onChange={(e) => updateIngredient(index, { name: e.target.value })}
+        onChange={e => updateIngredient(index, { name: e.target.value })}
         className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/2"
       />
       <input
@@ -31,7 +33,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="number"
         placeholder="1"
         value={ingredient.quantity ?? ''}
-        onChange={(e) => {
+        onChange={e => {
           // parseFloat('') is NaN, which used to be stored, rendered and saved
           const quantity = e.target.value === '' ? undefined : Number(e.target.value);
           if (quantity === undefined || !Number.isNaN(quantity)) {
@@ -45,7 +47,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="text"
         placeholder="tbsp"
         value={ingredient.units}
-        onChange={(e) => updateIngredient(index, { units: e.target.value })}
+        onChange={e => updateIngredient(index, { units: e.target.value })}
         className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
       />
       <button

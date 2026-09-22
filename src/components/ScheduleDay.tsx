@@ -37,9 +37,7 @@ export default function ScheduleDay({
 
   return (
     <div className="schedule-day bg-dark rounded-md p-8">
-      <h2 className="text-subtitle text-lg font-semibold mb-4">
-        {dateString}
-      </h2>
+      <h2 className="text-subtitle text-lg font-semibold mb-4">{dateString}</h2>
       <div className="flex flex-col gap-4">
         {slots.map(slot => (
           <div key={slot.name}>

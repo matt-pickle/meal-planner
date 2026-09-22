@@ -43,7 +43,8 @@ describe('ScheduleDay Component', () => {
 
   test('renders the date with MM/DD/YY format', async () => {
     const dates = screen.getAllByText(/THURSDAY/);
-    const dateFormatIsCorrect = dates[0].parentElement?.textContent?.match(/\d{1,2}\/\d{1,2}\/\d{2}/);
+    const dateFormatIsCorrect =
+      dates[0].parentElement?.textContent?.match(/\d{1,2}\/\d{1,2}\/\d{2}/);
     expect(dateFormatIsCorrect).toBeTruthy();
   });
 
@@ -93,7 +94,7 @@ describe('ScheduleDay Component', () => {
         dinner=""
         meals={renamed}
         onMealChange={mockOnMealChange}
-      />
+      />,
     );
 
     // Assert on the dropdown's selected display, not the section: every option

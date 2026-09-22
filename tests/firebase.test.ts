@@ -23,7 +23,10 @@ import { getUserData, updateUserData, logIn, logOut } from '../firebase/firebase
 import { onError } from '../src/utils/errors';
 
 describe('updateUserData', () => {
-  beforeEach(() => { getDoc.mockReset(); setDoc.mockReset(); });
+  beforeEach(() => {
+    getDoc.mockReset();
+    setDoc.mockReset();
+  });
 
   test('reports a rejected write instead of failing silently', async () => {
     const listener = vi.fn();
@@ -37,7 +40,10 @@ describe('updateUserData', () => {
 });
 
 describe('getUserData', () => {
-  beforeEach(() => { getDoc.mockReset(); setDoc.mockReset(); });
+  beforeEach(() => {
+    getDoc.mockReset();
+    setDoc.mockReset();
+  });
 
   test('missing doc + failing create reports once and gives up', async () => {
     const listener = vi.fn();
@@ -48,7 +54,7 @@ describe('getUserData', () => {
     const result = await getUserData('123');
 
     expect(result).toBeUndefined();
-    expect(getDoc).toHaveBeenCalledOnce();   // it used to recurse without bound
+    expect(getDoc).toHaveBeenCalledOnce(); // it used to recurse without bound
     expect(setDoc).toHaveBeenCalledOnce();
     expect(listener.mock.calls[0][0]).toMatch(/Couldn't load/);
     unsub();
@@ -67,7 +73,10 @@ describe('getUserData', () => {
 });
 
 describe('legacy document migration', () => {
-  beforeEach(() => { getDoc.mockReset(); setDoc.mockReset(); });
+  beforeEach(() => {
+    getDoc.mockReset();
+    setDoc.mockReset();
+  });
 
   test('gives meals ids and rewrites name-based schedule slots to them', async () => {
     getDoc.mockResolvedValue({
@@ -77,9 +86,7 @@ describe('legacy document migration', () => {
           { name: 'Spaghetti', emoji: '🍝', ingredients: [] },
           { name: 'Tacos', emoji: '🌮', ingredients: [] },
         ],
-        schedule: [
-          { date: 1, breakfast: 'Spaghetti', lunch: 'Deleted meal', dinner: '' },
-        ],
+        schedule: [{ date: 1, breakfast: 'Spaghetti', lunch: 'Deleted meal', dinner: '' }],
         groceryList: [],
       }),
     });
@@ -115,7 +122,10 @@ describe('legacy document migration', () => {
 // Regression: these were `async` but never returned the underlying promise, so
 // `await logIn()` resolved immediately and a caller's catch could never fire.
 describe('logIn / logOut', () => {
-  beforeEach(() => { signInWithPopup.mockReset(); signOut.mockReset(); });
+  beforeEach(() => {
+    signInWithPopup.mockReset();
+    signOut.mockReset();
+  });
 
   test('logIn rejects when the popup fails', async () => {
     signInWithPopup.mockRejectedValue(new Error('popup blocked'));

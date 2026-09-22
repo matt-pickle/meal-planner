@@ -42,7 +42,7 @@ app.use(
           },
         }
       : false,
-  })
+  }),
 );
 
 // Add Vite or respective production middlewares

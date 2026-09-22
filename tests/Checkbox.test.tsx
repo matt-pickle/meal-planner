@@ -8,20 +8,29 @@ import Checkbox from '../src/components/Checkbox';
 function ControlledCheckbox({ startChecked = false }: { startChecked?: boolean }) {
   const [checked, setChecked] = useState(startChecked);
   return (
-    <Checkbox id="test-checkbox" ariaLabel="test checkbox" checked={checked} onChange={setChecked} />
+    <Checkbox
+      id="test-checkbox"
+      ariaLabel="test checkbox"
+      checked={checked}
+      onChange={setChecked}
+    />
   );
 }
 
 describe('Checkbox Component', () => {
   test('renders checkbox', () => {
-    render(<Checkbox id="test-checkbox" checked={false} onChange={vi.fn()} ariaLabel="test checkbox" />);
+    render(
+      <Checkbox id="test-checkbox" checked={false} onChange={vi.fn()} ariaLabel="test checkbox" />,
+    );
 
     expect(screen.getByRole('checkbox', { name: 'test checkbox' })).toBeInTheDocument();
   });
 
   test('calls onChange with the new value when clicked', async () => {
     const mock = vi.fn();
-    render(<Checkbox id="test-checkbox" checked={false} onChange={mock} ariaLabel="test checkbox" />);
+    render(
+      <Checkbox id="test-checkbox" checked={false} onChange={mock} ariaLabel="test checkbox" />,
+    );
     const checkboxContainer = screen.getByRole('checkbox', { name: 'test checkbox' }).parentElement;
 
     await userEvent.click(checkboxContainer!);
@@ -31,20 +40,26 @@ describe('Checkbox Component', () => {
   });
 
   test('is checked when the checked prop is true', () => {
-    render(<Checkbox id="test-checkbox" checked={true} onChange={vi.fn()} ariaLabel="test checkbox" />);
+    render(
+      <Checkbox id="test-checkbox" checked={true} onChange={vi.fn()} ariaLabel="test checkbox" />,
+    );
 
     expect(screen.getByRole('checkbox', { name: 'test checkbox' })).toBeChecked();
   });
 
   test('shows icon when checked', () => {
-    render(<Checkbox id="test-checkbox" checked={true} onChange={vi.fn()} ariaLabel="test checkbox" />);
+    render(
+      <Checkbox id="test-checkbox" checked={true} onChange={vi.fn()} ariaLabel="test checkbox" />,
+    );
     const checkboxContainer = screen.getByRole('checkbox', { name: 'test checkbox' }).parentElement;
 
     expect(checkboxContainer?.querySelector('svg')).toBeInTheDocument();
   });
 
   test('does not move on its own when the parent keeps the value unchanged', async () => {
-    render(<Checkbox id="test-checkbox" checked={false} onChange={vi.fn()} ariaLabel="test checkbox" />);
+    render(
+      <Checkbox id="test-checkbox" checked={false} onChange={vi.fn()} ariaLabel="test checkbox" />,
+    );
     const checkbox = screen.getByRole('checkbox', { name: 'test checkbox' });
 
     await userEvent.click(checkbox.parentElement!);
@@ -64,15 +79,33 @@ describe('Checkbox Component', () => {
   });
 
   test('size prop correctly sets the size', () => {
-    render(<Checkbox id="test-checkbox" checked={false} onChange={vi.fn()} size="50px" ariaLabel="test checkbox" />);
+    render(
+      <Checkbox
+        id="test-checkbox"
+        checked={false}
+        onChange={vi.fn()}
+        size="50px"
+        ariaLabel="test checkbox"
+      />,
+    );
     const checkboxContainer = screen.getByRole('checkbox', { name: 'test checkbox' }).parentElement;
 
     expect(checkboxContainer).toHaveStyle({ width: '50px', height: '50px' });
   });
 
   test('color prop correctly sets the color', () => {
-    render(<Checkbox id="test-checkbox" checked={true} onChange={vi.fn()} color="#ffbb00" ariaLabel="test checkbox" />);
-    const svg = screen.getByRole('checkbox', { name: 'test checkbox' }).parentElement?.querySelector('svg');
+    render(
+      <Checkbox
+        id="test-checkbox"
+        checked={true}
+        onChange={vi.fn()}
+        color="#ffbb00"
+        ariaLabel="test checkbox"
+      />,
+    );
+    const svg = screen
+      .getByRole('checkbox', { name: 'test checkbox' })
+      .parentElement?.querySelector('svg');
 
     expect(svg).toHaveStyle({ color: '#ffbb00' });
   });

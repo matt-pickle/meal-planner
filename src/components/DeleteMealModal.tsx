@@ -15,7 +15,6 @@ export default function DeleteMealModal({
   setDeleteMealModalIsOpen,
   setMeals,
 }: Props) {
-
   function deleteMeal() {
     if (meal) {
       setMeals(meals.filter(m => m.id !== meal.id));
@@ -24,16 +23,14 @@ export default function DeleteMealModal({
   }
 
   return (
-    <Modal title="Delete Meal" onClose={() => setDeleteMealModalIsOpen(false)} classOverrides="delete-meal-modal max-w-md">
-      <p className="text-light mb-6">
-        Are you sure you want to delete the meal "{meal?.name}"?
-      </p>
+    <Modal
+      title="Delete Meal"
+      onClose={() => setDeleteMealModalIsOpen(false)}
+      classOverrides="delete-meal-modal max-w-md"
+    >
+      <p className="text-light mb-6">Are you sure you want to delete the meal "{meal?.name}"?</p>
       <div className="flex items-center justify-center gap-4">
-        <Button
-          text="Cancel"
-          onClick={() => setDeleteMealModalIsOpen(false)}
-          ariaLabel="cancel"
-        />
+        <Button text="Cancel" onClick={() => setDeleteMealModalIsOpen(false)} ariaLabel="cancel" />
         <Button
           text="Delete"
           onClick={deleteMeal}

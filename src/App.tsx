@@ -50,15 +50,15 @@ export default function App() {
     return unsubscribe;
   }, [navigate]);
 
-
-
   return (
     <div className="flex flex-col md:flex-row-reverse bg-medium min-h-screen max-h-screen">
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
         <Routes>
           <Route path="/" element={<Navigate to="/schedule" replace />} />
           <Route path="/login" element={<Login />} />
-          <Route element={<PrivateRoutes user={user} userData={userData} setUserData={setUserData} />}>
+          <Route
+            element={<PrivateRoutes user={user} userData={userData} setUserData={setUserData} />}
+          >
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/meals" element={<Meals />} />
             <Route path="/grocery-list" element={<GroceryList />} />

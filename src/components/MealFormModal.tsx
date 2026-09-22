@@ -30,7 +30,7 @@ export default function MealFormModal({
   // Copy the ingredients: editing the stored objects would apply the changes
   // before the user saves, and leave them applied after Cancel.
   const [ingredients, setIngredients] = useState<Array<Ingredient>>(
-    initialMeal?.ingredients.map(ingredient => ({ ...ingredient })) || []
+    initialMeal?.ingredients.map(ingredient => ({ ...ingredient })) || [],
   );
   const [nameError, setNameError] = useState('');
 

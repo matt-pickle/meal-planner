@@ -72,7 +72,7 @@ describe('DeleteMealModal meal matching', () => {
         meals={[{ ...meal }, other]}
         setDeleteMealModalIsOpen={vi.fn()}
         setMeals={setMeals}
-      />
+      />,
     );
     await userEvent.click(screen.getByRole('button', { name: 'delete meal' }));
 

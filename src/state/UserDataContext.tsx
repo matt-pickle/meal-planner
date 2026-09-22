@@ -51,7 +51,7 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
       setUserData(current => (current ? { ...current, meals } : current));
       updateUserData(user.uid, { meals });
     },
-    [user.uid, setUserData]
+    [user.uid, setUserData],
   );
 
   const setSchedule = useCallback(
@@ -61,7 +61,7 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
       setUserData(current => (current ? { ...current, schedule: upcoming } : current));
       updateUserData(user.uid, { schedule: upcoming });
     },
-    [user.uid, setUserData]
+    [user.uid, setUserData],
   );
 
   const setGroceryList = useCallback(
@@ -74,13 +74,11 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
         updateUserData(user.uid, { groceryList });
       }, GROCERY_SAVE_DELAY);
     },
-    [user.uid, setUserData]
+    [user.uid, setUserData],
   );
 
   return (
-    <UserDataContext.Provider
-      value={{ user, userData, setMeals, setSchedule, setGroceryList }}
-    >
+    <UserDataContext.Provider value={{ user, userData, setMeals, setSchedule, setGroceryList }}>
       {children}
     </UserDataContext.Provider>
   );

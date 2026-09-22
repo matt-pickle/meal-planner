@@ -22,10 +22,21 @@ function Consumer() {
     <div>
       <p data-testid="meals">{userData.meals.map(meal => meal.name).join(',')}</p>
       <p data-testid="grocery">{userData.groceryList.map(item => item.name).join(',')}</p>
-      <button onClick={() => setMeals([...userData.meals, { id: 'b', name: 'Toast', emoji: '🍞', ingredients: [] }])}>
+      <button
+        onClick={() =>
+          setMeals([...userData.meals, { id: 'b', name: 'Toast', emoji: '🍞', ingredients: [] }])
+        }
+      >
         add meal
       </button>
-      <button onClick={() => setGroceryList([...userData.groceryList, { id: 'y', name: 'Milk', quantity: 1, units: 'cups', status: 'to buy' }])}>
+      <button
+        onClick={() =>
+          setGroceryList([
+            ...userData.groceryList,
+            { id: 'y', name: 'Milk', quantity: 1, units: 'cups', status: 'to buy' },
+          ])
+        }
+      >
         add item
       </button>
     </div>
@@ -57,7 +68,10 @@ describe('UserDataContext', () => {
 
     expect(screen.getByTestId('meals')).toHaveTextContent('Cereal,Toast');
     expect(updateUserData).toHaveBeenCalledWith('123', {
-      meals: [expect.objectContaining({ name: 'Cereal' }), expect.objectContaining({ name: 'Toast' })],
+      meals: [
+        expect.objectContaining({ name: 'Cereal' }),
+        expect.objectContaining({ name: 'Toast' }),
+      ],
     });
   });
 

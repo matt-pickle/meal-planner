@@ -4,7 +4,6 @@ import userEvent from '@testing-library/user-event';
 import Accordion from '../src/components/Accordion';
 
 describe('Accordion Component', () => {
-
   beforeEach(async () => {
     const mockHeading: string = 'Bought Items';
     const mockContent: Array<React.JSX.Element> = [
@@ -18,7 +17,7 @@ describe('Accordion Component', () => {
   test('renders all elements', () => {
     const heading = screen.getByText('Bought Items');
     const toggleButton = screen.getByRole('button', { name: 'toggle accordion' });
-    
+
     expect(heading).toBeVisible();
     expect(toggleButton).toBeVisible();
   });

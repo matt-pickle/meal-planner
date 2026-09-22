@@ -72,7 +72,7 @@ describe('GroceryItem Component', () => {
     expect(boughtSection).toContainElement(groceryItem);
 
     statusCheckbox = within(groceryItem!).getByRole('checkbox', {
-      name: 'mark as bought'
+      name: 'mark as bought',
     });
 
     await userEvent.click(statusCheckbox);
@@ -122,10 +122,14 @@ describe('GroceryItem Component', () => {
 describe('GroceryItem quantity field', () => {
   test('clears the quantity instead of storing NaN', async () => {
     const setGroceryItems = vi.fn();
-    const item = { id: 'cheese', name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' as const };
-    render(
-      <GroceryItem item={item} groceryItems={[item]} setGroceryItems={setGroceryItems} />
-    );
+    const item = {
+      id: 'cheese',
+      name: 'Cheese',
+      quantity: 1,
+      units: 'lbs',
+      status: 'to buy' as const,
+    };
+    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={setGroceryItems} />);
 
     await userEvent.clear(screen.getByRole('spinbutton', { name: 'quantity' }));
 
@@ -138,10 +142,15 @@ describe('GroceryItem quantity field', () => {
 // can drop the first keystroke.
 describe('GroceryItem with no quantity', () => {
   test('renders an empty controlled quantity input', () => {
-    const item = { id: 'blank', name: '', quantity: undefined, units: '', status: 'to buy' as const };
+    const item = {
+      id: 'blank',
+      name: '',
+      quantity: undefined,
+      units: '',
+      status: 'to buy' as const,
+    };
     render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={vi.fn()} />);
 
     expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(null);
   });
-
 });

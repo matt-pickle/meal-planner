@@ -13,7 +13,7 @@ describe('Modal', () => {
       <Modal title="Edit Meal" onClose={onClose}>
         <button>First</button>
         <button>Second</button>
-      </Modal>
+      </Modal>,
     );
     return onClose;
   }

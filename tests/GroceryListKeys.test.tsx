@@ -9,7 +9,6 @@ import { type UserData } from '../src/utils/types';
 // Checking an item off moves it between them and reshuffles every later key, so
 // React reused the wrong DOM nodes for the items that shifted up.
 describe('GroceryList item keys', () => {
-
   function userData(): UserData {
     return {
       meals: [],
@@ -31,7 +30,7 @@ describe('GroceryList item keys', () => {
     const carrotsInput = screen.getByDisplayValue('Carrots');
 
     await userEvent.click(
-      within(rowOf('Bananas')).getByRole('checkbox', { name: 'mark as bought' })
+      within(rowOf('Bananas')).getByRole('checkbox', { name: 'mark as bought' }),
     );
 
     // Carrots shifted up a position; with index keys it would be re-rendered
@@ -43,7 +42,7 @@ describe('GroceryList item keys', () => {
     renderWithUserData(<GroceryList />, userData());
 
     await userEvent.click(
-      within(rowOf('Bananas')).getByRole('checkbox', { name: 'mark as bought' })
+      within(rowOf('Bananas')).getByRole('checkbox', { name: 'mark as bought' }),
     );
 
     // the bought section is collapsed by default

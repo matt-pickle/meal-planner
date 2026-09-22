@@ -134,7 +134,7 @@ describe('MealFormModal meal matching', () => {
         meals={meals}
         onClose={vi.fn()}
         onSave={meal => setMeals(meals.map(m => (m.id === meal.id ? meal : m)))}
-      />
+      />,
     );
     await userEvent.clear(screen.getByLabelText(/Meal Name/));
     await userEvent.type(screen.getByLabelText(/Meal Name/), 'Linguine');
@@ -167,7 +167,7 @@ describe('MealFormModal cancelling', () => {
         meals={[storedMeal]}
         onClose={vi.fn()}
         onSave={meal => setMeals([storedMeal].map(m => (m.id === meal.id ? meal : m)))}
-      />
+      />,
     );
 
     await userEvent.clear(screen.getByRole('textbox', { name: 'ingredient name' }));
@@ -187,7 +187,7 @@ describe('MealFormModal cancelling', () => {
         meals={[storedMeal]}
         onClose={setOpen}
         onSave={meal => setMeals([storedMeal].map(m => (m.id === meal.id ? meal : m)))}
-      />
+      />,
     );
 
     await userEvent.clear(screen.getByRole('spinbutton', { name: 'ingredient quantity' }));

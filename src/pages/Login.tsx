@@ -16,7 +16,7 @@ export default function Login() {
       notifyError(
         code === 'auth/popup-blocked'
           ? 'Your browser blocked the sign-in window. Allow popups for this site and try again.'
-          : "Sign-in didn't work. Please try again."
+          : "Sign-in didn't work. Please try again.",
       );
     }
   }

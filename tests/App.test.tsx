@@ -37,7 +37,7 @@ function renderWithProbe(initialPath: string) {
     <MemoryRouter initialEntries={[initialPath]}>
       <App />
       <LocationProbe />
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -53,7 +53,7 @@ afterEach(() => {
   vi.clearAllMocks();
 });
 
-describe ('App Component', () => {
+describe('App Component', () => {
   describe('when user is logged in', () => {
     beforeEach(() => {
       vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
@@ -113,7 +113,7 @@ describe ('App Component', () => {
         expect(screen.getByRole('status')).toHaveTextContent(/Loading/);
       });
       expect(
-        screen.queryByRole('heading', { name: 'Grocery List', level: 1 })
+        screen.queryByRole('heading', { name: 'Grocery List', level: 1 }),
       ).not.toBeInTheDocument();
     });
 
@@ -146,7 +146,6 @@ describe ('App Component', () => {
       expect(written.find(day => day.date === midnightPlus(0))?.breakfast).toBe('keep');
     });
 
-
     // Regression: every auth-state firing navigated to /schedule, so a refresh
     // on another page, or a deep link, bounced the user away.
     test('leaves a deep link where it is', async () => {
@@ -170,7 +169,6 @@ describe ('App Component', () => {
 
       expect(screen.getByTestId('path')).toHaveTextContent('/schedule');
     });
-
 
     test('renders navigation links', async () => {
       renderWithRouter(<App />, '/');
@@ -221,7 +219,6 @@ describe ('App Component', () => {
       await userEvent.click(screen.getByRole('link', { name: 'Settings' }));
 
       expect(screen.getByRole('heading', { name: 'Settings', level: 1 })).toBeVisible();
-
     });
   });
 

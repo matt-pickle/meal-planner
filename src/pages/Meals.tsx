@@ -19,17 +19,16 @@ export default function Meals() {
 
   const sortedMeals = [...meals].sort((a, b) => a.name.localeCompare(b.name));
 
-  const mealList: Array<React.JSX.Element> =
-    sortedMeals.map(meal => (
-      <Meal
-        key={meal.id}
-        meal={meal}
-        setEditMealModalIsOpen={setEditMealModalIsOpen}
-        setMealToEdit={setMealToEdit}
-        setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
-        setMealToDelete={setMealToDelete}
-      />
-    ));
+  const mealList: Array<React.JSX.Element> = sortedMeals.map(meal => (
+    <Meal
+      key={meal.id}
+      meal={meal}
+      setEditMealModalIsOpen={setEditMealModalIsOpen}
+      setMealToEdit={setMealToEdit}
+      setDeleteMealModalIsOpen={setDeleteMealModalIsOpen}
+      setMealToDelete={setMealToDelete}
+    />
+  ));
 
   return (
     <>

@@ -32,7 +32,7 @@ const mockMeals: UserData['meals'] = [
 async function openModal(userData: UserData) {
   renderWithUserData(<GroceryList />, userData);
   await userEvent.click(
-    screen.getByRole('button', { name: 'add ingredients from upcoming meals' })
+    screen.getByRole('button', { name: 'add ingredients from upcoming meals' }),
   );
 }
 

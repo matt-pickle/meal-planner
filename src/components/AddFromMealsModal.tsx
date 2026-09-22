@@ -13,16 +13,20 @@ export default function AddFromMealsModal({
   setAddFromMealsModalIsOpen,
   addIngredientsFromMeals,
 }: Props) {
-
   function confirm() {
     addIngredientsFromMeals();
     setAddFromMealsModalIsOpen(false);
   }
 
   return (
-    <Modal title="Add Ingredients from Meals" onClose={() => setAddFromMealsModalIsOpen(false)} classOverrides="add-from-meals-modal max-w-md">
+    <Modal
+      title="Add Ingredients from Meals"
+      onClose={() => setAddFromMealsModalIsOpen(false)}
+      classOverrides="add-from-meals-modal max-w-md"
+    >
       <p className="text-light mb-3">
-        This will add the following ingredients from your scheduled meals to your grocery list. If an ingredient is already on the list, its quantity will be increased.
+        This will add the following ingredients from your scheduled meals to your grocery list. If
+        an ingredient is already on the list, its quantity will be increased.
       </p>
       {ingredients.length > 0 ? (
         <ul className="flex flex-col gap-2 text-light bg-medium rounded-md p-4 mb-6">

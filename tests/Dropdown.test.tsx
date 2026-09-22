@@ -6,7 +6,7 @@ import Dropdown from '../src/components/Dropdown';
 
 describe('Dropdown Component', () => {
   const mockOnSelect = vi.fn();
-  
+
   beforeEach(async () => {
     const mockOptions = [
       { label: 'Option 1', value: '1' },
@@ -130,11 +130,11 @@ describe('Dropdown keyboard support', () => {
 
     expect(screen.getByRole('option', { name: 'Option 3' })).toHaveAttribute(
       'aria-selected',
-      'true'
+      'true',
     );
     expect(screen.getByRole('option', { name: 'Option 1' })).toHaveAttribute(
       'aria-selected',
-      'false'
+      'false',
     );
   });
 });

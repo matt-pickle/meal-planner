@@ -5,9 +5,7 @@ import { type UserData } from '../src/utils/types';
 import Meals from '../src/pages/Meals';
 import { renderWithUserData } from './userDataHarness';
 
-
 describe('Meals Page', () => {
-
   const mockUserData: UserData = {
     meals: [
       {

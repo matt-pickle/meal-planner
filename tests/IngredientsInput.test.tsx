@@ -8,9 +8,9 @@ import { type Ingredient } from '../src/utils/types';
 describe('IngredientsInput Component', () => {
   beforeEach(async () => {
     const mockStartingIngredients: Array<Ingredient> = [
-      { name: 'Milk', quantity: 1, units: "cup" },
-      { name: 'Eggs', quantity: 1, units: "egg" },
-      { name: 'Flour', quantity: 1, units: "cup" },
+      { name: 'Milk', quantity: 1, units: 'cup' },
+      { name: 'Eggs', quantity: 1, units: 'egg' },
+      { name: 'Flour', quantity: 1, units: 'cup' },
     ];
     function IngredientsInputTestWrapper() {
       const [ingredients, setIngredients] = useState<Array<Ingredient>>(mockStartingIngredients);
@@ -62,7 +62,7 @@ describe('IngredientsInput quantity field', () => {
       <IngredientsInput
         ingredients={[{ name: 'Butter', quantity: 2, units: 'tbsp' }]}
         setIngredients={setIngredients}
-      />
+      />,
     );
 
     await userEvent.clear(screen.getByRole('spinbutton', { name: 'ingredient quantity' }));
@@ -78,13 +78,11 @@ describe('IngredientsInput quantity field', () => {
       <IngredientsInput
         ingredients={[{ name: 'Butter', quantity: undefined, units: 'tbsp' }]}
         setIngredients={setIngredients}
-      />
+      />,
     );
 
     await userEvent.type(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), '3');
 
-    expect(setIngredients).toHaveBeenCalledWith([
-      { name: 'Butter', quantity: 3, units: 'tbsp' },
-    ]);
+    expect(setIngredients).toHaveBeenCalledWith([{ name: 'Butter', quantity: 3, units: 'tbsp' }]);
   });
 });

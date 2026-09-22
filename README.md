@@ -26,6 +26,7 @@ The app talks to Firebase, so you need a Firebase project before it will run:
    firebase use --add          # select your project
    firebase deploy --only firestore:rules
    ```
+
 4. Register a **Web app** in project settings, copy `.env.example` to `.env` in the project root (`cp .env.example .env`), and fill in its config values:
 
    ```bash

@@ -30,5 +30,5 @@ export default tseslint.config(
   {
     files: ['tests/**/*.{ts,tsx}'],
     languageOptions: { globals: { ...globals.browser, ...globals.node } },
-  }
+  },
 );

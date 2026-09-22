@@ -6,7 +6,6 @@ import { renderWithUserData } from './userDataHarness';
 import { type UserData } from '../src/utils/types';
 
 describe('CreateMealModal Component', () => {
-
   beforeEach(async () => {
     const mockUserData: UserData = {
       meals: [

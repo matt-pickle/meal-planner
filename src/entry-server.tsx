@@ -10,6 +10,6 @@ export function render(_url: string, options?: RenderToPipeableStreamOptions) {
         <App />
       </StaticRouter>
     </StrictMode>,
-    options
+    options,
   );
 }

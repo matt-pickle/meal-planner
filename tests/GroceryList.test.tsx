@@ -30,7 +30,9 @@ describe('GroceryList Component', () => {
           ],
         },
       ],
-      schedule: [{ date: Date.now() + 86400000, breakfast: '', lunch: 'spaghetti', dinner: 'hamburger' }],
+      schedule: [
+        { date: Date.now() + 86400000, breakfast: '', lunch: 'spaghetti', dinner: 'hamburger' },
+      ],
       groceryList: [
         { id: 'cheese', name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' },
         { id: 'apples', name: 'Apples', quantity: 6, units: 'apples', status: 'bought' },
@@ -45,7 +47,9 @@ describe('GroceryList Component', () => {
   test('renders all elements', async () => {
     const title = screen.getByText(/Grocery List/);
     const addItemButton = screen.getByRole('button', { name: 'add item' });
-    const addIngredientsButton = screen.getByRole('button', { name: 'add ingredients from upcoming meals' });
+    const addIngredientsButton = screen.getByRole('button', {
+      name: 'add ingredients from upcoming meals',
+    });
     const toBuySection = screen.getByText(/Items to Buy/);
     const cheeseItem = screen.getByDisplayValue(/Cheese/);
     const applesItem = screen.getByDisplayValue(/Apples/);
@@ -78,7 +82,9 @@ describe('GroceryList Component', () => {
   });
 
   test('Adds ingredients on "Add Ingredients from Upcoming Meals" click', async () => {
-    const addIngredientsButton = screen.getByRole('button', { name: 'add ingredients from upcoming meals' });
+    const addIngredientsButton = screen.getByRole('button', {
+      name: 'add ingredients from upcoming meals',
+    });
     await userEvent.click(addIngredientsButton);
     await userEvent.click(screen.getByRole('button', { name: 'confirm add ingredients' }));
 
@@ -130,7 +136,6 @@ describe('GroceryList autosave', () => {
 // Issue 20: quantities were merged with a truthiness test, which treats 0 as
 // missing. These pin the summing behaviour for both merge paths.
 describe('GroceryList quantity merging', () => {
-
   function midnightPlus(days: number) {
     const date = new Date();
     date.setHours(0, 0, 0, 0);
@@ -162,7 +167,7 @@ describe('GroceryList quantity merging', () => {
     renderWithUserData(<GroceryList />, userData);
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'add ingredients from upcoming meals' })
+      screen.getByRole('button', { name: 'add ingredients from upcoming meals' }),
     );
     await userEvent.click(screen.getByRole('button', { name: 'confirm add ingredients' }));
 
