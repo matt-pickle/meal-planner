@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore"
+import { initializeFirestore, doc, setDoc, getDoc } from "firebase/firestore"
 import { type UserData, type MealSlot } from "../src/utils/types.tsx"
 import { notifyError } from "../src/utils/errors.tsx"
 const env = import.meta.env;
@@ -15,7 +15,9 @@ const firebaseConfig = {
 };
 
 const firebaseApp = initializeApp(firebaseConfig)
-const db = getFirestore(firebaseApp)
+// An empty quantity field leaves the value undefined, which Firestore rejects
+// outright unless it is told to skip such fields.
+const db = initializeFirestore(firebaseApp, { ignoreUndefinedProperties: true })
 export const auth = getAuth(firebaseApp)
 
 export async function logIn() {

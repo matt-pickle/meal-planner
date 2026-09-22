@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import IngredientsInput from '../src/components/IngredientsInput';
@@ -50,5 +50,41 @@ describe('IngredientsInput Component', () => {
     expect(nameInputs).toHaveLength(2);
     expect(quantityInputs).toHaveLength(2);
     expect(unitsInputs).toHaveLength(2);
+  });
+});
+
+// Regression: parseFloat('') is NaN, which was stored in state, rendered into
+// the input and written to Firestore.
+describe('IngredientsInput quantity field', () => {
+  test('clears the quantity instead of storing NaN', async () => {
+    const setIngredients = vi.fn();
+    render(
+      <IngredientsInput
+        ingredients={[{ name: 'Butter', quantity: 2, units: 'tbsp' }]}
+        setIngredients={setIngredients}
+      />
+    );
+
+    await userEvent.clear(screen.getByRole('spinbutton', { name: 'ingredient quantity' }));
+
+    expect(setIngredients).toHaveBeenCalledWith([
+      { name: 'Butter', quantity: undefined, units: 'tbsp' },
+    ]);
+  });
+
+  test('keeps a typed number', async () => {
+    const setIngredients = vi.fn();
+    render(
+      <IngredientsInput
+        ingredients={[{ name: 'Butter', quantity: undefined, units: 'tbsp' }]}
+        setIngredients={setIngredients}
+      />
+    );
+
+    await userEvent.type(screen.getByRole('spinbutton', { name: 'ingredient quantity' }), '3');
+
+    expect(setIngredients).toHaveBeenCalledWith([
+      { name: 'Butter', quantity: 3, units: 'tbsp' },
+    ]);
   });
 });

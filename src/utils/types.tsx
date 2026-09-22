@@ -1,6 +1,7 @@
 export type Ingredient = {
   name: string;
-  quantity: number;
+  // undefined while the quantity field is empty
+  quantity: number | undefined;
   units: string;
 };
 

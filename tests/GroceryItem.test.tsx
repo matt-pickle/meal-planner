@@ -1,7 +1,8 @@
-import { describe, test, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import GroceryList from '../src/pages/GroceryList';
+import GroceryItem from '../src/components/GroceryItem';
 import { type UserData } from '../src/utils/types';
 
 describe('GroceryItem Component', () => {
@@ -111,5 +112,21 @@ describe('GroceryItem Component', () => {
 
     await userEvent.click(deleteButton);
     expect(screen.queryByDisplayValue('Cheese')).not.toBeInTheDocument();
+  });
+});
+
+// Regression: clearing the field stored NaN, which rendered as an empty but
+// invalid value and was written to Firestore.
+describe('GroceryItem quantity field', () => {
+  test('clears the quantity instead of storing NaN', async () => {
+    const setGroceryItems = vi.fn();
+    const item = { name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' as const };
+    render(
+      <GroceryItem item={item} groceryItems={[item]} setGroceryItems={setGroceryItems} />
+    );
+
+    await userEvent.clear(screen.getByRole('spinbutton', { name: 'quantity' }));
+
+    expect(setGroceryItems).toHaveBeenCalledWith([{ ...item, quantity: undefined }]);
   });
 });

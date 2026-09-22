@@ -55,7 +55,13 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             type="number"
             placeholder="1"
             value={item.quantity}
-            onChange={e => updateItem({ quantity: parseFloat(e.target.value) })}
+            onChange={e => {
+              // parseFloat('') is NaN, which used to be stored, rendered and saved
+              const quantity = e.target.value === '' ? undefined : Number(e.target.value);
+              if (quantity === undefined || !Number.isNaN(quantity)) {
+                updateItem({ quantity: quantity });
+              }
+            }}
             className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/3 sm:w-1/2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
           />
           <input

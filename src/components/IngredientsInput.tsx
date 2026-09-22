@@ -31,7 +31,13 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         type="number"
         placeholder="1"
         value={ingredient.quantity}
-        onChange={(e) => updateIngredient(index, { quantity: parseFloat(e.target.value) })}
+        onChange={(e) => {
+          // parseFloat('') is NaN, which used to be stored, rendered and saved
+          const quantity = e.target.value === '' ? undefined : Number(e.target.value);
+          if (quantity === undefined || !Number.isNaN(quantity)) {
+            updateIngredient(index, { quantity: quantity });
+          }
+        }}
         className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
       />
       <input
