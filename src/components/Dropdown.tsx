@@ -23,7 +23,7 @@ export default function Dropdown({
   placeholder = 'Select an option...',
   width,
   value = '',
-  classOverrides,
+  classOverrides = '',
   ariaLabel,
   clearLabel,
   onSelect,

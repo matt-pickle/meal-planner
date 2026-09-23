@@ -36,3 +36,19 @@ describe('Button Component', () => {
     expect(button).toHaveClass('text-red-950');
   });
 });
+
+// Issue 19: an omitted classOverrides was interpolated as the literal class
+// "undefined"
+describe('Button classOverrides', () => {
+  test('adds no stray class when classOverrides is omitted', () => {
+    render(<Button text="Click Me" />);
+
+    expect(screen.getByRole('button')).not.toHaveClass('undefined');
+  });
+
+  test('adds the classes it is given', () => {
+    render(<Button text="Click Me" classOverrides="mt-4 ml-9" />);
+
+    expect(screen.getByRole('button')).toHaveClass('mt-4', 'ml-9');
+  });
+});

@@ -8,7 +8,7 @@ type Props = {
 };
 
 export default function Button({
-  classOverrides,
+  classOverrides = '',
   text,
   icon,
   ariaLabel,

@@ -252,3 +252,25 @@ describe('Dropdown outside-click listener', () => {
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
   });
 });
+
+// Issue 19: an omitted classOverrides was interpolated as the literal class
+// "undefined"
+describe('Dropdown classOverrides', () => {
+  const options = [{ label: 'Option 1', value: '1' }];
+
+  test('adds no stray class when classOverrides is omitted', () => {
+    const { container } = render(
+      <Dropdown options={options} ariaLabel="meal" onSelect={vi.fn()} />,
+    );
+
+    expect(container.firstElementChild).not.toHaveClass('undefined');
+  });
+
+  test('adds the classes it is given', () => {
+    const { container } = render(
+      <Dropdown options={options} ariaLabel="meal" onSelect={vi.fn()} classOverrides="mb-0" />,
+    );
+
+    expect(container.firstElementChild).toHaveClass('dropdown', 'mb-0');
+  });
+});
