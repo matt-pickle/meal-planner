@@ -78,6 +78,32 @@ describe('Checkbox Component', () => {
     expect(checkbox).not.toBeChecked();
   });
 
+  // Issue 15: the input was hidden with Tailwind's `hidden` (display: none),
+  // which takes it out of the tab order and the accessibility tree. jsdom
+  // applies no Tailwind CSS, so the keyboard test below passes either way; the
+  // class check is what catches that regression here.
+  test('keeps the input focusable, hidden only visually', () => {
+    render(<ControlledCheckbox />);
+
+    const checkbox = screen.getByRole('checkbox', { name: 'test checkbox' });
+    expect(checkbox).not.toHaveClass('hidden');
+    expect(checkbox).toHaveClass('sr-only');
+  });
+
+  test('can be reached with Tab and toggled with Space', async () => {
+    render(<ControlledCheckbox />);
+    const checkbox = screen.getByRole('checkbox', { name: 'test checkbox' });
+
+    await userEvent.tab();
+    expect(checkbox).toHaveFocus();
+
+    await userEvent.keyboard(' ');
+    expect(checkbox).toBeChecked();
+
+    await userEvent.keyboard(' ');
+    expect(checkbox).not.toBeChecked();
+  });
+
   test('size prop correctly sets the size', () => {
     render(
       <Checkbox
