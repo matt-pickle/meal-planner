@@ -2,7 +2,7 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../src/App';
-import { MemoryRouter, useLocation } from 'react-router';
+import { MemoryRouter, useLocation, useNavigate } from 'react-router';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { getUserData, updateUserData } from '../firebase/firebase';
 import { type UserData } from '../src/utils/types';
@@ -423,5 +423,69 @@ describe('App account switching', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent(/Loading/);
     expect(screen.queryByText(/Alice's Cereal/)).not.toBeInTheDocument();
+  });
+});
+
+// Issue 10: auth redirects pushed history entries, and sign-out redirected
+// from two places. Back after signing in showed the login page to a signed-in
+// user, and Back after signing out returned to a private page that pushed
+// /login again, so the user couldn't get back past it.
+describe('App auth redirects and history', () => {
+  const alice = { uid: 'alice' } as unknown as User;
+  let emit: (user: User | null) => void;
+
+  // Shows where the app settled, and goes Back the way the browser button does
+  function HistoryProbe() {
+    const navigate = useNavigate();
+    return (
+      <>
+        <div data-testid="path">{useLocation().pathname}</div>
+        <button onClick={() => navigate(-1)}>back</button>
+      </>
+    );
+  }
+
+  function renderAt(entries: Array<string>) {
+    render(
+      <MemoryRouter initialEntries={entries} initialIndex={entries.length - 1}>
+        <App />
+        <HistoryProbe />
+      </MemoryRouter>,
+    );
+  }
+
+  beforeEach(() => {
+    vi.mocked(onAuthStateChanged).mockImplementation(((_auth: unknown, callback: unknown) => {
+      emit = callback as (user: User | null) => void;
+      return vi.fn();
+    }) as unknown as typeof onAuthStateChanged);
+  });
+
+  test('signing in replaces the login page, so Back skips it', async () => {
+    renderAt(['/previous', '/login']);
+
+    act(() => {
+      emit(alice);
+    });
+    await waitFor(() => expect(screen.getByTestId('path')).toHaveTextContent('/schedule'));
+
+    await userEvent.click(screen.getByRole('button', { name: 'back' }));
+    expect(screen.getByTestId('path')).toHaveTextContent('/previous');
+  });
+
+  test('signing out replaces the private page, so Back skips it', async () => {
+    renderAt(['/previous', '/meals']);
+    act(() => {
+      emit(alice);
+    });
+    await screen.findByRole('heading', { name: 'Meals', level: 1 });
+
+    act(() => {
+      emit(null);
+    });
+    await waitFor(() => expect(screen.getByTestId('path')).toHaveTextContent('/login'));
+
+    await userEvent.click(screen.getByRole('button', { name: 'back' }));
+    expect(screen.getByTestId('path')).toHaveTextContent('/previous');
   });
 });

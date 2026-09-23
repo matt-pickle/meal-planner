@@ -1,9 +1,19 @@
+import { Navigate } from 'react-router';
+import { type User } from 'firebase/auth';
 import Button from '../components/Button';
 import { logIn } from '../../firebase/firebase';
 import Icon from '../components/Icon';
 import { notifyError } from '../utils/errors';
 
-export default function Login() {
+type Props = {
+  user: User | null;
+};
+
+export default function Login({ user }: Props) {
+  // A signed-in user can land here from Back or a bookmark. Replacing the entry
+  // keeps Back from bringing them straight back.
+  if (user) return <Navigate to="/schedule" replace />;
+
   async function handleLogin() {
     try {
       await logIn();

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { onAuthStateChanged, User } from 'firebase/auth';
 import { auth, getUserData } from '../firebase/firebase';
-import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router';
+import { Routes, Route, Navigate } from 'react-router';
 import PrivateRoutes from './components/PrivateRoutes';
 import Login from './pages/Login';
 import Schedule from './pages/Schedule';
@@ -20,20 +20,6 @@ export default function App() {
   const [authResolved, setAuthResolved] = useState(auth.currentUser !== null);
   const [userData, setUserData] = useState<UserData | undefined>();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  // The auth listener is subscribed once, so it would close over the path and
-  // the navigate function it saw on the first render. Refs keep it current
-  // without making the subscription depend on them: re-subscribing re-fires the
-  // listener, which would refetch and overwrite unsaved changes.
-  const pathRef = useRef(location.pathname);
-  const navigateRef = useRef(navigate);
-  useEffect(() => {
-    pathRef.current = location.pathname;
-    navigateRef.current = navigate;
-  }, [location.pathname, navigate]);
-
   // Which user's data has been fetched, so a token refresh — which re-fires the
   // auth listener with the same user — doesn't refetch over local edits.
   const loadedUid = useRef<string | null>(null);
@@ -55,14 +41,8 @@ export default function App() {
           // Someone else may have signed in while this fetch was in flight
           if (loadedUid.current === userObj.uid) setUserData(data);
         }
-        // Only send the user onward from the entry points; a refresh or a deep
-        // link into another page should stay where it is
-        if (pathRef.current === '/' || pathRef.current === '/login') {
-          navigateRef.current('/schedule');
-        }
       } else {
         loadedUid.current = null;
-        navigateRef.current('/login');
         setUserData(undefined);
         setUser(null);
       }
@@ -75,7 +55,7 @@ export default function App() {
       <div className="flex-1 p-4 md:p-8 overflow-scroll">
         <Routes>
           <Route path="/" element={<Navigate to="/schedule" replace />} />
-          <Route path="/login" element={<Login />} />
+          <Route path="/login" element={<Login user={user} />} />
           <Route
             element={
               <PrivateRoutes

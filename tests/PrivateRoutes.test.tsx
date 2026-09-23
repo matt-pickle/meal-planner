@@ -1,6 +1,7 @@
 import { describe, test, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { MemoryRouter, Routes, Route, useLocation } from 'react-router';
+import userEvent from '@testing-library/user-event';
+import { MemoryRouter, Routes, Route, useLocation, useNavigate } from 'react-router';
 import { type User } from 'firebase/auth';
 import PrivateRoutes from '../src/components/PrivateRoutes';
 import { type UserData } from '../src/utils/types';
@@ -9,8 +10,15 @@ const mockUser = { uid: '123', email: 'test@test.com' } as unknown as User;
 
 const userData: UserData = { meals: [], schedule: [], groceryList: [] };
 
+// Shows where the guard settled, and goes Back the way the browser button does
 function LocationProbe() {
-  return <div data-testid="path">{useLocation().pathname}</div>;
+  const navigate = useNavigate();
+  return (
+    <>
+      <div data-testid="path">{useLocation().pathname}</div>
+      <button onClick={() => navigate(-1)}>back</button>
+    </>
+  );
 }
 
 // `data` is passed explicitly: a default would also apply to an explicit
@@ -25,7 +33,7 @@ function renderGuard({
   data: UserData | undefined;
 }) {
   return render(
-    <MemoryRouter initialEntries={['/meals']}>
+    <MemoryRouter initialEntries={['/previous', '/meals']} initialIndex={1}>
       <Routes>
         <Route
           element={
@@ -58,6 +66,16 @@ describe('PrivateRoutes Component', () => {
     renderGuard({ user: null, authResolved: true, data: userData });
 
     expect(screen.getByTestId('path')).toHaveTextContent('/login');
+  });
+
+  // Issue 10: the redirect pushed /login on top of the private page, so Back
+  // returned there and was redirected again
+  test('replaces the private page when redirecting, so Back skips it', async () => {
+    renderGuard({ user: null, authResolved: true, data: userData });
+
+    await userEvent.click(screen.getByRole('button', { name: 'back' }));
+
+    expect(screen.getByTestId('path')).toHaveTextContent('/previous');
   });
 
   // Regression: Firebase reports no user for the first few hundred ms after a

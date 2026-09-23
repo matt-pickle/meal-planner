@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
 import { User } from 'firebase/auth';
-import { useNavigate, Outlet } from 'react-router';
+import { Navigate, Outlet } from 'react-router';
 import { UserDataProvider } from '../state/UserDataContext';
 import Loading from './Loading';
 import { type UserData } from '../utils/types';
@@ -16,18 +15,12 @@ type Props = {
 };
 
 export default function PrivateRoutes({ user, authResolved, userData, setUserData }: Props) {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Only a settled "signed out" sends the user to the login page; redirecting
-    // while auth is still pending bounced deep links and refreshes away.
-    if (authResolved && !user) {
-      navigate('/login');
-    }
-  }, [authResolved, user, navigate]);
-
+  // Only a settled "signed out" sends the user to the login page; redirecting
+  // while auth is still pending bounced deep links and refreshes away.
   if (!authResolved) return <Loading />;
-  if (!user) return null;
+  // The one place a signed-out user is sent to log in. Replacing the entry
+  // keeps Back from returning to this page, which would only redirect again.
+  if (!user) return <Navigate to="/login" replace />;
 
   // Pages seed nothing from props and read everything from the store, but they
   // still must not render before the data exists.
