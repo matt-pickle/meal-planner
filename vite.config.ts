@@ -1,5 +1,5 @@
-/// <reference types="vitest" />
-import { defineConfig } from 'vite';
+// vitest/config's defineConfig is Vite's, plus the types for the `test` block
+import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react-swc';
 import tailwindcss from '@tailwindcss/vite';
 

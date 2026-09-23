@@ -51,7 +51,7 @@ npm run start   # serve the production build (NODE_ENV=production)
 npm test        # run the Vitest suite in watch mode with a coverage report
 npm run test:ci # run the suite once and exit (for CI)
 npm run lint    # ESLint, including the react-hooks rules
-npm run typecheck  # tsc --noEmit
+npm run typecheck  # tsc --noEmit, for the app and tests, then vite.config.ts
 npm run format  # Prettier
 ```
 
