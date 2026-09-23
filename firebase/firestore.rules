@@ -12,9 +12,10 @@ service cloud.firestore {
         return request.auth != null && request.auth.uid == userId;
       }
 
-      // Every write goes through setDoc(..., { merge: true }), so
-      // request.resource.data is the merged result and carries all three
-      // top-level fields even when the client sent only one of them.
+      // Writes use updateDoc for an existing document and setDoc on first
+      // sign-in. Either way request.resource.data is the whole document as it
+      // would be after the write, so it carries all three top-level fields even
+      // when an update sends only one of them.
       //
       // Rules cannot iterate arrays, so element shape is not checked here;
       // these caps exist to bound document size (Firestore's limit is 1 MB)
