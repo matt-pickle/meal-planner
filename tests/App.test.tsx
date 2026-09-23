@@ -184,6 +184,13 @@ describe('App Component', () => {
       expect(settingsLink).toBeVisible();
     });
 
+    // Issue 11: an unknown URL rendered an empty content area
+    test('shows the Not Found page for an unknown URL', async () => {
+      renderWithRouter(<App />, '/grocery');
+
+      expect(await screen.findByRole('heading', { name: 'Page Not Found' })).toBeVisible();
+    });
+
     test('Meals link renders Meals Page', async () => {
       renderWithRouter(<App />, '/');
 
@@ -284,6 +291,13 @@ describe('App Component', () => {
         expect(groceryListLink).toBeVisible();
         expect(settingsLink).toBeVisible();
       });
+    });
+
+    test('shows the Not Found page for an unknown URL rather than the login page', async () => {
+      renderWithRouter(<App />, '/grocery');
+
+      expect(await screen.findByRole('heading', { name: 'Page Not Found' })).toBeVisible();
+      expect(screen.queryByText('Log In with Google')).not.toBeInTheDocument();
     });
 
     test('Meals link redirects to Login Page', async () => {

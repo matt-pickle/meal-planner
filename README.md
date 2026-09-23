@@ -97,11 +97,13 @@ meal-planner/
 │
 ├── src/
 │   ├── entry-client.tsx       Hydrates the SSR markup inside BrowserRouter
-│   ├── entry-server.tsx       Exports render() used by server.js, wraps App in StaticRouter
+│   ├── entry-server.tsx       Exports render() used by server.js, wraps App in StaticRouter,
+│   │                          and reports a page's HTTP status (404 for Not Found)
 │   ├── App.tsx                Auth listener, one-off user data fetch, and route table
 │   ├── state/
-│   │   └── UserDataContext.tsx  The single copy of the user's data, and the
-│   │                            mutators that update state and persist it
+│   │   ├── UserDataContext.tsx  The single copy of the user's data, and the
+│   │   │                        mutators that update state and persist it
+│   │   └── HttpStatusContext.tsx  Lets a page set the response status during SSR
 │   ├── index.css              Tailwind import and the custom color theme
 │   │
 │   ├── pages/
@@ -109,7 +111,8 @@ meal-planner/
 │   │   ├── Schedule.tsx       Rolling 14-day grid; fills in missing future days
 │   │   ├── Meals.tsx          Meal library with create/edit/delete modals
 │   │   ├── GroceryList.tsx    Grocery list, "Add From Meals" totaling, debounced saves
-│   │   └── Settings.tsx       The signed-in account, and a log out button
+│   │   ├── Settings.tsx       The signed-in account, and a log out button
+│   │   └── NotFound.tsx       Any unknown URL; the server answers it with a 404
 │   │
 │   ├── components/
 │   │   ├── Navigation.tsx     Sidebar on desktop, bottom bar on mobile

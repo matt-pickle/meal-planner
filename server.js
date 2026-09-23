@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import express from 'express';
 import helmet from 'helmet';
 import { createServer } from 'node:http';
+import path from 'node:path';
 import { Transform } from 'node:stream';
 
 // Constants
@@ -70,6 +71,17 @@ if (!isProduction) {
   app.use(base, sirv('./dist/client', { extensions: [] }));
 }
 
+// No app route has a file extension, so a path with one is a file that isn't
+// there (a stale /assets/ hash after a deploy, say). Answering with the app's
+// HTML would hand a script or image tag a page it can't use.
+app.use((req, res, next) => {
+  if (path.extname(req.path)) {
+    res.status(404).end('Not Found');
+    return;
+  }
+  next();
+});
+
 // Serve HTML
 app.use('*all', async (req, res) => {
   try {
@@ -90,39 +102,47 @@ app.use('*all', async (req, res) => {
     }
 
     let didError = false;
+    // Set by a page during the shell render; the Not Found page sets 404
+    let status = 200;
 
-    const { pipe, abort } = render(url, {
-      onShellError() {
-        res.status(500);
-        res.set({ 'Content-Type': 'text/html' });
-        res.send('<h1>Something went wrong</h1>');
+    const { pipe, abort } = render(
+      url,
+      {
+        onShellError() {
+          res.status(500);
+          res.set({ 'Content-Type': 'text/html' });
+          res.send('<h1>Something went wrong</h1>');
+        },
+        onShellReady() {
+          res.status(didError ? 500 : status);
+          res.set({ 'Content-Type': 'text/html' });
+
+          const transformStream = new Transform({
+            transform(chunk, encoding, callback) {
+              res.write(chunk, encoding);
+              callback();
+            },
+          });
+
+          const [htmlStart, htmlEnd] = template.split(`<!--app-html-->`);
+
+          res.write(htmlStart);
+
+          transformStream.on('finish', () => {
+            res.end(htmlEnd);
+          });
+
+          pipe(transformStream);
+        },
+        onError(error) {
+          didError = true;
+          console.error(error);
+        },
       },
-      onShellReady() {
-        res.status(didError ? 500 : 200);
-        res.set({ 'Content-Type': 'text/html' });
-
-        const transformStream = new Transform({
-          transform(chunk, encoding, callback) {
-            res.write(chunk, encoding);
-            callback();
-          },
-        });
-
-        const [htmlStart, htmlEnd] = template.split(`<!--app-html-->`);
-
-        res.write(htmlStart);
-
-        transformStream.on('finish', () => {
-          res.end(htmlEnd);
-        });
-
-        pipe(transformStream);
+      code => {
+        status = code;
       },
-      onError(error) {
-        didError = true;
-        console.error(error);
-      },
-    });
+    );
 
     setTimeout(() => {
       abort();

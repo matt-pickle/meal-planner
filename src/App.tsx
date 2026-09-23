@@ -8,6 +8,7 @@ import Schedule from './pages/Schedule';
 import Meals from './pages/Meals';
 import GroceryList from './pages/GroceryList';
 import Settings from './pages/Settings';
+import NotFound from './pages/NotFound';
 import Navigation from './components/Navigation';
 import ErrorBanner from './components/ErrorBanner';
 import { onError } from './utils/errors';
@@ -71,6 +72,9 @@ export default function App() {
             <Route path="/grocery-list" element={<GroceryList />} />
             <Route path="/settings" element={<Settings user={user} />} />
           </Route>
+          {/* Outside PrivateRoutes, so an unknown URL says so whether or not
+              the visitor is signed in, rather than sending them to log in */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
       <Navigation />
