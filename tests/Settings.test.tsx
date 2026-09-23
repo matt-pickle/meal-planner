@@ -10,8 +10,8 @@ import { type UserData } from '../src/utils/types';
 
 const emptyData: UserData = { meals: [], schedule: [], groceryList: [] };
 
-function renderSettings(user: Partial<User> | null) {
-  return renderWithUserData(<Settings user={user as User | null} />, emptyData);
+function renderSettings(user: Partial<User>) {
+  return renderWithUserData(<Settings />, emptyData, user as User);
 }
 
 describe('Settings Page', () => {
@@ -30,8 +30,8 @@ describe('Settings Page', () => {
     expect(screen.getByText('Logged in as test@test.com')).toBeVisible();
   });
 
-  test('omits the line when there is no user', () => {
-    renderSettings(null);
+  test('omits the line when the account has neither a name nor an email', () => {
+    renderSettings({ uid: '123', email: null, displayName: null });
     expect(screen.queryByText(/Logged in as/)).not.toBeInTheDocument();
   });
 
@@ -60,7 +60,7 @@ describe('Settings Page', () => {
           >
             add item
           </button>
-          <Settings user={null} />
+          <Settings />
         </>
       );
     }

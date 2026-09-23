@@ -1,16 +1,12 @@
-import { type User } from 'firebase/auth';
 import { logOut } from '../../firebase/firebase';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 import { notifyError } from '../utils/errors';
 import { useUserData } from '../state/UserDataContext';
 
-type Props = {
-  user: User | null;
-};
-
-export default function Settings({ user }: Props) {
-  const { flushGroceryList } = useUserData();
+export default function Settings() {
+  // Settings is a private page, so the store always has a signed-in user
+  const { user, flushGroceryList } = useUserData();
 
   async function handleLogOut() {
     // A pending grocery edit can only be written while this user is signed in
@@ -22,10 +18,11 @@ export default function Settings({ user }: Props) {
     }
   }
 
-  // Google sign-in supplies a display name; fall back to the email alone if it is missing
-  const username = user?.displayName
+  // Google sign-in supplies a display name; fall back to the email alone if it
+  // is missing. Firebase types both as nullable, so the line can still be empty.
+  const username = user.displayName
     ? `${user.displayName}${user.email ? ` (${user.email})` : ''}`
-    : user?.email;
+    : user.email;
 
   return (
     <>

@@ -70,7 +70,7 @@ export default function App() {
             <Route path="/schedule" element={<Schedule />} />
             <Route path="/meals" element={<Meals />} />
             <Route path="/grocery-list" element={<GroceryList />} />
-            <Route path="/settings" element={<Settings user={user} />} />
+            <Route path="/settings" element={<Settings />} />
           </Route>
           {/* Outside PrivateRoutes, so an unknown URL says so whether or not
               the visitor is signed in, rather than sending them to log in */}

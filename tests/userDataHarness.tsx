@@ -17,13 +17,17 @@ export function signIn(user: User | null = testUser) {
 
 // Plays App's part: owns the one copy of the data and hands the pages a store,
 // so a page under test re-renders from its own writes as it does in the app.
-export function renderWithUserData(ui: React.ReactNode, initialUserData: UserData) {
-  signIn();
+export function renderWithUserData(
+  ui: React.ReactNode,
+  initialUserData: UserData,
+  user: User = testUser,
+) {
+  signIn(user);
   function Harness() {
     const [userData, setUserData] = useState<UserData | undefined>(initialUserData);
     if (!userData) return null;
     return (
-      <UserDataProvider user={testUser} userData={userData} setUserData={setUserData}>
+      <UserDataProvider user={user} userData={userData} setUserData={setUserData}>
         {ui}
       </UserDataProvider>
     );
