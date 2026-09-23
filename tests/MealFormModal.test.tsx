@@ -12,6 +12,105 @@ vi.mock('../src/components/emojiPicker', () => ({
   loadEmojiPicker: vi.fn(() => Promise.resolve({ default: () => <div>emoji picker</div> })),
 }));
 
+// Opened from the Meals page's "add new meal" button, as a user creates a meal
+describe('MealFormModal creating a meal', () => {
+  beforeEach(async () => {
+    const mockUserData: UserData = {
+      meals: [
+        { id: 'eggs', name: 'Eggs', emoji: '🥚', ingredients: [] },
+        { id: 'salad', name: 'Salad', emoji: '🥗', ingredients: [] },
+        { id: 'hot-dogs', name: 'Hot dogs', emoji: '🌭', ingredients: [] },
+      ],
+      schedule: [{ date: Date.now(), breakfast: '', lunch: '', dinner: '' }],
+      groceryList: [],
+    };
+
+    renderWithUserData(<Meals />, mockUserData);
+    const createButton = screen.getByRole('button', { name: 'add new meal' });
+    await userEvent.click(createButton);
+  });
+
+  test('renders all inputs', () => {
+    const chooseEmojiButton = screen.getByRole('button', { name: 'choose emoji' });
+    const nameInput = screen.getByLabelText(/Meal Name/);
+    const addIngredientButton = screen.getByRole('button', { name: 'add ingredient' });
+
+    expect(chooseEmojiButton).toBeVisible();
+    expect(nameInput).toBeVisible();
+    expect(addIngredientButton).toBeVisible();
+  });
+
+  test('modal closes on cancel', async () => {
+    const title = screen.getByText(/Create New Meal/);
+    const cancelButton = screen.getByRole('button', { name: 'cancel' });
+    await userEvent.click(cancelButton);
+
+    expect(title).not.toBeVisible();
+  });
+
+  test('saves meal on submit', async () => {
+    const modalTitle = screen.getByText(/Create New Meal/);
+    const nameInput = screen.getByLabelText(/Meal Name/);
+    const addIngredientButton = screen.getByRole('button', { name: 'add ingredient' });
+
+    await userEvent.type(nameInput, 'Pancakes');
+    await userEvent.click(addIngredientButton);
+    const ingredientNameInput = screen.getByRole('textbox', { name: 'ingredient name' });
+    const quantityInput = screen.getByRole('spinbutton', { name: 'ingredient quantity' });
+    const unitsInput = screen.getByRole('textbox', { name: 'ingredient units' });
+    await userEvent.type(ingredientNameInput, 'Milk');
+    await userEvent.type(quantityInput, '1');
+    await userEvent.type(unitsInput, 'cup');
+
+    const saveButton = screen.getByRole('button', { name: 'save meal' });
+    await userEvent.click(saveButton);
+
+    expect(modalTitle).not.toBeVisible();
+    const pancakes = screen.getByText(/Pancakes/);
+    expect(pancakes).toBeVisible();
+  });
+
+  // Two meals with the same name are indistinguishable in the schedule dropdown
+  test('refuses to save a meal whose name is already taken', async () => {
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'salad');
+
+    // the clash is called out as the user types, not after a failed save
+    expect(screen.getByRole('alert')).toHaveTextContent('You already have a meal called "salad"');
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+    expect(screen.getByText(/Create New Meal/)).toBeVisible();
+  });
+
+  test('refuses to save a meal with no name', async () => {
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.type(screen.getByLabelText(/Meal Name/), '   ');
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'save meal' }));
+    expect(screen.getByText(/Create New Meal/)).toBeVisible();
+  });
+
+  test('enables save once the name is present and unique', async () => {
+    await userEvent.type(screen.getByLabelText(/Meal Name/), 'Pancakes');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeEnabled();
+  });
+
+  test('re-enables save when a clashing name is corrected', async () => {
+    const nameInput = screen.getByLabelText(/Meal Name/);
+    await userEvent.type(nameInput, 'Salad');
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeDisabled();
+
+    await userEvent.type(nameInput, ' rolls');
+
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'save meal' })).toBeEnabled();
+  });
+});
+
 describe('MealFormModal editing an existing meal', () => {
   beforeEach(async () => {
     const mockUserData: UserData = {
