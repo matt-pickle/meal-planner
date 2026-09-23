@@ -65,7 +65,7 @@ export default function Schedule() {
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {<Icon name="calendar" size="30px" />} Schedule
+        <Icon name="calendar" size="30px" /> Schedule
       </h1>
       <div className="schedule-weeks grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="week flex flex-col gap-4">{dayList.slice(0, 7)}</div>

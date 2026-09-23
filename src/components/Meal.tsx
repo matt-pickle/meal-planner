@@ -76,7 +76,7 @@ export default function Meal({
           aria-expanded={isMenuOpen}
           aria-controls={menuId}
         >
-          {<Icon name="dots" color="#ffffff" size="24px" />}
+          <Icon name="dots" color="#ffffff" size="24px" />
         </button>
         {/* Rendered only while open, as Dropdown does: a menu collapsed with
             max-height kept EDIT and DELETE tabbable and read out for every card.

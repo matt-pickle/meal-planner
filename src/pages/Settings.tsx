@@ -27,7 +27,7 @@ export default function Settings() {
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {<Icon name="user" size="30px" />} Settings
+        <Icon name="user" size="30px" /> Settings
       </h1>
       <div className="bg-dark rounded-md p-6 max-w-md">
         <h2 className="text-subtitle text-xl font-semibold mb-4">Account</h2>

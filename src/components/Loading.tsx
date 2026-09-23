@@ -6,7 +6,9 @@ import Icon from './Icon';
 export default function Loading() {
   return (
     <div role="status" className="flex items-center gap-3 text-light text-lg">
-      <span className="animate-spin">{<Icon name="hamburger" size="24px" />}</span>
+      <span className="animate-spin">
+        <Icon name="hamburger" size="24px" />
+      </span>
       Loading your meal plan...
     </div>
   );

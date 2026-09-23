@@ -11,7 +11,7 @@ export default function NotFound() {
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">
-        {<Icon name="hamburger" size="30px" />} Page Not Found
+        <Icon name="hamburger" size="30px" /> Page Not Found
       </h1>
       <div className="bg-dark rounded-md p-6 max-w-md">
         <p className="text-light mb-6">

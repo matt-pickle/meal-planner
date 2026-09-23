@@ -26,7 +26,7 @@ export default function Accordion({ heading, content }: Props) {
           aria-expanded={isOpen}
           aria-controls={contentId}
         >
-          {<Icon name="chevron-down" color="#bfdbfe" />}
+          <Icon name="chevron-down" color="#bfdbfe" />
         </button>
       </div>
       {/* `hidden` rather than a collapsed grid row: collapsed content stays

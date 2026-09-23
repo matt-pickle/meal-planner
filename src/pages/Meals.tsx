@@ -34,7 +34,7 @@ export default function Meals() {
     <>
       <div className="flex flex-wrap items-center justify-between gap-8 mb-8">
         <h1 className="flex items-center gap-3 text-title text-4xl font-semibold">
-          {<Icon name="hamburger" size="34px" />} Meals
+          <Icon name="hamburger" size="34px" /> Meals
         </h1>
         <Button
           icon={<Icon name="plus" />}

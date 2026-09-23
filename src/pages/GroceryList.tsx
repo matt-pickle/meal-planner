@@ -159,7 +159,7 @@ export default function GroceryList() {
     <>
       <div className="flex flex-wrap items-center justify-between gap-8 mb-8">
         <h1 className="flex items-center gap-3 text-title text-4xl font-semibold">
-          {<Icon name="list" size="30px" />} Grocery List
+          <Icon name="list" size="30px" /> Grocery List
         </h1>
         <Button
           icon={<Icon name="plus" />}
