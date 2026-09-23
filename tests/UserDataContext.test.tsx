@@ -188,9 +188,10 @@ describe('UserDataContext', () => {
   // same data
   test('keeps the same store while the data is unchanged', async () => {
     signIn();
-    let renders = 0;
+    // A spy rather than a counter variable: render must not reassign outer state
+    const onRender = vi.fn();
     const MemoReader = memo(function MemoReader() {
-      renders += 1;
+      onRender();
       return <p>{useUserData().userData.meals.length} meals</p>;
     });
     function Parent() {
@@ -210,14 +211,14 @@ describe('UserDataContext', () => {
       );
     }
     render(<Parent />);
-    expect(renders).toBe(1);
+    expect(onRender).toHaveBeenCalledTimes(1);
 
     await userEvent.click(screen.getByRole('button', { name: 'unrelated change' }));
-    expect(renders).toBe(1);
+    expect(onRender).toHaveBeenCalledTimes(1);
 
     // a real change still reaches the reader
     await userEvent.click(screen.getByRole('button', { name: 'clear meals' }));
-    expect(renders).toBe(2);
+    expect(onRender).toHaveBeenCalledTimes(2);
     expect(screen.getByText('0 meals')).toBeVisible();
   });
 
