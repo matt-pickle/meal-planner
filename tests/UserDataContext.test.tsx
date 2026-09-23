@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach, afterEach, vi } from 'vitest';
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { UserDataProvider, useUserData } from '../src/state/UserDataContext';
@@ -181,6 +181,44 @@ describe('UserDataContext', () => {
     unmount();
 
     expect(updateUserData).not.toHaveBeenCalled();
+  });
+
+  // Issue 23: the store handed out a new object on every render, so a memoized
+  // component reading it re-rendered whenever the provider did, even with the
+  // same data
+  test('keeps the same store while the data is unchanged', async () => {
+    signIn();
+    let renders = 0;
+    const MemoReader = memo(function MemoReader() {
+      renders += 1;
+      return <p>{useUserData().userData.meals.length} meals</p>;
+    });
+    function Parent() {
+      // Unrelated state, like App's error banner, re-renders the provider
+      const [, setTick] = useState(0);
+      const [userData, setUserData] = useState<UserData | undefined>(initialData());
+      return (
+        <>
+          <button onClick={() => setTick(tick => tick + 1)}>unrelated change</button>
+          <button onClick={() => setUserData(current => current && { ...current, meals: [] })}>
+            clear meals
+          </button>
+          <UserDataProvider user={testUser} userData={userData!} setUserData={setUserData}>
+            <MemoReader />
+          </UserDataProvider>
+        </>
+      );
+    }
+    render(<Parent />);
+    expect(renders).toBe(1);
+
+    await userEvent.click(screen.getByRole('button', { name: 'unrelated change' }));
+    expect(renders).toBe(1);
+
+    // a real change still reaches the reader
+    await userEvent.click(screen.getByRole('button', { name: 'clear meals' }));
+    expect(renders).toBe(2);
+    expect(screen.getByText('0 meals')).toBeVisible();
   });
 
   test('using the store outside a provider is a clear error', () => {

@@ -1,4 +1,4 @@
-import { createContext, useCallback, useContext, useEffect, useRef } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef } from 'react';
 import { type User } from 'firebase/auth';
 import { auth, updateUserData } from '../../firebase/firebase';
 import { withoutPastDays } from '../utils/utils';
@@ -109,11 +109,13 @@ export function UserDataProvider({ user, userData, setUserData, children }: Prop
     [setUserData, flushGroceryList],
   );
 
-  return (
-    <UserDataContext.Provider
-      value={{ user, userData, setMeals, setSchedule, setGroceryList, flushGroceryList }}
-    >
-      {children}
-    </UserDataContext.Provider>
+  // One object for as long as its contents are unchanged: a fresh one on every
+  // render would make each memoized consumer re-render whenever the provider
+  // does, such as when an unrelated error banner appears
+  const store = useMemo(
+    () => ({ user, userData, setMeals, setSchedule, setGroceryList, flushGroceryList }),
+    [user, userData, setMeals, setSchedule, setGroceryList, flushGroceryList],
   );
+
+  return <UserDataContext.Provider value={store}>{children}</UserDataContext.Provider>;
 }
