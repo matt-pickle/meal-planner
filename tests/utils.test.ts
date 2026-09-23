@@ -4,6 +4,8 @@ import {
   isDuplicateMealName,
   startOfToday,
   parseQuantity,
+  sortMealsByName,
+  toMealOptions,
 } from '../src/utils/utils';
 
 function midnightPlus(days: number) {
@@ -85,5 +87,33 @@ describe('parseQuantity', () => {
   test('rejects a negative amount or something that is not a number', () => {
     expect(parseQuantity('-1')).toBeNull();
     expect(parseQuantity('abc')).toBeNull();
+  });
+});
+
+// Issue 24: the schedule's dropdowns listed meals in creation order
+describe('sortMealsByName', () => {
+  test('sorts by name without regard to case, and leaves its argument alone', () => {
+    const meals = [{ name: 'Waffles' }, { name: 'apple pie' }, { name: 'Cereal' }];
+
+    expect(sortMealsByName(meals).map(meal => meal.name)).toEqual([
+      'apple pie',
+      'Cereal',
+      'Waffles',
+    ]);
+    expect(meals[0].name).toBe('Waffles');
+  });
+});
+
+describe('toMealOptions', () => {
+  test('builds sorted options labelled with emoji and name', () => {
+    expect(
+      toMealOptions([
+        { id: 'w', name: 'Waffles', emoji: '🧇' },
+        { id: 'c', name: 'Cereal', emoji: '🥣' },
+      ]),
+    ).toEqual([
+      { label: '🥣\u00A0\u00A0Cereal', value: 'c' },
+      { label: '🧇\u00A0\u00A0Waffles', value: 'w' },
+    ]);
   });
 });

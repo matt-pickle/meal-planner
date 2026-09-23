@@ -4,6 +4,7 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../src/utils/types';
 import ScheduleDay from '../src/components/ScheduleDay';
+import { toMealOptions } from '../src/utils/utils';
 
 describe('ScheduleDay Component', () => {
   const mockMeals: UserData['meals'] = [
@@ -27,7 +28,7 @@ describe('ScheduleDay Component', () => {
         breakfast={slots.breakfast}
         lunch={slots.lunch}
         dinner={slots.dinner}
-        meals={mockMeals}
+        mealOptions={toMealOptions(mockMeals)}
         onMealChange={(date, slot, mealId) => {
           setSlots(current => ({ ...current, [slot]: mealId }));
           mockOnMealChange(date, slot, mealId);
@@ -92,7 +93,7 @@ describe('ScheduleDay Component', () => {
         breakfast=""
         lunch="turkey-sandwich"
         dinner=""
-        meals={renamed}
+        mealOptions={toMealOptions(renamed)}
         onMealChange={mockOnMealChange}
       />,
     );
@@ -121,7 +122,7 @@ describe('ScheduleDay clearing a slot', () => {
         breakfast="cereal"
         lunch=""
         dinner=""
-        meals={mockMeals}
+        mealOptions={toMealOptions(mockMeals)}
         onMealChange={onMealChange}
       />,
     );

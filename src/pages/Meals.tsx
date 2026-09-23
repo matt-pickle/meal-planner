@@ -6,6 +6,7 @@ import DeleteMealModal from '../components/DeleteMealModal';
 import Icon from '../components/Icon';
 import { useUserData } from '../state/UserDataContext';
 import { type MealType } from '../utils/types';
+import { sortMealsByName } from '../utils/utils';
 
 export default function Meals() {
   // One copy of the data, owned by the store
@@ -17,7 +18,7 @@ export default function Meals() {
   const [deleteMealModalIsOpen, setDeleteMealModalIsOpen] = useState(false);
   const [mealToDelete, setMealToDelete] = useState<MealType | null>(null);
 
-  const sortedMeals = [...meals].sort((a, b) => a.name.localeCompare(b.name));
+  const sortedMeals = sortMealsByName(meals);
 
   const mealList: Array<React.JSX.Element> = sortedMeals.map(meal => (
     <Meal

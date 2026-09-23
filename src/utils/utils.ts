@@ -1,3 +1,20 @@
+// Meals are listed by name everywhere, so the Meals page and the schedule's
+// dropdowns show them in the same order
+export function sortMealsByName<T extends { name: string }>(meals: Array<T>): Array<T> {
+  return [...meals].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+// The schedule's dropdown entries for a meal library, sorted by name. The
+// label joins emoji and name with non-breaking spaces so they stay together.
+export function toMealOptions(
+  meals: Array<{ id: string; name: string; emoji: string }>,
+): Array<{ label: string; value: string }> {
+  return sortMealsByName(meals).map(meal => ({
+    label: `${meal.emoji}\u00A0\u00A0${meal.name}`,
+    value: meal.id,
+  }));
+}
+
 // Two meals with the same name are indistinguishable in the schedule dropdown,
 // so a name may only be used once. `exceptId` is the meal being edited.
 export function isDuplicateMealName(

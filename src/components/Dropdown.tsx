@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useId } from 'react';
 import Icon from './Icon';
 
-type Option = {
+export type Option = {
   label: string;
   value: string;
 };

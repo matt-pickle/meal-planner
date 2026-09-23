@@ -289,3 +289,27 @@ describe('Schedule Page document listeners', () => {
     addListener.mockRestore();
   });
 });
+
+// Issue 24: the meal dropdowns listed meals in the order they were created,
+// while the Meals page sorts them by name
+describe('Schedule Page meal options', () => {
+  test('lists meals by name, as the Meals page does', async () => {
+    renderWithUserData(<Schedule />, {
+      meals: [
+        { id: 'waffles', name: 'Waffles', emoji: '🧇', ingredients: [] },
+        { id: 'apple-pie', name: 'apple pie', emoji: '🥧', ingredients: [] },
+        { id: 'cereal', name: 'Cereal', emoji: '🥣', ingredients: [] },
+      ],
+      groceryList: [],
+      schedule: [],
+    });
+
+    const dropdown = screen.getAllByRole('combobox')[0];
+    await userEvent.click(dropdown);
+
+    const names = within(dropdown.parentElement!)
+      .getAllByRole('option')
+      .map(option => option.textContent?.replace(/\s+/g, ' ').trim());
+    expect(names).toEqual(['— none —', '🥧 apple pie', '🥣 Cereal', '🧇 Waffles']);
+  });
+});

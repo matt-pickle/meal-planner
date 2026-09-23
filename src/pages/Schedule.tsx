@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import ScheduleDay from '../components/ScheduleDay';
 import { useUserData } from '../state/UserDataContext';
 import { type MealSlot } from '../utils/types';
-import { startOfToday } from '../utils/utils';
+import { startOfToday, toMealOptions } from '../utils/utils';
 import Icon from '../components/Icon';
 
 export default function Schedule() {
@@ -23,6 +23,9 @@ export default function Schedule() {
     }
     return dates;
   }, [todayTime]);
+
+  // One sorted list for every day's dropdowns, rebuilt only when the meals change
+  const mealOptions = useMemo(() => toMealOptions(userData.meals), [userData.meals]);
 
   const daysByDate = new Map(userData.schedule.map(day => [day.date, day]));
 
@@ -57,7 +60,7 @@ export default function Schedule() {
       breakfast={day.breakfast}
       lunch={day.lunch}
       dinner={day.dinner}
-      meals={userData.meals}
+      mealOptions={mealOptions}
       onMealChange={assignMeal}
     />
   ));

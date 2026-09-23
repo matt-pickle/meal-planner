@@ -1,12 +1,13 @@
-import Dropdown from './Dropdown';
-import { type MealSlot, type UserData, MEAL_SLOTS } from '../utils/types';
+import Dropdown, { type Option } from './Dropdown';
+import { type MealSlot, MEAL_SLOTS } from '../utils/types';
 
 type Props = {
   date: number;
   breakfast: string;
   lunch: string;
   dinner: string;
-  meals: UserData['meals'];
+  // Built once by the Schedule page for all 14 days, rather than by each day
+  mealOptions: Array<Option>;
   onMealChange: (date: number, slot: MealSlot, mealId: string) => void;
 };
 
@@ -15,7 +16,7 @@ export default function ScheduleDay({
   breakfast,
   lunch,
   dinner,
-  meals,
+  mealOptions,
   onMealChange,
 }: Props) {
   const dateObj = new Date(date);
@@ -25,10 +26,6 @@ export default function ScheduleDay({
     .getFullYear()
     .toString()
     .slice(-2)}`;
-  const mealOptions = meals.map(meal => ({
-    label: `${meal.emoji}\u00A0\u00A0${meal.name}`,
-    value: meal.id,
-  }));
   const mealBySlot = { breakfast, lunch, dinner };
   const slots = MEAL_SLOTS.map(name => ({ name, meal: mealBySlot[name] }));
 
