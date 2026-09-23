@@ -140,7 +140,7 @@ meal-planner/
 │   │
 │   └── utils/
 │       ├── types.ts           UserData, MealType, Ingredient, GroceryItemType, MealSlot
-│       ├── errors.tsx         Channel the Firestore helpers report failures on
+│       ├── errors.ts          Channel the Firestore helpers report failures on
 │       └── utils.ts           meal-name and schedule-pruning helpers
 │
 ├── public/                    Static files served as-is (the favicon)
