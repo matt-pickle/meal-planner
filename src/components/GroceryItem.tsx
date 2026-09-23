@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import Checkbox from './Checkbox';
 import { type GroceryItemType } from '../utils/types';
 import { parseQuantity } from '../utils/utils';
@@ -5,19 +6,19 @@ import { INPUT_CLASS } from './styles';
 
 type Props = {
   item: GroceryItemType;
-  groceryItems: Array<GroceryItemType>;
-  setGroceryItems: (items: Array<GroceryItemType>) => void;
+  // Both keep one identity for the life of the list, so with memo below a row
+  // re-renders only when its own item changes, not on every edit to another
+  updateItem: (id: string, changes: Partial<GroceryItemType>) => void;
+  removeItem: (id: string) => void;
 };
 
-export default function GroceryItem({ item, groceryItems, setGroceryItems }: Props) {
-  // Replace the item rather than editing it in place: these objects are the
-  // ones held in the page's state, and editing them skips the re-render.
-  function updateItem(changes: Partial<GroceryItemType>) {
-    setGroceryItems(groceryItems.map(i => (i.id === item.id ? { ...i, ...changes } : i)));
+export default memo(function GroceryItem({ item, updateItem, removeItem }: Props) {
+  function update(changes: Partial<GroceryItemType>) {
+    updateItem(item.id, changes);
   }
 
   function toggleStatus(checked: boolean) {
-    updateItem({ status: checked ? 'bought' : 'to buy' });
+    update({ status: checked ? 'bought' : 'to buy' });
   }
 
   return (
@@ -38,14 +39,11 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
           type="text"
           placeholder="Butter"
           value={item.name}
-          onChange={e => updateItem({ name: e.target.value })}
+          onChange={e => update({ name: e.target.value })}
           className={`${INPUT_CLASS} px-2 sm:px-3 min-w-0 flex-1 sm:w-1/2 sm:flex-none`}
         />
         <button
-          onClick={() => {
-            const newItems = groceryItems.filter(i => i.id !== item.id);
-            setGroceryItems(newItems);
-          }}
+          onClick={() => removeItem(item.id)}
           className="w-4 text-red-500 text-center cursor-pointer sm:order-last"
           aria-label="delete item"
         >
@@ -60,7 +58,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             value={item.quantity ?? ''}
             onChange={e => {
               const quantity = parseQuantity(e.target.value);
-              if (quantity !== null) updateItem({ quantity });
+              if (quantity !== null) update({ quantity });
             }}
             className={`${INPUT_CLASS} px-2 sm:px-3 w-1/3 sm:w-1/2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
           />
@@ -69,11 +67,11 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             type="text"
             placeholder="tbsp"
             value={item.units}
-            onChange={e => updateItem({ units: e.target.value })}
+            onChange={e => update({ units: e.target.value })}
             className={`${INPUT_CLASS} px-2 sm:px-3 w-2/3 sm:w-1/2`}
           />
         </div>
       </div>
     </div>
   );
-}
+});

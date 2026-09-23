@@ -121,7 +121,7 @@ describe('GroceryItem Component', () => {
 // invalid value and was written to Firestore.
 describe('GroceryItem quantity field', () => {
   test('clears the quantity instead of storing NaN', async () => {
-    const setGroceryItems = vi.fn();
+    const updateItem = vi.fn();
     const item = {
       id: 'cheese',
       name: 'Cheese',
@@ -129,11 +129,11 @@ describe('GroceryItem quantity field', () => {
       units: 'lbs',
       status: 'to buy' as const,
     };
-    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={setGroceryItems} />);
+    render(<GroceryItem item={item} updateItem={updateItem} removeItem={vi.fn()} />);
 
     await userEvent.clear(screen.getByRole('spinbutton', { name: 'quantity' }));
 
-    expect(setGroceryItems).toHaveBeenCalledWith([{ ...item, quantity: undefined }]);
+    expect(updateItem).toHaveBeenCalledWith('cheese', { quantity: undefined });
   });
 });
 
@@ -149,7 +149,7 @@ describe('GroceryItem with no quantity', () => {
       units: '',
       status: 'to buy' as const,
     };
-    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={vi.fn()} />);
+    render(<GroceryItem item={item} updateItem={vi.fn()} removeItem={vi.fn()} />);
 
     expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveValue(null);
   });
@@ -166,19 +166,19 @@ describe('GroceryItem quantity bounds', () => {
   };
 
   test('marks the field as non-negative for the browser', () => {
-    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={vi.fn()} />);
+    render(<GroceryItem item={item} updateItem={vi.fn()} removeItem={vi.fn()} />);
 
     expect(screen.getByRole('spinbutton', { name: 'quantity' })).toHaveAttribute('min', '0');
   });
 
   test('ignores a negative quantity', () => {
-    const setGroceryItems = vi.fn();
-    render(<GroceryItem item={item} groceryItems={[item]} setGroceryItems={setGroceryItems} />);
+    const updateItem = vi.fn();
+    render(<GroceryItem item={item} updateItem={updateItem} removeItem={vi.fn()} />);
 
     fireEvent.change(screen.getByRole('spinbutton', { name: 'quantity' }), {
       target: { value: '-3' },
     });
 
-    expect(setGroceryItems).not.toHaveBeenCalled();
+    expect(updateItem).not.toHaveBeenCalled();
   });
 });

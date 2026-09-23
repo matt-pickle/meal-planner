@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useUserData } from '../state/UserDataContext';
 import { type GroceryItemType, MEAL_SLOTS } from '../utils/types';
 import { withoutPastDays } from '../utils/utils';
@@ -31,6 +31,33 @@ export default function GroceryList() {
   // Leaving the page counts as walking away: write a pending edit now rather
   // than letting it sit out the debounce. Nothing waits on the write here.
   useEffect(() => () => void flushGroceryList(), [flushGroceryList]);
+  // The latest list, for the row callbacks below. They read it here instead of
+  // closing over it, so they keep one identity and an edit to one row doesn't
+  // re-render the rest. Kept current after every render; each edit is a
+  // separate event, committed before the next, so a callback never sees a stale list.
+  const groceryItemsRef = useRef(groceryItems);
+  useLayoutEffect(() => {
+    groceryItemsRef.current = groceryItems;
+  });
+
+  // Replace the item rather than editing it in place: the objects are the ones
+  // held in the store, and editing them would skip the re-render
+  const updateItem = useCallback(
+    (id: string, changes: Partial<GroceryItemType>) => {
+      setGroceryList(
+        groceryItemsRef.current.map(item => (item.id === id ? { ...item, ...changes } : item)),
+      );
+    },
+    [setGroceryList],
+  );
+
+  const removeItem = useCallback(
+    (id: string) => {
+      setGroceryList(groceryItemsRef.current.filter(item => item.id !== id));
+    },
+    [setGroceryList],
+  );
+
   const [addFromMealsModalIsOpen, setAddFromMealsModalIsOpen] = useState(false);
   const [ingredientsToAdd, setIngredientsToAdd] = useState<Array<GroceryItemType>>([]);
 
@@ -133,12 +160,7 @@ export default function GroceryList() {
     .filter(item => item.status === 'to buy')
     .map(item => {
       return (
-        <GroceryItem
-          key={item.id}
-          item={item}
-          groceryItems={groceryItems}
-          setGroceryItems={setGroceryList}
-        />
+        <GroceryItem key={item.id} item={item} updateItem={updateItem} removeItem={removeItem} />
       );
     });
 
@@ -146,12 +168,7 @@ export default function GroceryList() {
     .filter(item => item.status === 'bought')
     .map(item => {
       return (
-        <GroceryItem
-          key={item.id}
-          item={item}
-          groceryItems={groceryItems}
-          setGroceryItems={setGroceryList}
-        />
+        <GroceryItem key={item.id} item={item} updateItem={updateItem} removeItem={removeItem} />
       );
     });
 

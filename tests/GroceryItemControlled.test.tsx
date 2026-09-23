@@ -17,7 +17,17 @@ describe('GroceryItem quantity input is always controlled', () => {
     const [items, setItems] = useState<Array<GroceryItemType>>([
       { id: 'cheese', name: 'Cheese', quantity: undefined, units: 'lbs', status: 'to buy' },
     ]);
-    return <GroceryItem item={items[0]} groceryItems={items} setGroceryItems={setItems} />;
+    return (
+      <GroceryItem
+        item={items[0]}
+        updateItem={(id, changes) =>
+          setItems(current =>
+            current.map(item => (item.id === id ? { ...item, ...changes } : item)),
+          )
+        }
+        removeItem={vi.fn()}
+      />
+    );
   }
 
   test('does not warn when a quantity is first typed', async () => {
