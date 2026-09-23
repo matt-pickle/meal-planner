@@ -5,6 +5,15 @@ import { createServer } from 'node:http';
 import path from 'node:path';
 import { Transform } from 'node:stream';
 
+// Vite reads .env for the client at build time; plain Node doesn't, so load it
+// here for the values the server needs too. A variable already set in the
+// environment wins over the file, and a deployment may have no file at all.
+try {
+  process.loadEnvFile();
+} catch (error) {
+  if (error.code !== 'ENOENT') throw error;
+}
+
 // Constants
 const isProduction = process.env.NODE_ENV === 'production';
 const port = process.env.PORT || 5173;
@@ -12,6 +21,18 @@ const port = process.env.PORT || 5173;
 // unless HOST says otherwise. Production keeps listening on every interface.
 const host = process.env.HOST || (isProduction ? undefined : 'localhost');
 const ABORT_DELAY = 10000;
+
+// Firebase runs sign-in through an iframe on the auth domain, so the CSP must
+// allow that exact host. It is often a custom domain or *.web.app rather than
+// the default *.firebaseapp.com, which is only the fallback.
+const authDomain = process.env.VITE_AUTH_DOMAIN?.trim();
+if (isProduction && !authDomain) {
+  console.warn(
+    'VITE_AUTH_DOMAIN is not set; allowing https://*.firebaseapp.com for sign-in. ' +
+      'Sign-in will fail if the app uses a different auth domain.',
+  );
+}
+const authFrameSource = authDomain ? `https://${authDomain}` : 'https://*.firebaseapp.com';
 
 // Cached production assets
 const templateHtml = isProduction ? await fs.readFile('./dist/client/index.html', 'utf-8') : '';
@@ -35,7 +56,7 @@ app.use(
             // Firestore reads/writes and the auth token endpoints
             'connect-src': ["'self'", 'https://*.googleapis.com'],
             // The Google sign-in popup and Firebase's auth handler
-            'frame-src': ["'self'", 'https://*.firebaseapp.com', 'https://accounts.google.com'],
+            'frame-src': ["'self'", authFrameSource, 'https://accounts.google.com'],
             'script-src': ["'self'", 'https://apis.google.com'],
             // Google account avatars, plus the emoji set emoji-picker-react loads
             'img-src': [
