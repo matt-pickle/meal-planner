@@ -22,6 +22,7 @@ describe('DeleteMealModal Component', () => {
     };
 
     renderWithUserData(<Meals />, mockUserData);
+    await userEvent.click(screen.getByRole('button', { name: 'options for Spaghetti' }));
     const deleteButton = screen.getByRole('button', { name: 'delete' });
     await userEvent.click(deleteButton);
   });

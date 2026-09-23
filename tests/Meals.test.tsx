@@ -1,5 +1,5 @@
 import { describe, test, expect, beforeEach } from 'vitest';
-import { screen, within } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type UserData } from '../src/utils/types';
 import Meals from '../src/pages/Meals';
@@ -121,14 +121,14 @@ describe('Meals Page', () => {
   });
 
   test('opens edit modal on edit button click', async () => {
-    const editButtons = screen.getAllByRole('button', { name: 'edit' });
-    await userEvent.click(editButtons[0]);
+    await userEvent.click(screen.getByRole('button', { name: 'options for Cereal' }));
+    await userEvent.click(screen.getByRole('button', { name: 'edit' }));
     expect(screen.getByText(/Edit Meal/)).toBeVisible();
   });
 
   test('opens delete modal on delete button click', async () => {
-    const deleteButtons = screen.getAllByRole('button', { name: 'delete' });
-    await userEvent.click(deleteButtons[0]);
+    await userEvent.click(screen.getByRole('button', { name: 'options for Cereal' }));
+    await userEvent.click(screen.getByRole('button', { name: 'delete' }));
     expect(screen.getByText(/Delete Meal/)).toBeVisible();
   });
 
@@ -144,8 +144,8 @@ describe('Meals Page', () => {
     await createMeal('Pancakes');
     expect(screen.getByText(/Pancakes/)).toBeVisible();
 
-    const cerealCard = screen.getByText(/Cereal/).closest('div')!;
-    await userEvent.click(within(cerealCard).getByRole('button', { name: 'delete' }));
+    await userEvent.click(screen.getByRole('button', { name: 'options for Cereal' }));
+    await userEvent.click(screen.getByRole('button', { name: 'delete' }));
     await userEvent.click(screen.getByRole('button', { name: 'delete meal' }));
 
     expect(screen.queryByText(/Cereal/)).not.toBeInTheDocument();

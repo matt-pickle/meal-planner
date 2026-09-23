@@ -31,6 +31,7 @@ describe('MealFormModal editing an existing meal', () => {
     };
 
     renderWithUserData(<Meals />, mockUserData);
+    await userEvent.click(screen.getByRole('button', { name: 'options for Spaghetti' }));
     const editButton = screen.getByRole('button', { name: 'edit' });
     await userEvent.click(editButton);
   });
