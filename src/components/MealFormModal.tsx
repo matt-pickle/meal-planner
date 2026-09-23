@@ -4,6 +4,7 @@ import IngredientsInput from './IngredientsInput';
 import Button from './Button';
 import Modal from './Modal';
 import { loadEmojiPicker } from './emojiPicker';
+import { INPUT_CLASS } from './styles';
 import { isDuplicateMealName } from '../utils/utils';
 import { type EmojiObject, type MealType, type Ingredient } from '../utils/types';
 
@@ -80,7 +81,7 @@ export default function MealFormModal({
         id="meal-name"
         type="text"
         placeholder="Spaghetti"
-        className="w-full bg-medium text-white rounded-md px-3 py-2 mb-4 placeholder:text-light/50 focus:outline-2 focus:outline-title"
+        className={`${INPUT_CLASS} w-full px-3 mb-4`}
         value={name}
         onChange={e => setName(e.target.value)}
       />

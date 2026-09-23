@@ -1,5 +1,7 @@
 import Checkbox from './Checkbox';
 import { type GroceryItemType } from '../utils/types';
+import { parseQuantity } from '../utils/utils';
+import { INPUT_CLASS } from './styles';
 
 type Props = {
   item: GroceryItemType;
@@ -37,7 +39,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
           placeholder="Butter"
           value={item.name}
           onChange={e => updateItem({ name: e.target.value })}
-          className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title min-w-0 flex-1 sm:w-1/2 sm:flex-none"
+          className={`${INPUT_CLASS} px-2 sm:px-3 min-w-0 flex-1 sm:w-1/2 sm:flex-none`}
         />
         <button
           onClick={() => {
@@ -57,14 +59,10 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             placeholder="1"
             value={item.quantity ?? ''}
             onChange={e => {
-              // parseFloat('') is NaN, which used to be stored, rendered and saved.
-              // A negative quantity to buy is meaningless, so ignore it.
-              const quantity = e.target.value === '' ? undefined : Number(e.target.value);
-              if (quantity === undefined || (!Number.isNaN(quantity) && quantity >= 0)) {
-                updateItem({ quantity: quantity });
-              }
+              const quantity = parseQuantity(e.target.value);
+              if (quantity !== null) updateItem({ quantity });
             }}
-            className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/3 sm:w-1/2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            className={`${INPUT_CLASS} px-2 sm:px-3 w-1/3 sm:w-1/2 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none`}
           />
           <input
             aria-label="units"
@@ -72,7 +70,7 @@ export default function GroceryItem({ item, groceryItems, setGroceryItems }: Pro
             placeholder="tbsp"
             value={item.units}
             onChange={e => updateItem({ units: e.target.value })}
-            className="bg-medium text-white rounded-md px-2 sm:px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-2/3 sm:w-1/2"
+            className={`${INPUT_CLASS} px-2 sm:px-3 w-2/3 sm:w-1/2`}
           />
         </div>
       </div>

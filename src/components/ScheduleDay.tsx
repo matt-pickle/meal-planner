@@ -1,5 +1,5 @@
 import Dropdown from './Dropdown';
-import { type MealSlot, type UserData } from '../utils/types';
+import { type MealSlot, type UserData, MEAL_SLOTS } from '../utils/types';
 
 type Props = {
   date: number;
@@ -29,11 +29,8 @@ export default function ScheduleDay({
     label: `${meal.emoji}\u00A0\u00A0${meal.name}`,
     value: meal.id,
   }));
-  const slots: Array<{ name: MealSlot; meal: string }> = [
-    { name: 'breakfast', meal: breakfast },
-    { name: 'lunch', meal: lunch },
-    { name: 'dinner', meal: dinner },
-  ];
+  const mealBySlot = { breakfast, lunch, dinner };
+  const slots = MEAL_SLOTS.map(name => ({ name, meal: mealBySlot[name] }));
 
   return (
     <div className="schedule-day bg-dark rounded-md p-8">

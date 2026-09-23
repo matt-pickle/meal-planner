@@ -2,13 +2,12 @@ import { useEffect, useMemo } from 'react';
 import ScheduleDay from '../components/ScheduleDay';
 import { useUserData } from '../state/UserDataContext';
 import { type MealSlot } from '../utils/types';
+import { startOfToday } from '../utils/utils';
 import Icon from '../components/Icon';
 
 export default function Schedule() {
   const { userData, setSchedule } = useUserData();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const todayTime = today.getTime();
+  const todayTime = startOfToday();
 
   // The next 14 calendar days as midnight timestamps. Built from the dates
   // themselves — deriving them from how many future days happen to be stored

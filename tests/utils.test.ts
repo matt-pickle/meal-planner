@@ -1,5 +1,10 @@
 import { describe, test, expect } from 'vitest';
-import { withoutPastDays, isDuplicateMealName } from '../src/utils/utils';
+import {
+  withoutPastDays,
+  isDuplicateMealName,
+  startOfToday,
+  parseQuantity,
+} from '../src/utils/utils';
 
 function midnightPlus(days: number) {
   const date = new Date();
@@ -52,5 +57,33 @@ describe('isDuplicateMealName', () => {
 
   test('allows an unused name', () => {
     expect(isDuplicateMealName('Pancakes', meals)).toBe(false);
+  });
+});
+
+describe('startOfToday', () => {
+  test('is local midnight at the start of today', () => {
+    const today = new Date(startOfToday());
+    const now = new Date();
+
+    expect([today.getHours(), today.getMinutes(), today.getSeconds()]).toEqual([0, 0, 0]);
+    expect(today.toDateString()).toBe(now.toDateString());
+  });
+});
+
+// Issue 17: this logic was copied between the grocery and ingredient inputs
+describe('parseQuantity', () => {
+  test('reads an empty field as no quantity', () => {
+    expect(parseQuantity('')).toBeUndefined();
+  });
+
+  test('reads numbers, including 0 and decimals', () => {
+    expect(parseQuantity('3')).toBe(3);
+    expect(parseQuantity('0')).toBe(0);
+    expect(parseQuantity('1.5')).toBe(1.5);
+  });
+
+  test('rejects a negative amount or something that is not a number', () => {
+    expect(parseQuantity('-1')).toBeNull();
+    expect(parseQuantity('abc')).toBeNull();
   });
 });

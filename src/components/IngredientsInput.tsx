@@ -1,5 +1,7 @@
 import Button from './Button';
 import { type Ingredient } from '../utils/types';
+import { parseQuantity } from '../utils/utils';
+import { INPUT_CLASS } from './styles';
 
 type Props = {
   ingredients: Array<Ingredient>;
@@ -26,7 +28,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         placeholder="Butter"
         value={ingredient.name}
         onChange={e => updateIngredient(index, { name: e.target.value })}
-        className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/2"
+        className={`${INPUT_CLASS} px-3 w-1/2`}
       />
       <input
         aria-label="ingredient quantity"
@@ -35,14 +37,10 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         placeholder="1"
         value={ingredient.quantity ?? ''}
         onChange={e => {
-          // parseFloat('') is NaN, which used to be stored, rendered and saved.
-          // A negative amount of an ingredient is meaningless, so ignore it.
-          const quantity = e.target.value === '' ? undefined : Number(e.target.value);
-          if (quantity === undefined || (!Number.isNaN(quantity) && quantity >= 0)) {
-            updateIngredient(index, { quantity: quantity });
-          }
+          const quantity = parseQuantity(e.target.value);
+          if (quantity !== null) updateIngredient(index, { quantity });
         }}
-        className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
+        className={`${INPUT_CLASS} px-3 w-1/4`}
       />
       <input
         aria-label="ingredient units"
@@ -50,7 +48,7 @@ export default function IngredientsInput({ ingredients, setIngredients }: Props)
         placeholder="tbsp"
         value={ingredient.units}
         onChange={e => updateIngredient(index, { units: e.target.value })}
-        className="bg-medium text-white rounded-md px-3 py-2 placeholder:text-light/50 focus:outline-2 focus:outline-title w-1/4"
+        className={`${INPUT_CLASS} px-3 w-1/4`}
       />
       <button
         onClick={() => {

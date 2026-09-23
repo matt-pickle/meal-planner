@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useUserData } from '../state/UserDataContext';
-import { type GroceryItemType, type MealSlot } from '../utils/types';
+import { type GroceryItemType, MEAL_SLOTS } from '../utils/types';
+import { withoutPastDays } from '../utils/utils';
 import Button from '../components/Button';
 import Icon from '../components/Icon';
 import Accordion from '../components/Accordion';
@@ -47,11 +48,7 @@ export default function GroceryList() {
 
   // Totals up the ingredients for every meal scheduled from today onward
   function getIngredientsFromMeals(): Array<GroceryItemType> {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const upcomingDays = userData.schedule.filter(day => day.date >= today.getTime());
-    const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
+    const upcomingDays = withoutPastDays(userData.schedule);
     const mealsById = new Map(userData.meals.map(meal => [meal.id, meal]));
 
     // Totals keyed by name + units, so each ingredient is found in one step
@@ -59,7 +56,7 @@ export default function GroceryList() {
     const totals = new Map<string, GroceryItemType>();
 
     upcomingDays.forEach(day => {
-      slots.forEach(slot => {
+      MEAL_SLOTS.forEach(slot => {
         const meal = mealsById.get(day[slot]);
         if (!meal) return;
 

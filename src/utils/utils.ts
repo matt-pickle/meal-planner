@@ -13,7 +13,24 @@ export function isDuplicateMealName(
 // forever — thousands of entries over a couple of years, carried on every read
 // and write, heading toward Firestore's 1 MB per-document limit.
 export function withoutPastDays<T extends { date: number }>(schedule: Array<T>): Array<T> {
+  const today = startOfToday();
+  return schedule.filter(day => day.date >= today);
+}
+
+// Midnight at the start of today, local time, as a timestamp. Schedule days are
+// stored as midnight timestamps, so this is the line between past and upcoming.
+export function startOfToday(): number {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  return schedule.filter(day => day.date >= today.getTime());
+  return today.getTime();
+}
+
+// Reads a quantity field: '' is no quantity (undefined), and anything that
+// isn't a non-negative number is null, meaning "ignore this edit". Number('')
+// and parseFloat('') would give 0 and NaN, and NaN used to be stored,
+// rendered and saved; a negative amount of anything is meaningless.
+export function parseQuantity(value: string): number | undefined | null {
+  if (value === '') return undefined;
+  const quantity = Number(value);
+  return Number.isNaN(quantity) || quantity < 0 ? null : quantity;
 }

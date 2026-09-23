@@ -1,7 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { initializeFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
-import { type UserData, type MealSlot } from '../src/utils/types';
+import { type UserData, MEAL_SLOTS } from '../src/utils/types';
 import { notifyError } from '../src/utils/errors';
 const env = import.meta.env;
 
@@ -83,13 +83,11 @@ function withGroceryItemIds(userData: UserData): UserData {
 function withScheduleMealIds(userData: UserData): UserData {
   const mealIds = new Set(userData.meals.map(meal => meal.id));
   const idsByName = new Map(userData.meals.map(meal => [meal.name, meal.id]));
-  const slots: Array<MealSlot> = ['breakfast', 'lunch', 'dinner'];
-
   return {
     ...userData,
     schedule: (userData.schedule ?? []).map(day => {
       const migrated = { ...day };
-      slots.forEach(slot => {
+      MEAL_SLOTS.forEach(slot => {
         const value = day[slot];
         if (!value || mealIds.has(value)) return;
         migrated[slot] = idsByName.get(value) ?? '';

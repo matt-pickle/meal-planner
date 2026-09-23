@@ -23,7 +23,9 @@ export type GroceryItemType = {
   status: 'to buy' | 'bought';
 };
 
-export type MealSlot = 'breakfast' | 'lunch' | 'dinner';
+// The slots of a schedule day, in display order
+export const MEAL_SLOTS = ['breakfast', 'lunch', 'dinner'] as const;
+export type MealSlot = (typeof MEAL_SLOTS)[number];
 
 export type UserData = {
   meals: Array<MealType>;
