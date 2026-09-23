@@ -11,7 +11,6 @@ const port = process.env.PORT || 5173;
 // The dev server exposes unbundled source, so it only answers this machine
 // unless HOST says otherwise. Production keeps listening on every interface.
 const host = process.env.HOST || (isProduction ? undefined : 'localhost');
-const base = process.env.BASE || '/';
 const ABORT_DELAY = 10000;
 
 // Cached production assets
@@ -61,14 +60,13 @@ if (!isProduction) {
     // would listen on every interface regardless of HOST.
     server: { middlewareMode: true, hmr: { server } },
     appType: 'custom',
-    base,
   });
   app.use(vite.middlewares);
 } else {
   const compression = (await import('compression')).default;
   const sirv = (await import('sirv')).default;
   app.use(compression());
-  app.use(base, sirv('./dist/client', { extensions: [] }));
+  app.use(sirv('./dist/client', { extensions: [] }));
 }
 
 // No app route has a file extension, so a path with one is a file that isn't
@@ -85,7 +83,7 @@ app.use((req, res, next) => {
 // Serve HTML
 app.use('*all', async (req, res) => {
   try {
-    const url = req.originalUrl.replace(base, '');
+    const url = req.originalUrl;
 
     /** @type {string} */
     let template;

@@ -25,13 +25,13 @@ function renderShell(url: string) {
 // Issue 11: an unknown URL was answered with a 200 and an empty page
 describe('server render status', () => {
   test('reports a 404 for an unknown URL', async () => {
-    const setStatus = await renderShell('grocery');
+    const setStatus = await renderShell('/grocery');
 
     expect(setStatus).toHaveBeenCalledWith(404);
   });
 
   test('reports nothing for a real page, leaving the 200', async () => {
-    const setStatus = await renderShell('login');
+    const setStatus = await renderShell('/login');
 
     expect(setStatus).not.toHaveBeenCalled();
   });

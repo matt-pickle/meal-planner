@@ -7,14 +7,14 @@ import { HttpStatusContext } from './state/HttpStatusContext';
 // `setStatus` is called by a page that needs a status other than 200 (the
 // Not Found page); it happens during the shell render, before onShellReady.
 export function render(
-  _url: string,
+  url: string,
   options?: RenderToPipeableStreamOptions,
   setStatus?: (code: number) => void,
 ) {
   return renderToPipeableStream(
     <StrictMode>
       <HttpStatusContext.Provider value={setStatus ?? null}>
-        <StaticRouter location={`/${_url}`}>
+        <StaticRouter location={url}>
           <App />
         </StaticRouter>
       </HttpStatusContext.Provider>
