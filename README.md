@@ -150,7 +150,10 @@ meal-planner/
     ├── setup.ts               Testing Library cleanup, jest-dom matchers, and the
     │                          global Firebase mock
     ├── userDataHarness.tsx    Renders a page inside a real UserDataContext
-    └── *.test.tsx             One suite per page and component
+    ├── *.test.tsx             One suite per component or page, plus standalone
+    │                          regression suites (see Testing)
+    └── *.test.ts              Suites for modules without JSX: utils, errors, the
+                               Firebase helpers, and the server's request pipeline
 ```
 
 ### Data model
@@ -174,7 +177,15 @@ npm test        # watch mode — stays running until you stop it
 npm run test:ci # runs once and exits, for CI
 ```
 
-Vitest runs in a jsdom environment with globals enabled and prints a text coverage report. Tests live in [tests/](tests/), one file per page or component, and use Testing Library with `@testing-library/user-event`. The timezone is pinned to `America/New_York` in [vite.config.ts](vite.config.ts) so date-boundary tests are deterministic and actually cross a daylight-saving change.
+Vitest runs in a jsdom environment with globals enabled and prints a text coverage report. Tests live in [tests/](tests/) and use Testing Library with `@testing-library/user-event`. A module's suite is named after it: `.test.tsx` for components and pages, `.test.ts` for modules without JSX. The timezone is pinned to `America/New_York` in [vite.config.ts](vite.config.ts) so date-boundary tests are deterministic and actually cross a daylight-saving change.
+
+**Some regression tests get a file of their own.** Vitest gives each test file its own copy of every module, so a test goes in a separate file when it needs modules set up differently from the rest of its suite:
+
+- `vi.mock` replaces a module for a whole file. [GroceryListRenders.test.tsx](tests/GroceryListRenders.test.tsx) swaps in a `Checkbox` that counts renders, and [AppNavigation.test.tsx](tests/AppNavigation.test.tsx) uses the shared Firebase mock, where nobody is signed in, while `App.test.tsx` replaces it with one where a user already is.
+- React logs some warnings once per module instance. [GroceryItemControlled.test.tsx](tests/GroceryItemControlled.test.tsx) checks for one, so it can't share a file with anything that might have triggered the warning first.
+- [server-app.test.ts](tests/server-app.test.ts) runs in Node rather than jsdom, set by the `// @vitest-environment node` comment at its top, because it starts a real HTTP server.
+
+Say why at the top of such a file, so nobody folds it back into the main suite. [GroceryListKeys.test.tsx](tests/GroceryListKeys.test.tsx) is also standalone, though nothing requires it to be.
 
 **Firebase is mocked for every suite.** [tests/setup.ts](tests/setup.ts) mocks `firebase/firebase` globally, so no suite touches the real project and the tests need neither a populated `.env` nor a network connection. A suite that needs specific behaviour — a rejected write, say — overrides that with its own `vi.mock`, and [tests/firebase.test.ts](tests/firebase.test.ts) unmocks it to test the module itself against a stubbed Firestore SDK.
 
