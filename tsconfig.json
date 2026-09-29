@@ -13,8 +13,6 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    /* server.js and server-app.js are JavaScript, checked through // @ts-check */
-    "allowJs": true,
 
     /* Linting */
     "strict": true,
@@ -23,6 +21,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src", "tests", "server.js", "server-app.js"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "tests"]
 }

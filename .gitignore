@@ -9,7 +9,6 @@ lerna-debug.log*
 
 node_modules
 dist
-dist-ssr
 *.local
 
 # Editor directories and files
@@ -36,3 +35,7 @@ reference/
 .firebase/
 firebase-debug.log*
 firestore-debug.log*
+
+# Local Netlify folder, and the lockfile its CLI writes when it sets up Edge Functions
+.netlify
+deno.lock

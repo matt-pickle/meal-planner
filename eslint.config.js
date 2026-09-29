@@ -23,8 +23,8 @@ export default tseslint.config(
     },
   },
   {
-    // The server and config files run in Node
-    files: ['server.js', 'server-app.js', 'vite.config.ts', 'eslint.config.js'],
+    // The config files run in Node
+    files: ['vite.config.ts', 'security-headers.ts', 'eslint.config.js'],
     languageOptions: { globals: globals.node },
   },
   {

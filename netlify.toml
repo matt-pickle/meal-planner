@@ -1,0 +1,27 @@
+# Netlify builds the app and serves dist/ as static files. The security headers
+# come from dist/_headers, which the build writes (see security-headers.ts).
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# Rules below apply only when no file matches the path, so every file that
+# exists is served as-is.
+
+# A missing asset (a stale hashed filename after a deploy, say) is a real 404.
+# Without this rule the catch-all below would answer a script or image request
+# with the app's HTML.
+[[redirects]]
+  from = "/assets/*"
+  to = "/404.html"
+  status = 404
+
+# Every other path belongs to the app: serve index.html and let React Router
+# pick the page, including the Not Found page for unknown URLs.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
