@@ -56,7 +56,7 @@ function defaultUserData(): UserData {
 }
 
 // Meals stored before they carried ids get one on load, so matching never falls
-// back to object identity. The id is persisted with the next write of the list.
+// back to object identity. getUserData saves the id straight away.
 function withMealIds(userData: UserData): UserData {
   return {
     ...userData,
@@ -97,6 +97,24 @@ function withScheduleMealIds(userData: UserData): UserData {
   };
 }
 
+// The migrations above run on every load, and an id they make up exists only in
+// memory until it is saved. Waiting for the next write of the list wasn't enough:
+// assigning a meal on the schedule saves only the schedule, so the next load
+// gave the meal a new id and cleared every slot holding the old one, and meal
+// selections vanished at each sign-in. Whatever the migrations changed is saved
+// as soon as the document loads. Not awaited: loading shouldn't wait on a write,
+// and Firestore sends writes in order, so this lands before any later edit.
+function saveMigratedFields(userId: string, stored: UserData, migrated: UserData) {
+  const changed = (Object.keys(migrated) as Array<keyof UserData>).filter(
+    field => JSON.stringify(stored[field] ?? []) !== JSON.stringify(migrated[field]),
+  );
+  if (changed.length === 0) return;
+  void updateUserData(
+    userId,
+    Object.fromEntries(changed.map(field => [field, migrated[field]])) as Partial<UserData>,
+  );
+}
+
 // Rejects if the write fails, so getUserData can report the failure instead of
 // looping on a document that was never created.
 export async function createDocument(userId: string): Promise<UserData> {
@@ -111,7 +129,10 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      return withGroceryItemIds(withScheduleMealIds(withMealIds(docSnap.data() as UserData)));
+      const stored = docSnap.data() as UserData;
+      const userData = withGroceryItemIds(withScheduleMealIds(withMealIds(stored)));
+      saveMigratedFields(userId, stored, userData);
+      return userData;
     } else {
       // Use the defaults we just wrote rather than re-reading the document:
       // re-reading recursed without bound whenever the write kept failing.
