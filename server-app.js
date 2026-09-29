@@ -20,6 +20,8 @@ const ABORT_DELAY = 10000;
  *   The HTML shell and the app's server renderer for a request
  * @property {(error: Error) => void} [fixStacktrace] Maps a render error's stack
  *   back to the source, in development
+ * @property {number} [abortDelay] Milliseconds before a render that hasn't
+ *   finished is cut off; 10 seconds unless a test needs it shorter
  */
 
 // Everything a request passes through, kept apart from starting the server so
@@ -31,6 +33,7 @@ export function createApp({
   assetHandlers,
   loadPage,
   fixStacktrace,
+  abortDelay = ABORT_DELAY,
 }) {
   const app = express();
 
@@ -126,10 +129,12 @@ export function createApp({
         },
       );
 
-      // Only a render that is still going needs cutting off
+      // Only a render that is still going needs cutting off. `close` fires once
+      // the response has finished or the connection has dropped, so the timer
+      // never outlives the request.
       const abortTimer = setTimeout(() => {
         abort();
-      }, ABORT_DELAY);
+      }, abortDelay);
       res.on('close', () => clearTimeout(abortTimer));
     } catch (e) {
       const error = /** @type {Error} */ (e);

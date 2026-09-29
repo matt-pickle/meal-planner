@@ -211,3 +211,39 @@ describe('server app errors', () => {
     expect((await get('/whatever')).status).toBe(404);
   });
 });
+
+// Issue 25: the 10-second cut-off timer was never cleared, so every request
+// held a timer and its closure for 10 seconds after the response had finished.
+// A short abortDelay stands in for the 10 seconds.
+describe('server app render cut-off', () => {
+  const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+  test('cuts off a render that never finishes', async () => {
+    const abort = vi.fn();
+    // React answers an abort by failing the shell, as a real hung render would
+    const render = ((_url, options) => {
+      abort.mockImplementation(() => options?.onShellError?.(new Error('aborted')));
+      return { pipe: vi.fn(), abort };
+    }) as Render;
+    const get = await start({ abortDelay: 20, loadPage: async () => ({ template, render }) });
+
+    const response = await get('/schedule');
+
+    expect(abort).toHaveBeenCalledTimes(1);
+    expect(response.status).toBe(500);
+  });
+
+  test('leaves a finished render alone once its response is done', async () => {
+    const abort = vi.fn();
+    const render = ((_url, options) => {
+      queueMicrotask(() => options?.onShellReady?.());
+      return { pipe: (stream: NodeJS.WritableStream) => stream.end('<p>rendered</p>'), abort };
+    }) as Render;
+    const get = await start({ abortDelay: 20, loadPage: async () => ({ template, render }) });
+
+    expect((await get('/schedule')).status).toBe(200);
+    await wait(60);
+
+    expect(abort).not.toHaveBeenCalled();
+  });
+});

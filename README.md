@@ -72,11 +72,12 @@ These are understood trade-offs rather than oversights:
 - **Deleting a meal leaves its schedule slots empty.** The days that referenced it keep the deleted id until something else is assigned, and render as unfilled.
 - **The schedule is exactly the next 14 days.** There is no way to look further ahead, or back: days before today are dropped from the document whenever the schedule is written, so no history is kept.
 - **The whole document loads at sign-in, and each write sends a whole field.** One read per session is cheap, but the meals, schedule and grocery arrays all share one document's 1 MiB limit, and a large grocery list is re-sent in full on each save.
+- **Server rendering is a proof of concept.** It is kept on purpose, to show streaming SSR with React 19 and Vite, but the server never knows who is signed in. Sign-in lives in the browser, so every private page is rendered on the server as the loading state, and only the Login and Not Found pages render in full. The cost is a second build, a Node server to run instead of static hosting, and the Firebase SDK starting up in Node as well as the browser. Rendering signed-in pages on the server would need it to recognize the user, for example through a Firebase session cookie checked with the Admin SDK.
 - **The emoji picker needs the network.** It fetches its emoji images from `cdn.jsdelivr.net`, which the production CSP allows; offline, the picker opens but renders no emoji.
 
 ## Architecture
 
-The app is a React 19 SPA rendered on the server by a small Express server. `server.js` streams the app through `renderToPipeableStream` and injects the HTML into `index.html`; in development it does this through Vite's middleware, and in production it serves the prebuilt bundles from `dist/`. There is no backend API — the client reads and writes Firestore directly. `App.tsx` fetches the signed-in user's whole document once per session, and `UserDataContext` holds that single copy: pages read it and change it through typed mutators that update state and persist in the same step.
+The app is a React 19 SPA rendered on the server by a small Express server. `server.js` starts it, and the request pipeline in `server-app.js` streams the app through `renderToPipeableStream` and injects the HTML into `index.html`; in development it does this through Vite's middleware, and in production it serves the prebuilt bundles from `dist/`. There is no backend API — the client reads and writes Firestore directly. `App.tsx` fetches the signed-in user's whole document once per session, and `UserDataContext` holds that single copy: pages read it and change it through typed mutators that update state and persist in the same step.
 
 ```
 meal-planner/
