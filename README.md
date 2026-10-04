@@ -1,92 +1,52 @@
 # Meal Planner
 
-A React single-page app for planning meals and shopping for them. You keep a library of meals with their ingredients, assign those meals to breakfast/lunch/dinner slots across a rolling two-week schedule, and then roll the ingredients of every upcoming meal into a grocery list in one click. Data is stored per user in Firebase Firestore behind Google sign-in.
+Plan two weeks of meals, then turn them into a grocery list in one click.
 
-## Installation
+**[Try it live at mealplanner.mattpickle.net](https://mealplanner.mattpickle.net)**
 
-Requires Node.js 20.19+ (developed on v22).
+Meal Planner keeps a library of the meals you cook and lets you assign them to breakfast, lunch, and dinner across the next 14 days. When it's time to shop, it adds up the ingredients for everything you've scheduled, so you know exactly what to buy. It works on desktop and on your phone, and you sign in with your Google account.
 
-```bash
-git clone <repository-url>
-cd meal-planner
-npm install
-```
+New accounts start with a few sample meals (Hamburgers, Spaghetti, Turkey Sandwich, and Cereal), so you can start filling in the schedule straight away.
 
-## Configuration
+## Features
 
-The app talks to Firebase, so you need a Firebase project before it will run:
+### Meal library
 
-1. Create a project at [console.firebase.google.com](https://console.firebase.google.com).
-2. Under **Authentication → Sign-in method**, enable the **Google** provider.
-3. Under **Firestore Database**, create a database. The app writes one document per user at `users/{uid}`. The security rules live in [`firebase/firestore.rules`](firebase/firestore.rules) — they let a signed-in user read and write only their own document, and validate its shape and array sizes. They are the only authorization layer, since the client talks to Firestore directly. Deploy them with the [Firebase CLI](https://firebase.google.com/docs/cli):
+- Create, edit, and delete meals. Each meal has a name, an emoji, and a list of ingredients with quantities and units.
+- Every meal needs its own name, so the schedule and grocery list are never ambiguous.
 
-   ```bash
-   npm install -g firebase-tools
-   firebase login
-   firebase use --add          # select your project
-   firebase deploy --only firestore:rules
-   ```
+### Two-week schedule
 
-4. Register a **Web app** in project settings, copy `.env.example` to `.env` in the project root (`cp .env.example .env`), and fill in its config values:
+- See the next 14 days at a glance, each with a breakfast, lunch, and dinner slot.
+- Pick a meal for any slot from a dropdown, or clear it.
+- Rename a meal and every day it's scheduled for updates with it.
+- Past days drop off automatically, so the schedule always starts today.
 
-   ```bash
-   VITE_API_KEY=your-api-key
-   VITE_AUTH_DOMAIN=your-project.firebaseapp.com
-   VITE_PROJECT_ID=your-project-id
-   VITE_STORAGE_BUCKET=your-project.firebasestorage.app
-   VITE_MESSAGING_SENDER_ID=000000000000
-   VITE_APP_ID=1:000000000000:web:abcdef
-   ```
+### Grocery list
 
-   Only `VITE_`-prefixed variables are exposed to the client by Vite. These values ship in the browser bundle — that is expected for Firebase web apps, which rely on auth and Firestore rules rather than config secrecy.
+- Add items by hand with a quantity and units, and check them off as you shop. Bought items move to a collapsible section out of the way.
+- **Add From Meals** totals the ingredients of every meal scheduled from today onward, shows you the list to confirm, and merges it into your grocery list. Items with the same name and units are combined, so two recipes that each need a pound of ground beef become one line for two pounds. Capitalisation and stray spaces don't matter.
 
-The build also reads `VITE_AUTH_DOMAIN` to write the Content Security Policy (see [Deploying to Netlify](#deploying-to-netlify)). If it is unset, the policy allows only `*.firebaseapp.com` for sign-in and the build prints a warning.
+### Saving
 
-## Usage
+- There's no save button. Your changes are saved automatically. Grocery list edits are saved a few seconds after you stop typing, and straight away if you leave the page or switch tabs.
+- If a change can't be saved, a banner tells you so.
+- Signing out in one tab signs you out everywhere you have the app open.
 
-```bash
-npm run dev     # start the Vite dev server with HMR at http://localhost:5173
-npm run build   # build the static site into dist/
-npm run preview # serve dist/ locally to try a production build
-npm test        # run the Vitest suite in watch mode with a coverage report
-npm run test:ci # run the suite once and exit (for CI)
-npm run lint    # ESLint, including the react-hooks rules
-npm run typecheck  # tsc --noEmit, for the app and tests, then vite.config.ts and security-headers.ts
-npm run format  # Prettier
-```
+## Privacy and accessibility
 
-The dev server only answers this machine; `npm run dev -- --host` makes it reachable from a phone on the same network. `npm run build` writes a static site to `dist/`: `index.html`, the hashed bundles in `dist/assets`, and a `_headers` file of security and caching headers. `npm run preview` serves that build but ignores `_headers` and `netlify.toml`; to try it with both, run `npx netlify-cli serve --offline`.
+- **Your data is yours.** You sign in with Google, so the app never sees or stores a password. Each account's meals, schedule, and grocery list can be read and changed only by that account.
+- **Works with a keyboard.** Dropdowns, dialogs, and forms can all be used without a mouse, and dialogs close with Escape.
+- **Fits your screen.** The navigation is a sidebar on desktop and a bottom bar on your phone.
 
-Once running, sign in with Google. A first-time user automatically gets a starter document containing one sample meal. From there:
+## Built with
 
-- **Schedule** shows the next 14 days; pick a meal for each breakfast, lunch, and dinner slot.
-- **Meals** is your meal library — create, edit, and delete meals with an emoji and a list of ingredients (name, quantity, units).
-- **Grocery List** holds check-off items you add by hand, plus **Add From Meals**, which totals up the ingredients of every meal scheduled from today onward and merges them into the list (items with the same name and units, ignoring capitalisation and surrounding spaces, have their quantities combined). Changes are saved to Firestore five seconds after you stop editing, and straight away if you leave the page or hide the tab. Signing out in another tab signs this one out too, and an edit here that hasn't been saved yet is discarded.
-
-## Known limitations
-
-These are understood trade-offs rather than oversights:
-
-- **No conflict handling between tabs or devices.** Each change writes only the field it touched, so editing meals in one tab and the grocery list in another is safe. Two tabs editing the _same_ field is last-write-wins, and the loser is never told.
-- **Offline writes are not durable.** Firestore's offline persistence is not enabled, so a change made while offline is retried in memory for the rest of the session but lost if the tab closes before it reconnects. Failures that do surface are shown in a banner.
-- **Deleting a meal leaves its schedule slots empty.** The days that referenced it render as unfilled, and the next time the data loads their slots are cleared and saved.
-- **The schedule is exactly the next 14 days.** There is no way to look further ahead, or back: days before today are dropped from the document whenever the schedule is written, so no history is kept.
-- **The whole document loads at sign-in, and each write sends a whole field.** One read per session is cheap, but the meals, schedule and grocery arrays all share one document's 1 MiB limit, and a large grocery list is re-sent in full on each save.
-- **Unknown URLs return a 200.** Every path serves the app, which then shows its Not Found page, because only the browser knows which routes exist. A missing file under `/assets/` still gets a real 404. Browsers and crawlers ask for a few files at the root without being told to, so `public/` has real ones: `favicon.ico`, `apple-touch-icon.png` and `robots.txt`.
-- **The emoji picker needs the network.** It fetches its emoji images from `cdn.jsdelivr.net`, which the production CSP allows; offline, the picker opens but renders no emoji.
-
-## Deploying to Netlify
-
-The app is a static site, so Netlify only needs to build it and serve `dist/`. [netlify.toml](netlify.toml) sets the build command, the publish folder and the Node version, so there are no build settings to enter.
-
-1. Push the repository to GitHub, GitLab or Bitbucket, and in Netlify choose **Add new site → Import an existing project**.
-2. Under **Site configuration → Environment variables**, add the six `VITE_` values from your `.env`. `.env` is not committed, and Vite writes these values into the bundle at build time, so redeploy after changing any of them.
-3. In the Firebase console, under **Authentication → Settings → Authorized domains**, add the site's Netlify domain (`your-site.netlify.app`) and any custom domain. Google sign-in is refused on domains not listed there.
-4. Deploy.
-
-Besides the build settings, `netlify.toml` has three routing rules, which apply only when no file matches the path. A missing file under `/assets/`, such as a hashed bundle from an older deploy, gets a 404. `/apple-touch-icon-precomposed.png`, which older iOS versions ask for, redirects to `/apple-touch-icon.png`. Every other path gets `index.html`, and React Router picks the page.
-
-Netlify also applies `dist/_headers`, which the build writes through the plugin in [security-headers.ts](security-headers.ts). It holds the Content Security Policy and the other security headers, and tells browsers to cache everything under `/assets/` for a year: Vite names those files after a hash of their contents, so a new build ships new names rather than changing old files. The policy allows Firebase's sign-in frame from `VITE_AUTH_DOMAIN`, so a custom auth domain is picked up on the next build.
+- [React 19](https://react.dev) and TypeScript, built with [Vite](https://vite.dev)
+- [Tailwind CSS](https://tailwindcss.com) for styling
+- [React Router](https://reactrouter.com) for navigation
+- [Firebase](https://firebase.google.com): Google sign-in through Firebase Authentication, and data storage in Cloud Firestore
+- [Vitest](https://vitest.dev) and [Testing Library](https://testing-library.com) for tests
+- Hosted on [Netlify](https://www.netlify.com)
 
 ## Architecture
 
@@ -164,7 +124,7 @@ meal-planner/
     │                          global Firebase mock
     ├── userDataHarness.tsx    Renders a page inside a real UserDataContext
     ├── *.test.tsx             One suite per component or page, plus standalone
-    │                          regression suites (see Testing)
+    │                          regression suites
     └── *.test.ts              Suites for modules without JSX: utils, errors, the
                                Firebase helpers, and the security headers
 ```
@@ -182,23 +142,3 @@ Each user has a single Firestore document at `users/{uid}`:
 ```
 
 Schedule slots reference meals by `id`, so renaming a meal keeps every day it is assigned to. Meal names must be unique — the create and edit forms reject a name another meal already uses. Documents written before meals and grocery items had ids are migrated on load: each one gets an id, and name-based schedule slots are rewritten to the id of the meal they named. The result is saved straight away. A legacy meal's id comes from its position in the list (`legacy-meal-0`, …), so every load and every open tab makes the same one, even if a save fails.
-
-## Testing
-
-```bash
-npm test        # watch mode — stays running until you stop it
-npm run test:ci # runs once and exits, for CI
-```
-
-Vitest runs in a jsdom environment with globals enabled and prints a text coverage report. Tests live in [tests/](tests/) and use Testing Library with `@testing-library/user-event`. A module's suite is named after it: `.test.tsx` for components and pages, `.test.ts` for modules without JSX. The timezone is pinned to `America/New_York` in [vite.config.ts](vite.config.ts) so date-boundary tests are deterministic and actually cross a daylight-saving change.
-
-**Some regression tests get a file of their own.** Vitest gives each test file its own copy of every module, so a test goes in a separate file when it needs modules set up differently from the rest of its suite:
-
-- `vi.mock` replaces a module for a whole file. [GroceryListRenders.test.tsx](tests/GroceryListRenders.test.tsx) swaps in a `Checkbox` that counts renders, and [AppNavigation.test.tsx](tests/AppNavigation.test.tsx) uses the shared Firebase mock, where nobody is signed in, while `App.test.tsx` replaces it with one where a user already is.
-- React logs some warnings once per module instance. [GroceryItemControlled.test.tsx](tests/GroceryItemControlled.test.tsx) checks for one, so it can't share a file with anything that might have triggered the warning first.
-
-Say why at the top of such a file, so nobody folds it back into the main suite. [GroceryListKeys.test.tsx](tests/GroceryListKeys.test.tsx) is also standalone, though nothing requires it to be.
-
-**Firebase is mocked for every suite.** [tests/setup.ts](tests/setup.ts) mocks `firebase/firebase` globally, so no suite touches the real project and the tests need neither a populated `.env` nor a network connection. A suite that needs specific behaviour — a rejected write, say — overrides that with its own `vi.mock`, and [tests/firebase.test.ts](tests/firebase.test.ts) unmocks it to test the module itself against a stubbed Firestore SDK.
-
-Pages read their data from `UserDataContext` rather than props, so a page under test is rendered through `renderWithUserData` in [tests/userDataHarness.tsx](tests/userDataHarness.tsx), which stands in for what `App` does.
