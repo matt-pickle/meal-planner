@@ -51,7 +51,7 @@ npm run preview # serve dist/ locally to try a production build
 npm test        # run the Vitest suite in watch mode with a coverage report
 npm run test:ci # run the suite once and exit (for CI)
 npm run lint    # ESLint, including the react-hooks rules
-npm run typecheck  # tsc --noEmit, for the app and tests, then the Vite config
+npm run typecheck  # tsc --noEmit, for the app and tests, then vite.config.ts and security-headers.ts
 npm run format  # Prettier
 ```
 
@@ -69,7 +69,7 @@ These are understood trade-offs rather than oversights:
 
 - **No conflict handling between tabs or devices.** Each change writes only the field it touched, so editing meals in one tab and the grocery list in another is safe. Two tabs editing the _same_ field is last-write-wins, and the loser is never told.
 - **Offline writes are not durable.** Firestore's offline persistence is not enabled, so a change made while offline is retried in memory for the rest of the session but lost if the tab closes before it reconnects. Failures that do surface are shown in a banner.
-- **Deleting a meal leaves its schedule slots empty.** The days that referenced it keep the deleted id until something else is assigned, and render as unfilled.
+- **Deleting a meal leaves its schedule slots empty.** The days that referenced it render as unfilled, and the next time the data loads their slots are cleared and saved.
 - **The schedule is exactly the next 14 days.** There is no way to look further ahead, or back: days before today are dropped from the document whenever the schedule is written, so no history is kept.
 - **The whole document loads at sign-in, and each write sends a whole field.** One read per session is cheap, but the meals, schedule and grocery arrays all share one document's 1 MiB limit, and a large grocery list is re-sent in full on each save.
 - **Unknown URLs return a 200.** Every path serves the app, which then shows its Not Found page, because only the browser knows which routes exist. A missing file under `/assets/` still gets a real 404. Browsers and crawlers ask for a few files at the root without being told to, so `public/` has real ones: `favicon.ico`, `apple-touch-icon.png` and `robots.txt`.
