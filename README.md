@@ -181,7 +181,7 @@ Each user has a single Firestore document at `users/{uid}`:
 }
 ```
 
-Schedule slots reference meals by `id`, so renaming a meal keeps every day it is assigned to. Meal names must be unique — the create and edit forms reject a name another meal already uses. Documents written before meals and grocery items had ids are migrated on load: each one gets an id, and name-based schedule slots are rewritten to the id of the meal they named.
+Schedule slots reference meals by `id`, so renaming a meal keeps every day it is assigned to. Meal names must be unique — the create and edit forms reject a name another meal already uses. Documents written before meals and grocery items had ids are migrated on load: each one gets an id, and name-based schedule slots are rewritten to the id of the meal they named. The result is saved straight away. A legacy meal's id comes from its position in the list (`legacy-meal-0`, …), so every load and every open tab makes the same one, even if a save fails.
 
 ## Testing
 

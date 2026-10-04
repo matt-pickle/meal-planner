@@ -190,6 +190,29 @@ describe('legacy document migration is saved', () => {
     expect(saved).not.toHaveProperty('schedule');
   });
 
+  // Regression: random ids meant a failed save, or two tabs migrating at once,
+  // left the schedule pointing at ids the saved meal list didn't have
+  test('gives a legacy meal the same id on every load, even if saving fails', async () => {
+    updateDoc.mockRejectedValue(new Error('offline'));
+
+    const first = await getUserData('123');
+    const second = await getUserData('123');
+
+    expect(first!.meals[0].id).toBe(second!.meals[0].id);
+  });
+
+  test('reports a failed save without warning about lost edits', async () => {
+    const listener = vi.fn();
+    const unsub = onError(listener);
+    updateDoc.mockRejectedValue(new Error('offline'));
+
+    await getUserData('123');
+    await vi.waitFor(() => expect(listener).toHaveBeenCalledOnce());
+
+    expect(listener.mock.calls[0][0]).toMatch(/Nothing was lost/);
+    unsub();
+  });
+
   test('writes nothing when the document needs no migration', async () => {
     stored = {
       meals: [{ id: 'abc', name: 'Spaghetti', emoji: '🍝', ingredients: [] }],

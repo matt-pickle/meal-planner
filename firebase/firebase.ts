@@ -56,12 +56,16 @@ function defaultUserData(): UserData {
 }
 
 // Meals stored before they carried ids get one on load, so matching never falls
-// back to object identity. getUserData saves the id straight away.
+// back to object identity. The id comes from the meal's position, not a random
+// value: every session that loads the same document makes the same id, so two
+// tabs migrating at once agree, and if saving it fails the next load makes it
+// again. Positions are unique within the list, and the app gives every new meal
+// an id, so a legacy id can't collide with another meal's.
 function withMealIds(userData: UserData): UserData {
   return {
     ...userData,
-    meals: (userData.meals ?? []).map(meal =>
-      meal.id ? meal : { ...meal, id: crypto.randomUUID() },
+    meals: (userData.meals ?? []).map((meal, index) =>
+      meal.id ? meal : { ...meal, id: `legacy-meal-${index}` },
     ),
   };
 }
@@ -98,20 +102,25 @@ function withScheduleMealIds(userData: UserData): UserData {
 }
 
 // The migrations above run on every load, and an id they make up exists only in
-// memory until it is saved. Waiting for the next write of the list wasn't enough:
-// assigning a meal on the schedule saves only the schedule, so the next load
-// gave the meal a new id and cleared every slot holding the old one, and meal
-// selections vanished at each sign-in. Whatever the migrations changed is saved
-// as soon as the document loads. Not awaited: loading shouldn't wait on a write,
-// and Firestore sends writes in order, so this lands before any later edit.
+// memory until it is saved. Whatever the migrations changed is saved as soon as
+// the document loads. Not awaited: loading shouldn't wait on a write, and
+// Firestore sends writes in order, so this lands before any later edit.
+//
+// A failure here loses nothing, since meal ids are remade the same on the next
+// load, so it gets its own message rather than updateUserData's warning about
+// lost edits: the user hasn't edited anything yet.
 function saveMigratedFields(userId: string, stored: UserData, migrated: UserData) {
   const changed = (Object.keys(migrated) as Array<keyof UserData>).filter(
     field => JSON.stringify(stored[field] ?? []) !== JSON.stringify(migrated[field]),
   );
   if (changed.length === 0) return;
-  void updateUserData(
-    userId,
-    Object.fromEntries(changed.map(field => [field, migrated[field]])) as Partial<UserData>,
+  void updateDoc(
+    doc(db, 'users', userId),
+    Object.fromEntries(changed.map(field => [field, migrated[field]])),
+  ).catch(() =>
+    notifyError(
+      "Couldn't update your saved data to the latest format. Nothing was lost, and it will try again next time you open the app.",
+    ),
   );
 }
 
