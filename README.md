@@ -55,7 +55,7 @@ npm run typecheck  # tsc --noEmit, for the app and tests, then the Vite config
 npm run format  # Prettier
 ```
 
-The dev server only answers this machine; `npm run dev -- --host` makes it reachable from a phone on the same network. `npm run build` writes a static site to `dist/`: `index.html`, the hashed bundles in `dist/assets`, and a `_headers` file of security headers. `npm run preview` serves that build but ignores `_headers` and `netlify.toml`; to try it with both, run `npx netlify-cli serve --offline`.
+The dev server only answers this machine; `npm run dev -- --host` makes it reachable from a phone on the same network. `npm run build` writes a static site to `dist/`: `index.html`, the hashed bundles in `dist/assets`, and a `_headers` file of security and caching headers. `npm run preview` serves that build but ignores `_headers` and `netlify.toml`; to try it with both, run `npx netlify-cli serve --offline`.
 
 Once running, sign in with Google. A first-time user automatically gets a starter document containing one sample meal. From there:
 
@@ -86,7 +86,7 @@ The app is a static site, so Netlify only needs to build it and serve `dist/`. [
 
 Besides the build settings, `netlify.toml` has three routing rules, which apply only when no file matches the path. A missing file under `/assets/`, such as a hashed bundle from an older deploy, gets a 404. `/apple-touch-icon-precomposed.png`, which older iOS versions ask for, redirects to `/apple-touch-icon.png`. Every other path gets `index.html`, and React Router picks the page.
 
-Netlify also applies `dist/_headers`, which the build writes through the plugin in [security-headers.ts](security-headers.ts). It holds the Content Security Policy and the other security headers. The policy allows Firebase's sign-in frame from `VITE_AUTH_DOMAIN`, so a custom auth domain is picked up on the next build.
+Netlify also applies `dist/_headers`, which the build writes through the plugin in [security-headers.ts](security-headers.ts). It holds the Content Security Policy and the other security headers, and tells browsers to cache everything under `/assets/` for a year: Vite names those files after a hash of their contents, so a new build ships new names rather than changing old files. The policy allows Firebase's sign-in frame from `VITE_AUTH_DOMAIN`, so a custom auth domain is picked up on the next build.
 
 ## Architecture
 
@@ -97,8 +97,8 @@ meal-planner/
 ├── index.html                 HTML shell the app mounts into
 ├── vite.config.ts             Vite plugins (React SWC, Tailwind, security headers) and
 │                              Vitest config
-├── security-headers.ts        Vite plugin that writes dist/_headers: the CSP and other
-│                              security headers
+├── security-headers.ts        Vite plugin that writes dist/_headers: the CSP, the other
+│                              security headers, and caching for the bundles
 ├── netlify.toml               Netlify build settings and routing rules
 ├── firebase.json              Firebase CLI config (points into firebase/)
 ├── .firebaserc                Project alias used by the CLI

@@ -18,10 +18,11 @@ describe('buildHeadersFile', () => {
   });
 
   test("sends every header in Helmet's defaults", () => {
+    // the block for every path ends at the first blank line
     const names = buildHeadersFile('auth.example.com')
+      .split('\n\n')[0]
       .split('\n')
       .slice(1)
-      .filter(line => line.trim())
       .map(line => line.trim().split(':')[0]);
 
     expect(names.sort()).toEqual([
@@ -38,6 +39,12 @@ describe('buildHeadersFile', () => {
       'X-Permitted-Cross-Domain-Policies',
       'X-XSS-Protection',
     ]);
+  });
+
+  test('lets browsers cache the hashed bundles for good', () => {
+    const file = buildHeadersFile('auth.example.com');
+
+    expect(file).toContain('/assets/*\n  Cache-Control: public, max-age=31536000, immutable\n');
   });
 
   test('allows the configured auth domain to frame sign-in', () => {

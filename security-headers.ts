@@ -3,7 +3,8 @@ import { type Plugin } from 'vite';
 // The security headers the app is served with. There is no server to send them,
 // so the build writes them to a _headers file, which Netlify (and Cloudflare
 // Pages) apply to every response. They are Helmet's defaults, which the old
-// Express server sent, plus what this app needs on top.
+// Express server sent, plus what this app needs on top. The file also sets how
+// long browsers cache the bundles.
 //
 // Firebase runs sign-in through an iframe on the auth domain, so the CSP must
 // allow that exact host. It is often a custom domain or *.web.app rather than
@@ -50,7 +51,18 @@ export function buildHeadersFile(authDomain: string | undefined): string {
   };
 
   const lines = Object.entries(headers).map(([name, value]) => `  ${name}: ${value}`);
-  return ['/*', ...lines, ''].join('\n');
+  return [
+    '/*',
+    ...lines,
+    '',
+    // Vite names each bundle after a hash of its contents, so a file under
+    // /assets/ never changes and browsers can keep it rather than recheck it
+    // on every visit. A new build ships new filenames. Netlify adds these to
+    // the headers above.
+    '/assets/*',
+    '  Cache-Control: public, max-age=31536000, immutable',
+    '',
+  ].join('\n');
 }
 
 // Writes _headers into the build, using the auth domain the client is built
