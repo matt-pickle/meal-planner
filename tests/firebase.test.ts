@@ -26,6 +26,7 @@ vi.mock('firebase/firestore', () => ({
 
 import { getUserData, updateUserData, logIn, logOut } from '../firebase/firebase';
 import { onError } from '../src/utils/errors';
+import { startOfToday } from '../src/utils/utils';
 
 describe('updateUserData', () => {
   beforeEach(() => {
@@ -211,6 +212,24 @@ describe('legacy document migration is saved', () => {
 
     expect(listener.mock.calls[0][0]).toMatch(/Nothing was lost/);
     unsub();
+  });
+
+  test('drops past days from a migrated schedule before saving it', async () => {
+    const today = startOfToday();
+    stored = {
+      ...stored,
+      schedule: [
+        { date: 1, breakfast: 'Spaghetti', lunch: '', dinner: '' },
+        { date: today, breakfast: 'Spaghetti', lunch: '', dinner: '' },
+      ],
+    };
+
+    const result = await getUserData('123');
+
+    const saved = updateDoc.mock.calls[0][1];
+    expect(saved.schedule).toEqual([
+      { date: today, breakfast: result!.meals[0].id, lunch: '', dinner: '' },
+    ]);
   });
 
   test('writes nothing when the document needs no migration', async () => {

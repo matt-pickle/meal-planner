@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/
 import { initializeFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { type UserData, MEAL_SLOTS } from '../src/utils/types';
 import { notifyError } from '../src/utils/errors';
+import { withoutPastDays } from '../src/utils/utils';
 const env = import.meta.env;
 
 const firebaseConfig = {
@@ -109,15 +110,18 @@ function withScheduleMealIds(userData: UserData): UserData {
 // A failure here loses nothing, since meal ids are remade the same on the next
 // load, so it gets its own message rather than updateUserData's warning about
 // lost edits: the user hasn't edited anything yet.
+//
+// Like every other schedule write, this one drops past days first.
 function saveMigratedFields(userId: string, stored: UserData, migrated: UserData) {
   const changed = (Object.keys(migrated) as Array<keyof UserData>).filter(
     field => JSON.stringify(stored[field] ?? []) !== JSON.stringify(migrated[field]),
   );
   if (changed.length === 0) return;
-  void updateDoc(
-    doc(db, 'users', userId),
-    Object.fromEntries(changed.map(field => [field, migrated[field]])),
-  ).catch(() =>
+  const fields: Partial<UserData> = Object.fromEntries(
+    changed.map(field => [field, migrated[field]]),
+  );
+  if (fields.schedule) fields.schedule = withoutPastDays(fields.schedule);
+  void updateDoc(doc(db, 'users', userId), fields).catch(() =>
     notifyError(
       "Couldn't update your saved data to the latest format. Nothing was lost, and it will try again next time you open the app.",
     ),
