@@ -7,6 +7,10 @@
 
 [build.environment]
   NODE_VERSION = "22"
+  # The Firebase project ID is a public identifier, not a secret: it ships in
+  # the app bundle and is committed in .firebaserc for the Firebase CLI.
+  # Firestore rules, not this value, control access.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_PROJECT_ID"
 
 # Rules below apply only when no file matches the path, so every file that
 # exists is served as-is.
