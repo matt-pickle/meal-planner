@@ -85,7 +85,13 @@ describe('getUserData', () => {
     const result = await getUserData('123');
 
     expect(getDoc).toHaveBeenCalledOnce();
-    expect(result?.meals[0].name).toBe('Hamburgers');
+    expect(result?.meals.map(meal => meal.name)).toEqual([
+      'Hamburgers',
+      'Spaghetti',
+      'Turkey Sandwich',
+      'Cereal',
+    ]);
+    expect(new Set(result?.meals.map(meal => meal.id)).size).toBe(4);
     expect(result?.schedule).toEqual([]);
   });
 });
