@@ -17,6 +17,29 @@ describe('buildHeadersFile', () => {
     expect(buildHeadersFile('auth.example.com').startsWith('/*\n')).toBe(true);
   });
 
+  test("sends every header in Helmet's defaults", () => {
+    const names = buildHeadersFile('auth.example.com')
+      .split('\n')
+      .slice(1)
+      .filter(line => line.trim())
+      .map(line => line.trim().split(':')[0]);
+
+    expect(names.sort()).toEqual([
+      'Content-Security-Policy',
+      'Cross-Origin-Opener-Policy',
+      'Cross-Origin-Resource-Policy',
+      'Origin-Agent-Cluster',
+      'Referrer-Policy',
+      'Strict-Transport-Security',
+      'X-Content-Type-Options',
+      'X-DNS-Prefetch-Control',
+      'X-Download-Options',
+      'X-Frame-Options',
+      'X-Permitted-Cross-Domain-Policies',
+      'X-XSS-Protection',
+    ]);
+  });
+
   test('allows the configured auth domain to frame sign-in', () => {
     const csp = header(buildHeadersFile('auth.example.com'), 'Content-Security-Policy');
 

@@ -41,8 +41,12 @@ export function buildHeadersFile(authDomain: string | undefined): string {
     'Referrer-Policy': 'no-referrer',
     'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
     'X-Content-Type-Options': 'nosniff',
+    'X-DNS-Prefetch-Control': 'off',
+    'X-Download-Options': 'noopen',
     'X-Frame-Options': 'SAMEORIGIN',
     'X-Permitted-Cross-Domain-Policies': 'none',
+    // Turns off the XSS filter in older browsers, which could itself be abused
+    'X-XSS-Protection': '0',
   };
 
   const lines = Object.entries(headers).map(([name, value]) => `  ${name}: ${value}`);
