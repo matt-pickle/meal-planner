@@ -72,7 +72,7 @@ These are understood trade-offs rather than oversights:
 - **Deleting a meal leaves its schedule slots empty.** The days that referenced it keep the deleted id until something else is assigned, and render as unfilled.
 - **The schedule is exactly the next 14 days.** There is no way to look further ahead, or back: days before today are dropped from the document whenever the schedule is written, so no history is kept.
 - **The whole document loads at sign-in, and each write sends a whole field.** One read per session is cheap, but the meals, schedule and grocery arrays all share one document's 1 MiB limit, and a large grocery list is re-sent in full on each save.
-- **Unknown URLs return a 200.** Every path serves the app, which then shows its Not Found page, because only the browser knows which routes exist. A missing file under `/assets/` still gets a real 404.
+- **Unknown URLs return a 200.** Every path serves the app, which then shows its Not Found page, because only the browser knows which routes exist. A missing file under `/assets/` still gets a real 404. Browsers and crawlers ask for a few files at the root without being told to, so `public/` has real ones: `favicon.ico`, `apple-touch-icon.png` and `robots.txt`.
 - **The emoji picker needs the network.** It fetches its emoji images from `cdn.jsdelivr.net`, which the production CSP allows; offline, the picker opens but renders no emoji.
 
 ## Deploying to Netlify
@@ -84,7 +84,7 @@ The app is a static site, so Netlify only needs to build it and serve `dist/`. [
 3. In the Firebase console, under **Authentication → Settings → Authorized domains**, add the site's Netlify domain (`your-site.netlify.app`) and any custom domain. Google sign-in is refused on domains not listed there.
 4. Deploy.
 
-Besides the build settings, `netlify.toml` has two routing rules, which apply only when no file matches the path. A missing file under `/assets/`, such as a hashed bundle from an older deploy, gets a 404. Every other path gets `index.html`, and React Router picks the page.
+Besides the build settings, `netlify.toml` has three routing rules, which apply only when no file matches the path. A missing file under `/assets/`, such as a hashed bundle from an older deploy, gets a 404. `/apple-touch-icon-precomposed.png`, which older iOS versions ask for, redirects to `/apple-touch-icon.png`. Every other path gets `index.html`, and React Router picks the page.
 
 Netlify also applies `dist/_headers`, which the build writes through the plugin in [security-headers.ts](security-headers.ts). It holds the Content Security Policy and the other security headers. The policy allows Firebase's sign-in frame from `VITE_AUTH_DOMAIN`, so a custom auth domain is picked up on the next build.
 
@@ -156,8 +156,8 @@ meal-planner/
 │       └── utils.ts           Helpers for meal names and sorting, dates, schedule
 │                              pruning, and quantity parsing
 │
-├── public/                    Static files copied into dist/ as-is (the favicon, and the
-│                              404 page for missing assets)
+├── public/                    Static files copied into dist/ as-is (the icons, robots.txt,
+│                              and the 404 page for missing assets)
 │
 └── tests/
     ├── setup.ts               Testing Library cleanup, jest-dom matchers, and the

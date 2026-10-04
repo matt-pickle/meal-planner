@@ -1,0 +1,4 @@
+# The app is behind sign-in, so the only page a crawler can reach is the
+# sign-in screen. Nothing is off limits.
+User-agent: *
+Disallow:
