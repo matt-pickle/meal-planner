@@ -1,13 +1,7 @@
-import { useContext } from 'react';
 import { Link } from 'react-router';
 import Icon from '../components/Icon';
-import { HttpStatusContext } from '../state/HttpStatusContext';
 
 export default function NotFound() {
-  // Tells the server render to answer with a 404, so a mistyped URL or a stale
-  // bookmark isn't reported as a page that exists
-  useContext(HttpStatusContext)?.(404);
-
   return (
     <>
       <h1 className="flex items-center gap-3 text-title text-4xl font-semibold mb-8">

@@ -1,6 +1,6 @@
 # Meal Planner
 
-A server-side-rendered React app for planning meals and shopping for them. You keep a library of meals with their ingredients, assign those meals to breakfast/lunch/dinner slots across a rolling two-week schedule, and then roll the ingredients of every upcoming meal into a grocery list in one click. Data is stored per user in Firebase Firestore behind Google sign-in.
+A React single-page app for planning meals and shopping for them. You keep a library of meals with their ingredients, assign those meals to breakfast/lunch/dinner slots across a rolling two-week schedule, and then roll the ingredients of every upcoming meal into a grocery list in one click. Data is stored per user in Firebase Firestore behind Google sign-in.
 
 ## Installation
 
@@ -40,22 +40,22 @@ The app talks to Firebase, so you need a Firebase project before it will run:
 
    Only `VITE_`-prefixed variables are exposed to the client by Vite. These values ship in the browser bundle — that is expected for Firebase web apps, which rely on auth and Firestore rules rather than config secrecy.
 
-The server also reads two optional environment variables: `PORT` (default `5173`) and `HOST`. In development `HOST` defaults to `localhost`, so the dev server can't be reached from other machines; set `HOST=0.0.0.0` to test from a phone on the same network. In production it defaults to every interface. In production the server also reads `VITE_AUTH_DOMAIN`, from `.env` or the environment, to allow the sign-in frame in its Content Security Policy. If it is unset, only `*.firebaseapp.com` is allowed and a warning is logged at startup.
+The build also reads `VITE_AUTH_DOMAIN` to write the Content Security Policy (see [Deploying to Netlify](#deploying-to-netlify)). If it is unset, the policy allows only `*.firebaseapp.com` for sign-in and the build prints a warning.
 
 ## Usage
 
 ```bash
-npm run dev     # start the Express + Vite dev server with HMR at http://localhost:5173
-npm run build   # build the client bundle and the SSR bundle into dist/
-npm run start   # serve the production build (NODE_ENV=production)
+npm run dev     # start the Vite dev server with HMR at http://localhost:5173
+npm run build   # build the static site into dist/
+npm run preview # serve dist/ locally to try a production build
 npm test        # run the Vitest suite in watch mode with a coverage report
 npm run test:ci # run the suite once and exit (for CI)
 npm run lint    # ESLint, including the react-hooks rules
-npm run typecheck  # tsc --noEmit, for the app and tests, then vite.config.ts
+npm run typecheck  # tsc --noEmit, for the app and tests, then vite.config.ts and security-headers.ts
 npm run format  # Prettier
 ```
 
-`npm run build` runs two Vite builds: the client bundle into `dist/client` and the SSR entry into `dist/server`. `npm run start` requires that build to exist.
+The dev server only answers this machine; `npm run dev -- --host` makes it reachable from a phone on the same network. `npm run build` writes a static site to `dist/`: `index.html`, the hashed bundles in `dist/assets`, and a `_headers` file of security and caching headers. `npm run preview` serves that build but ignores `_headers` and `netlify.toml`; to try it with both, run `npx netlify-cli serve --offline`.
 
 Once running, sign in with Google. A first-time user automatically gets a starter document containing one sample meal. From there:
 
@@ -69,24 +69,37 @@ These are understood trade-offs rather than oversights:
 
 - **No conflict handling between tabs or devices.** Each change writes only the field it touched, so editing meals in one tab and the grocery list in another is safe. Two tabs editing the _same_ field is last-write-wins, and the loser is never told.
 - **Offline writes are not durable.** Firestore's offline persistence is not enabled, so a change made while offline is retried in memory for the rest of the session but lost if the tab closes before it reconnects. Failures that do surface are shown in a banner.
-- **Deleting a meal leaves its schedule slots empty.** The days that referenced it keep the deleted id until something else is assigned, and render as unfilled.
+- **Deleting a meal leaves its schedule slots empty.** The days that referenced it render as unfilled, and the next time the data loads their slots are cleared and saved.
 - **The schedule is exactly the next 14 days.** There is no way to look further ahead, or back: days before today are dropped from the document whenever the schedule is written, so no history is kept.
 - **The whole document loads at sign-in, and each write sends a whole field.** One read per session is cheap, but the meals, schedule and grocery arrays all share one document's 1 MiB limit, and a large grocery list is re-sent in full on each save.
-- **Server rendering is a proof of concept.** It is kept on purpose, to show streaming SSR with React 19 and Vite, but the server never knows who is signed in. Sign-in lives in the browser, so every private page is rendered on the server as the loading state, and only the Login and Not Found pages render in full. The cost is a second build, a Node server to run instead of static hosting, and the Firebase SDK starting up in Node as well as the browser. Rendering signed-in pages on the server would need it to recognize the user, for example through a Firebase session cookie checked with the Admin SDK.
+- **Unknown URLs return a 200.** Every path serves the app, which then shows its Not Found page, because only the browser knows which routes exist. A missing file under `/assets/` still gets a real 404. Browsers and crawlers ask for a few files at the root without being told to, so `public/` has real ones: `favicon.ico`, `apple-touch-icon.png` and `robots.txt`.
 - **The emoji picker needs the network.** It fetches its emoji images from `cdn.jsdelivr.net`, which the production CSP allows; offline, the picker opens but renders no emoji.
+
+## Deploying to Netlify
+
+The app is a static site, so Netlify only needs to build it and serve `dist/`. [netlify.toml](netlify.toml) sets the build command, the publish folder and the Node version, so there are no build settings to enter.
+
+1. Push the repository to GitHub, GitLab or Bitbucket, and in Netlify choose **Add new site → Import an existing project**.
+2. Under **Site configuration → Environment variables**, add the six `VITE_` values from your `.env`. `.env` is not committed, and Vite writes these values into the bundle at build time, so redeploy after changing any of them.
+3. In the Firebase console, under **Authentication → Settings → Authorized domains**, add the site's Netlify domain (`your-site.netlify.app`) and any custom domain. Google sign-in is refused on domains not listed there.
+4. Deploy.
+
+Besides the build settings, `netlify.toml` has three routing rules, which apply only when no file matches the path. A missing file under `/assets/`, such as a hashed bundle from an older deploy, gets a 404. `/apple-touch-icon-precomposed.png`, which older iOS versions ask for, redirects to `/apple-touch-icon.png`. Every other path gets `index.html`, and React Router picks the page.
+
+Netlify also applies `dist/_headers`, which the build writes through the plugin in [security-headers.ts](security-headers.ts). It holds the Content Security Policy and the other security headers, and tells browsers to cache everything under `/assets/` for a year: Vite names those files after a hash of their contents, so a new build ships new names rather than changing old files. The policy allows Firebase's sign-in frame from `VITE_AUTH_DOMAIN`, so a custom auth domain is picked up on the next build.
 
 ## Architecture
 
-The app is a React 19 SPA rendered on the server by a small Express server. `server.js` starts it, and the request pipeline in `server-app.js` streams the app through `renderToPipeableStream` and injects the HTML into `index.html`; in development it does this through Vite's middleware, and in production it serves the prebuilt bundles from `dist/`. There is no backend API — the client reads and writes Firestore directly. `App.tsx` fetches the signed-in user's whole document once per session, and `UserDataContext` holds that single copy: pages read it and change it through typed mutators that update state and persist in the same step.
+The app is a React 19 single-page app that Vite builds into static files. There is no server of its own and no backend API: the client reads and writes Firestore directly, so any static host can serve it. `App.tsx` fetches the signed-in user's whole document once per session, and `UserDataContext` holds that single copy: pages read it and change it through typed mutators that update state and persist in the same step.
 
 ```
 meal-planner/
-├── server.js                  Starts the server: loads .env, sets up Vite in dev or the
-│                              built bundle in prod, and listens
-├── server-app.js              The request pipeline: Helmet security headers, static files,
-│                              the missing-file 404, SSR, and an error handler
-├── index.html                 HTML shell with <!--app-html--> placeholder for SSR output
-├── vite.config.ts             Vite plugins (React SWC, Tailwind) and Vitest config
+├── index.html                 HTML shell the app mounts into
+├── vite.config.ts             Vite plugins (React SWC, Tailwind, security headers) and
+│                              Vitest config
+├── security-headers.ts        Vite plugin that writes dist/_headers: the CSP, the other
+│                              security headers, and caching for the bundles
+├── netlify.toml               Netlify build settings and routing rules
 ├── firebase.json              Firebase CLI config (points into firebase/)
 ├── .firebaserc                Project alias used by the CLI
 ├── .env.example               Template for the Firebase config keys (committed)
@@ -99,14 +112,11 @@ meal-planner/
 │   └── firestore.indexes.json Firestore composite indexes (none needed so far)
 │
 ├── src/
-│   ├── entry-client.tsx       Hydrates the SSR markup inside BrowserRouter
-│   ├── entry-server.tsx       Exports render() used by server.js, wraps App in StaticRouter,
-│   │                          and reports a page's HTTP status (404 for Not Found)
+│   ├── main.tsx               Mounts App inside BrowserRouter
 │   ├── App.tsx                Auth listener, one-off user data fetch, and route table
 │   ├── state/
-│   │   ├── UserDataContext.tsx  The single copy of the user's data, and the
-│   │   │                        mutators that update state and persist it
-│   │   └── HttpStatusContext.tsx  Lets a page set the response status during SSR
+│   │   └── UserDataContext.tsx  The single copy of the user's data, and the
+│   │                            mutators that update state and persist it
 │   ├── index.css              Tailwind import and the custom color theme
 │   │
 │   ├── pages/
@@ -115,7 +125,7 @@ meal-planner/
 │   │   ├── Meals.tsx          Meal library with create/edit/delete modals
 │   │   ├── GroceryList.tsx    Grocery list, "Add From Meals" totaling, debounced saves
 │   │   ├── Settings.tsx       The signed-in account, and a log out button
-│   │   └── NotFound.tsx       Any unknown URL; the server answers it with a 404
+│   │   └── NotFound.tsx       Any unknown URL
 │   │
 │   ├── components/
 │   │   ├── Navigation.tsx     Sidebar on desktop, bottom bar on mobile
@@ -140,11 +150,14 @@ meal-planner/
 │   │                          optional entry that clears the selection
 │   │
 │   └── utils/
-│       ├── types.ts           UserData, MealType, Ingredient, GroceryItemType, MealSlot
+│       ├── types.ts           UserData, MealType, Ingredient, GroceryItemType, and the
+│       │                      meal slots (MEAL_SLOTS, MealSlot)
 │       ├── errors.ts          Channel the Firestore helpers report failures on
-│       └── utils.ts           meal-name and schedule-pruning helpers
+│       └── utils.ts           Helpers for meal names and sorting, dates, schedule
+│                              pruning, and quantity parsing
 │
-├── public/                    Static files served as-is (the favicon)
+├── public/                    Static files copied into dist/ as-is (the icons, robots.txt,
+│                              and the 404 page for missing assets)
 │
 └── tests/
     ├── setup.ts               Testing Library cleanup, jest-dom matchers, and the
@@ -153,7 +166,7 @@ meal-planner/
     ├── *.test.tsx             One suite per component or page, plus standalone
     │                          regression suites (see Testing)
     └── *.test.ts              Suites for modules without JSX: utils, errors, the
-                               Firebase helpers, and the server's request pipeline
+                               Firebase helpers, and the security headers
 ```
 
 ### Data model
@@ -168,7 +181,7 @@ Each user has a single Firestore document at `users/{uid}`:
 }
 ```
 
-Schedule slots reference meals by `id`, so renaming a meal keeps every day it is assigned to. Meal names must be unique — the create and edit forms reject a name another meal already uses. Documents written before meals and grocery items had ids are migrated on load: each one gets an id, and name-based schedule slots are rewritten to the id of the meal they named.
+Schedule slots reference meals by `id`, so renaming a meal keeps every day it is assigned to. Meal names must be unique — the create and edit forms reject a name another meal already uses. Documents written before meals and grocery items had ids are migrated on load: each one gets an id, and name-based schedule slots are rewritten to the id of the meal they named. The result is saved straight away. A legacy meal's id comes from its position in the list (`legacy-meal-0`, …), so every load and every open tab makes the same one, even if a save fails.
 
 ## Testing
 
@@ -183,7 +196,6 @@ Vitest runs in a jsdom environment with globals enabled and prints a text covera
 
 - `vi.mock` replaces a module for a whole file. [GroceryListRenders.test.tsx](tests/GroceryListRenders.test.tsx) swaps in a `Checkbox` that counts renders, and [AppNavigation.test.tsx](tests/AppNavigation.test.tsx) uses the shared Firebase mock, where nobody is signed in, while `App.test.tsx` replaces it with one where a user already is.
 - React logs some warnings once per module instance. [GroceryItemControlled.test.tsx](tests/GroceryItemControlled.test.tsx) checks for one, so it can't share a file with anything that might have triggered the warning first.
-- [server-app.test.ts](tests/server-app.test.ts) runs in Node rather than jsdom, set by the `// @vitest-environment node` comment at its top, because it starts a real HTTP server.
 
 Say why at the top of such a file, so nobody folds it back into the main suite. [GroceryListKeys.test.tsx](tests/GroceryListKeys.test.tsx) is also standalone, though nothing requires it to be.
 

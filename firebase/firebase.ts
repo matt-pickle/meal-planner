@@ -3,6 +3,7 @@ import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/
 import { initializeFirestore, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { type UserData, MEAL_SLOTS } from '../src/utils/types';
 import { notifyError } from '../src/utils/errors';
+import { withoutPastDays } from '../src/utils/utils';
 const env = import.meta.env;
 
 const firebaseConfig = {
@@ -56,12 +57,16 @@ function defaultUserData(): UserData {
 }
 
 // Meals stored before they carried ids get one on load, so matching never falls
-// back to object identity. The id is persisted with the next write of the list.
+// back to object identity. The id comes from the meal's position, not a random
+// value: every session that loads the same document makes the same id, so two
+// tabs migrating at once agree, and if saving it fails the next load makes it
+// again. Positions are unique within the list, and the app gives every new meal
+// an id, so a legacy id can't collide with another meal's.
 function withMealIds(userData: UserData): UserData {
   return {
     ...userData,
-    meals: (userData.meals ?? []).map(meal =>
-      meal.id ? meal : { ...meal, id: crypto.randomUUID() },
+    meals: (userData.meals ?? []).map((meal, index) =>
+      meal.id ? meal : { ...meal, id: `legacy-meal-${index}` },
     ),
   };
 }
@@ -97,6 +102,32 @@ function withScheduleMealIds(userData: UserData): UserData {
   };
 }
 
+// The migrations above run on every load, and an id they make up exists only in
+// memory until it is saved. Whatever the migrations changed is saved as soon as
+// the document loads. Not awaited: loading shouldn't wait on a write, and
+// Firestore sends writes in order, so this lands before any later edit.
+//
+// A failure here loses nothing, since meal ids are remade the same on the next
+// load, so it gets its own message rather than updateUserData's warning about
+// lost edits: the user hasn't edited anything yet.
+//
+// Like every other schedule write, this one drops past days first.
+function saveMigratedFields(userId: string, stored: UserData, migrated: UserData) {
+  const changed = (Object.keys(migrated) as Array<keyof UserData>).filter(
+    field => JSON.stringify(stored[field] ?? []) !== JSON.stringify(migrated[field]),
+  );
+  if (changed.length === 0) return;
+  const fields: Partial<UserData> = Object.fromEntries(
+    changed.map(field => [field, migrated[field]]),
+  );
+  if (fields.schedule) fields.schedule = withoutPastDays(fields.schedule);
+  void updateDoc(doc(db, 'users', userId), fields).catch(() =>
+    notifyError(
+      "Couldn't update your saved data to the latest format. Nothing was lost, and it will try again next time you open the app.",
+    ),
+  );
+}
+
 // Rejects if the write fails, so getUserData can report the failure instead of
 // looping on a document that was never created.
 export async function createDocument(userId: string): Promise<UserData> {
@@ -111,7 +142,10 @@ export async function getUserData(userId: string): Promise<UserData | undefined>
     const docSnap = await getDoc(docRef);
 
     if (docSnap.exists()) {
-      return withGroceryItemIds(withScheduleMealIds(withMealIds(docSnap.data() as UserData)));
+      const stored = docSnap.data() as UserData;
+      const userData = withGroceryItemIds(withScheduleMealIds(withMealIds(stored)));
+      saveMigratedFields(userId, stored, userData);
+      return userData;
     } else {
       // Use the defaults we just wrote rather than re-reading the document:
       // re-reading recursed without bound whenever the write kept failing.

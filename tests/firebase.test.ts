@@ -26,6 +26,7 @@ vi.mock('firebase/firestore', () => ({
 
 import { getUserData, updateUserData, logIn, logOut } from '../firebase/firebase';
 import { onError } from '../src/utils/errors';
+import { startOfToday } from '../src/utils/utils';
 
 describe('updateUserData', () => {
   beforeEach(() => {
@@ -93,6 +94,9 @@ describe('legacy document migration', () => {
   beforeEach(() => {
     getDoc.mockReset();
     setDoc.mockReset();
+    // loading a document that needed migrating saves the result
+    updateDoc.mockReset();
+    updateDoc.mockResolvedValue(undefined);
   });
 
   test('gives meals ids and rewrites name-based schedule slots to them', async () => {
@@ -133,6 +137,111 @@ describe('legacy document migration', () => {
 
     expect(result!.meals[0].id).toBe('abc');
     expect(result!.schedule[0].breakfast).toBe('abc');
+  });
+});
+
+// Regression: a legacy meal got a new random id on every load, and the id was
+// only saved when the meal list itself was next written. Assigning the meal on
+// the schedule saves only the schedule, so the next sign-in found slots holding
+// an id no meal had and cleared them: meal selections vanished at every sign-in.
+describe('legacy document migration is saved', () => {
+  // A stand-in Firestore document: getDoc reads it, updateDoc merges into it
+  let stored: Record<string, unknown>;
+
+  beforeEach(() => {
+    getDoc.mockReset();
+    setDoc.mockReset();
+    updateDoc.mockReset();
+    stored = {
+      meals: [{ name: 'Spaghetti', emoji: '🍝', ingredients: [] }],
+      schedule: [{ date: 1, breakfast: '', lunch: '', dinner: '' }],
+      groceryList: [{ name: 'Cheese', quantity: 1, units: 'lbs', status: 'to buy' }],
+    };
+    getDoc.mockImplementation(async () => ({
+      exists: () => true,
+      data: () => structuredClone(stored),
+    }));
+    updateDoc.mockImplementation(async (_ref: unknown, fields: Record<string, unknown>) => {
+      stored = { ...stored, ...structuredClone(fields) };
+    });
+  });
+
+  test('keeps a meal assigned in one session through the next sign-in', async () => {
+    const first = await getUserData('123');
+    const spaghettiId = first!.meals[0].id;
+    // the Schedule page saves only the schedule field
+    await updateUserData('123', {
+      schedule: [{ date: 1, breakfast: spaghettiId, lunch: '', dinner: '' }],
+    });
+
+    const second = await getUserData('123');
+
+    expect(second!.meals[0].id).toBe(spaghettiId);
+    expect(second!.schedule[0].breakfast).toBe(spaghettiId);
+  });
+
+  test('saves the ids it gives meals and grocery items straight away', async () => {
+    const result = await getUserData('123');
+
+    expect(updateDoc).toHaveBeenCalledTimes(1);
+    const saved = updateDoc.mock.calls[0][1];
+    expect(saved.meals[0].id).toBe(result!.meals[0].id);
+    expect(saved.groceryList[0].id).toBe(result!.groceryList[0].id);
+    // the schedule needed nothing, so it isn't rewritten
+    expect(saved).not.toHaveProperty('schedule');
+  });
+
+  // Regression: random ids meant a failed save, or two tabs migrating at once,
+  // left the schedule pointing at ids the saved meal list didn't have
+  test('gives a legacy meal the same id on every load, even if saving fails', async () => {
+    updateDoc.mockRejectedValue(new Error('offline'));
+
+    const first = await getUserData('123');
+    const second = await getUserData('123');
+
+    expect(first!.meals[0].id).toBe(second!.meals[0].id);
+  });
+
+  test('reports a failed save without warning about lost edits', async () => {
+    const listener = vi.fn();
+    const unsub = onError(listener);
+    updateDoc.mockRejectedValue(new Error('offline'));
+
+    await getUserData('123');
+    await vi.waitFor(() => expect(listener).toHaveBeenCalledOnce());
+
+    expect(listener.mock.calls[0][0]).toMatch(/Nothing was lost/);
+    unsub();
+  });
+
+  test('drops past days from a migrated schedule before saving it', async () => {
+    const today = startOfToday();
+    stored = {
+      ...stored,
+      schedule: [
+        { date: 1, breakfast: 'Spaghetti', lunch: '', dinner: '' },
+        { date: today, breakfast: 'Spaghetti', lunch: '', dinner: '' },
+      ],
+    };
+
+    const result = await getUserData('123');
+
+    const saved = updateDoc.mock.calls[0][1];
+    expect(saved.schedule).toEqual([
+      { date: today, breakfast: result!.meals[0].id, lunch: '', dinner: '' },
+    ]);
+  });
+
+  test('writes nothing when the document needs no migration', async () => {
+    stored = {
+      meals: [{ id: 'abc', name: 'Spaghetti', emoji: '🍝', ingredients: [] }],
+      schedule: [{ date: 1, breakfast: 'abc', lunch: '', dinner: '' }],
+      groceryList: [],
+    };
+
+    await getUserData('123');
+
+    expect(updateDoc).not.toHaveBeenCalled();
   });
 });
 
